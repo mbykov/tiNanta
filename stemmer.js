@@ -15,8 +15,9 @@ stemmer.prototype.get = function(query) {
     this.queries = [];
     var namas = sup.nama.call(this, query);
     var kriyas = sup.kriya.call(this, query);
-    var plainDict = {pos: 'plaindict', query: query};
-    if (this.queries.length == 0) this.queries.push(plainDict);
+    var plainDict = {pos: 'plain', query: query};
+    // if (this.queries.length == 0) this.queries.push(plainDict);
+    this.queries.push(plainDict);
     return this.queries;
 }
 
