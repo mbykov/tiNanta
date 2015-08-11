@@ -13,10 +13,13 @@ function stemmer() {
 // samasa to queries array
 stemmer.prototype.get = function(query) {
     this.queries = [];
-    var plainDict = {pos: 'plain', query: query};
-    this.queries.push(plainDict);
     var namas = sup.nama.call(this, query);
-    // var kriyas = sup.kriya.call(this, query);
+    var kriyas = sup.kriya.call(this, query);
+    var qs = this.queries.map(function(q) { return q.query});
+    if (!isIN(qs, query)) {
+        var plainDict = {pos: 'plain', query: query};
+        this.queries.push(plainDict);
+    }
     return this.queries;
 }
 
@@ -28,3 +31,7 @@ function ulog (obj) {
 }
 
 function log() { console.log.apply(console, arguments) }
+
+function isIN(arr, item) {
+    return (arr.indexOf(item) > -1) ? true : false;
+}
