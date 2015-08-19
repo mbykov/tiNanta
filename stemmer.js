@@ -1,5 +1,5 @@
 /*
- * stemmer.js -
+ * stemmer.js - forms queries for Morpheus v.2.0
  */
 
 var sup = require('./lib/sup');
@@ -13,8 +13,8 @@ function stemmer() {
 // samasa to queries array
 stemmer.prototype.get = function(query) {
     this.queries = [];
-    var namas = sup.nama.call(this, query);
-    var kriyas = sup.kriya.call(this, query);
+    sup.nama.call(this, query);
+    sup.kriya.call(this, query);
     var qs = this.queries.map(function(q) { return q.query});
     if (!isIN(qs, query)) {
         var plainDict = {pos: 'plain', query: query};

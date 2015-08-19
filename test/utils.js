@@ -1,7 +1,9 @@
-//
+// deprecated!  now laghu returns only queries for asking in DB, so . . .
+
 
 var _ = require('underscore');
-var Morph = require('../morpheus');
+// var Morph = require('../morpheus');
+var Morph = require('../stemmer');
 //var ganas = require('../gana');
 var slp = require('salita-component');
 var debug = (process.env.debug == 'true') ? true : false;
@@ -340,12 +342,14 @@ utils.prototype.fireNoun = function(tests, desc, krit) {
                         var key = [num, kase].join('.');
                         var n = noun;
                         it(kase_name, function(done) {
-                            if (krit) {
-                                kritMorph(form, key, done);
-                            } else {
-                                nounMorph(form, n, key, gend, done);
-                            }
-                            //done();
+                            // now laghu returns only queries for asking in DB, so . . .
+                            true.should.equal(true);
+                            // if (krit) {
+                            //     kritMorph(form, key, done);
+                            // } else {
+                            //     nounMorph(form, n, key, gend, done);
+                            // }
+                            done();
                         });
                     });
                 });
@@ -421,16 +425,17 @@ function paradigm(lakara, verb, prdgm, conj) {
             var key = keys[idx];
             var it_name = [conj, lakara, verb, key, form, stem, sa].join('_');
             it(it_name, function(done) {
-                //true.should.equal(true);
+                true.should.equal(true);
                 //log('====K', key, form, sa);
                 if (form == '') done();
-                verbMorph(lakara, stem, form, key, done);
-                //done();
+                // verbMorph(lakara, stem, form, key, done);
+                done();
             });
         });
     });
 }
 
+// now laghu returns only queries for asking in DB, so . . .
 function verbMorph(lakara, stem, form, key, done) {
     if (debug == 'true') log('=TEST=', verb, form, key);
     var morph = new Morph;
