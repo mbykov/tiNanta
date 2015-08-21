@@ -1,7 +1,7 @@
 {
-    "name": "stemmer",
-    "version": "0.0.1",
-    "description": "xxx",
+    "name": "sa-stemmer",
+    "version": "0.2.0",
+    "description": "laghu stemmer - forms queries for Morpheus v.2.0",
     "main": "stemmer.js",
     "directories": {
         "test": "test"
