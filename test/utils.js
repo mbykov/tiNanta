@@ -79,7 +79,6 @@ utils.prototype.firePPP_list = function(tests, desc) {
 
 
 utils.prototype.zeroFlex = function(tests, desc) {
-    //log('Ger', tests);
     for (var dhatu in tests) {
         if (dhatu == '') continue;
         var obj = tests[dhatu];
