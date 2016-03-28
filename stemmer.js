@@ -6,6 +6,7 @@ var sup = require('./lib/sup');
 var debug = (process.env.debug == 'true') ? true : false;
 
 exports = module.exports = stemmer();
+
 function stemmer() {
     if (!(this instanceof stemmer)) return new stemmer();
 }
@@ -20,6 +21,7 @@ stemmer.prototype.get = function(query) {
         var plainDict = {pos: 'plain', query: query};
         this.queries.push(plainDict);
     }
+    // log('======STEMMER========', this.queries);
     return this.queries;
 }
 

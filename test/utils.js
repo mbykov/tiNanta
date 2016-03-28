@@ -2,11 +2,14 @@
 
 
 var _ = require('underscore');
-// var Morph = require('../morpheus');
-var Morph = require('../stemmer');
+var morph = require('../../morpheus03');
+// var Morph = require('../stemmer');
+// var stemmer = require('../stemmer');
 //var ganas = require('../gana');
 var slp = require('salita-component');
 var debug = (process.env.debug == 'true') ? true : false;
+
+// log('MMMM', morph);
 
 var keys = ['sg.3', 'sg.2', 'sg.1', 'du.3', 'du.2', 'du.1', 'pl.3', 'pl.2', 'pl.1'];
 var numkeys = ['nom', 'voc', 'acc', 'ins', 'dat', 'abl', 'gen', 'loc'];
@@ -424,11 +427,11 @@ function paradigm(lakara, verb, prdgm, conj) {
             var key = keys[idx];
             var it_name = [conj, lakara, verb, key, form, stem, sa].join('_');
             it(it_name, function(done) {
-                true.should.equal(true);
-                //log('====K', key, form, sa);
+                // true.should.equal(true);
+                log('====Key:', key, form, sa);
                 if (form == '') done();
-                // verbMorph(lakara, stem, form, key, done);
-                done();
+                verbMorph(lakara, stem, form, key, done);
+                // done();
             });
         });
     });
@@ -436,9 +439,12 @@ function paradigm(lakara, verb, prdgm, conj) {
 
 // now laghu returns only queries for asking in DB, so . . .
 function verbMorph(lakara, stem, form, key, done) {
+    log('TEST: LAKARA', lakara, stem, form, key);
     if (debug == 'true') log('=TEST=', verb, form, key);
-    var morph = new Morph;
-    morph.query(form, function(res) {
+    // var res = stemmer.get(form);
+    // var morph = new Morph;
+    morph.run(form, null, function(res) { // null is for next
+        log('======RES========', res);
         var verbs = res[1].verbs.concat(res[1].verbs_more);
         var stems = _.map(verbs, function(doc) { return doc.stem });
         var morphs = _.map(verbs, function(doc) { return doc.morph[lakara] });
