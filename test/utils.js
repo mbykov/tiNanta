@@ -445,6 +445,8 @@ function verbMorph(lakara, stem, form, key, done) {
     // var morph = new Morph;
     morph.run(form, null, function(res) { // null is for next
         log('======RES========', res);
+        // теперь здесь res = {queries, dicts, pdchs}
+        // исправить соответственно
         var verbs = res[1].verbs.concat(res[1].verbs_more);
         var stems = _.map(verbs, function(doc) { return doc.stem });
         var morphs = _.map(verbs, function(doc) { return doc.morph[lakara] });
