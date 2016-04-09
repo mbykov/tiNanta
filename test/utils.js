@@ -65,7 +65,7 @@ utils.prototype.fireNoun = function(tests, desc, krit) {
                             // } else {
                                 nounMorph(form, n, key, gend, done);
                             // }
-                            done();
+                            // done();
                         });
                     });
                 });
@@ -77,21 +77,18 @@ utils.prototype.fireNoun = function(tests, desc, krit) {
 function nounMorph(form, noun, key, gend, done) {
     if (debug) log('=TEST=', form, key);
     var res = stemmer.query(form);
-    p('R', res);
-    return;
-    morph.query(form, function(res) {
-        var noms = res[1].nama;
-        var morenoms = res[1].nama_more || [];
-        noms = noms.concat(morenoms);
-        var keys = _.map(noms, function(doc) { return doc.morph[gend] });
-        keys = _.uniq(_.flatten(keys));
-        var nouns = _.map(noms, function(doc) { return doc.slp });
-        nouns = _.uniq(_.flatten(nouns));
-        if (debug) log('test: nouns', nouns, 'noun', noun, 'keys', keys, 'key', key);
-        isIN(nouns, noun).should.equal(true);
-        isIN(keys, key).should.equal(true);
-        done();
+    // p('R', res);
+    // p(form, noun, key, gend);
+    var exists = false;
+    var truth;
+    res.forEach(function(result) {
+        // log('G', gend, 'K', key, 'R', result.morphs)
+        if (!result.morphs) return;
+        truth = _.select(result.morphs, function(morph) { return morph.gend == gend && morph.key == key});
+        if (truth.length > 0) truth = true;
     });
+    truth.should.equal(true);
+    done();
 }
 
 // ===================================== OLD ========================
