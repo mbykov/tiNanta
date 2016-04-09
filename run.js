@@ -8,12 +8,13 @@ var _ = require('underscore');
 var util = require('util');
 var salita = require('salita-component');
 
-var stem = require('./stemmer');
+var stem = require('./index');
 var s = require('sandhi');
-var c = s.const;
+// var c = s.const;
 var u = s.u;
-var sandhi = s.sandhi;
+// var sandhi = s.sandhi;
 var log = u.log;
+var p = u.p;
 
 if (!lat) return log('?');
 
@@ -30,12 +31,5 @@ log('morpheus querying...', lat, form);
 var queries = stem.get(form);
 
 log('============= RESULT-STEMS: ============');
-ulog(queries);
+p(queries);
 log('qs size:', queries.length);
-
-
-function ulog (obj) {
-    console.log(util.inspect(obj, showHidden=false, depth=null, colorize=true));
-}
-
-function log() { console.log.apply(console, arguments) }

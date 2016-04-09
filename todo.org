@@ -5,10 +5,14 @@
 * descr ============== stemmer ===============
   определяет queries для samasa по окончанию
 
-
+* TODO 9 апреля
+  - rAmeRa - ena меняется на eRa только после r, r - Ame- ena, r присутствует. След, нужна проверка в формах на -eRa, есть ли r, J.G. p.51
+  - полная сутра проверки: sarveSvara-ha-ya-va-kavarga-pavarga
+  -
 
 * TODO что осталось
   - заменить всю работу с Const на sandhi.const
+  - окончание stem на звонкую. Нужно добавить глухую, очевидно. Где?
   -
 
 * Readme, github, npm
