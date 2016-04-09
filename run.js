@@ -8,7 +8,7 @@ var _ = require('underscore');
 var util = require('util');
 var salita = require('salita-component');
 
-var stem = require('./index');
+var stemmer = require('./index');
 var s = require('sandhi');
 // var c = s.const;
 var u = s.u;
@@ -28,7 +28,7 @@ if (/[a-zA-Z]/.test(lat[0])) {
 
 log('morpheus querying...', lat, form);
 
-var queries = stem.get(form);
+var queries = stemmer.query(form);
 
 log('============= RESULT-STEMS: ============');
 p(queries);

@@ -12,7 +12,7 @@ function stemmer() {
 }
 
 // samasa to queries array
-stemmer.prototype.get = function(query) {
+stemmer.prototype.query = function(query) {
     this.queries = [];
     sup.nama.call(this, query);
     // sup.kriya.call(this, query);
