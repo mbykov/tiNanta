@@ -78,16 +78,15 @@ function nounMorph(form, noun, key, gend, done) {
     if (debug) log('=TEST=', form, key);
     var res = stemmer.query(form);
     // p('R', res);
-    // p(form, noun, key, gend);
+    // p('KEY', form, noun, key, gend);
     var exists = false;
-    var truth;
     res.forEach(function(result) {
-        // log('G', gend, 'K', key, 'R', result.morphs)
+        if (debug) log('test: Gend:', gend, 'K', key, 'Morphs', result.morphs)
         if (!result.morphs) return;
-        truth = _.select(result.morphs, function(morph) { return morph.gend == gend && morph.key == key});
-        if (truth.length > 0) truth = true;
+        var found = _.select(result.morphs, function(morph) { return morph.gend == gend && morph.key == key});
+        if (found.length > 0) exists = true;
     });
-    truth.should.equal(true);
+    exists.should.equal(true);
     done();
 }
 
