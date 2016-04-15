@@ -15,7 +15,7 @@ function stemmer() {
 stemmer.prototype.query = function(query) {
     this.queries = [];
     sup.nama.call(this, query);
-    // sup.kriya.call(this, query);
+    sup.kriya.call(this, query);
     var qs = this.queries.map(function(q) { return q.query});
     if (!isIN(qs, query)) {
         var plainDict = {pos: 'plain', query: query};

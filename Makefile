@@ -41,7 +41,7 @@ gana:
 		--grep $(g) \
 		--timeout 3000 \
 		test/ganas/*.js \
-#		2> /dev/null
+		2> /dev/null
 
 verb:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
