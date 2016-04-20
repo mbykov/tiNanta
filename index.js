@@ -4,6 +4,7 @@
 
 var sup = require('./lib/sup');
 var debug = (process.env.debug == 'true') ? true : false;
+var _ = require('underscore');
 
 exports = module.exports = stemmer();
 
@@ -22,6 +23,8 @@ stemmer.prototype.query = function(query) {
         this.queries.push(plainDict);
     }
     // log('======STEMMER========', this.queries);
+    // var tmps = _.select(this.queries, function(q) { return q.var == 'at' || q.var == 't' });
+    // return tmps;
     return this.queries;
 }
 
