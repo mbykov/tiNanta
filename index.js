@@ -29,6 +29,11 @@ stemmer.prototype.query = function(query) {
 }
 
 
+// окончания f</key1>:
+// kf tf sf pf Bf Qf vf hf df Df wf gf mf - etc, практически все согласные есть
+//
+//
+
 
 
 function ulog (obj) {
