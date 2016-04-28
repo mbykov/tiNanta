@@ -1,0 +1,71 @@
+{
+  "name": "sa-stemmer",
+  "version": "0.3.0",
+  "dependencies": {
+    "sandhi": {
+      "version": "2.0.0",
+      "from": "sandhi@*",
+      "dependencies": {
+        "shiva-sutras": {
+          "version": "1.1.0",
+          "from": "shiva-sutras@1.1.0",
+          "resolved": "https://registry.npmjs.org/shiva-sutras/-/shiva-sutras-1.1.0.tgz",
+          "dependencies": {
+            "each-component": {
+              "version": "0.1.0",
+              "from": "each-component@0.1.0",
+              "dependencies": {
+                "to-function": {
+                  "version": "2.0.6",
+                  "from": "https://registry.npmjs.org/to-function/-/to-function-2.0.6.tgz",
+                  "resolved": "https://registry.npmjs.org/to-function/-/to-function-2.0.6.tgz",
+                  "dependencies": {
+                    "component-props": {
+                      "version": "1.1.1",
+                      "from": "component-props@1.1.1"
+                    }
+                  }
+                }
+              }
+            },
+            "map-component": {
+              "version": "0.0.1",
+              "from": "map-component@0.0.1",
+              "dependencies": {
+                "to-function": {
+                  "version": "2.0.6",
+                  "from": "https://registry.npmjs.org/to-function/-/to-function-2.0.6.tgz",
+                  "resolved": "https://registry.npmjs.org/to-function/-/to-function-2.0.6.tgz",
+                  "dependencies": {
+                    "component-props": {
+                      "version": "1.1.1",
+                      "from": "component-props@1.1.1"
+                    }
+                  }
+                }
+              }
+            },
+            "type-component": {
+              "version": "0.0.1",
+              "from": "type-component@0.0.1"
+            },
+            "array-uniq": {
+              "version": "1.0.2",
+              "from": "https://registry.npmjs.org/array-uniq/-/array-uniq-1.0.2.tgz",
+              "resolved": "https://registry.npmjs.org/array-uniq/-/array-uniq-1.0.2.tgz"
+            }
+          }
+        }
+      }
+    },
+    "shiva-sutras": {
+      "version": "1.3.0",
+      "from": "shiva-sutras@*"
+    },
+    "underscore": {
+      "version": "1.7.0",
+      "from": "underscore@*",
+      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.7.0.tgz"
+    }
+  }
+}
