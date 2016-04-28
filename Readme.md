@@ -1,8 +1,10 @@
 # stemmer.js
 
-forms queries for Morpheus v.2.0
+forms CouchDB queries for Morpheus v.0.3.0
 
-beta, under heavy development - http://sanskrit.diglossa.org
+depends on flakes.js, which is stemmer
+
+beta, under heavy development - http://sa.diglossa.org
 
 ## Installation
 
@@ -13,6 +15,21 @@ $ git clone github.com/mbykov/stemmer.js
 $ cd stemmer.js
 $ npm install
 ````
+
+````bash
+node run.js vihAya
+or
+node run.js विहाय
+````
+
+## API
+
+````javascript
+var stemmer = require('stemmer');
+var qs = stemmer.query(wordform);
+````
+
+
 
 ## License
 
