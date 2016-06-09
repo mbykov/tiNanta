@@ -1,5 +1,5 @@
 /*
-  node morph.js eva
+  node run.js eva
 */
 
 var lat = process.argv.slice(2)[0] || false;

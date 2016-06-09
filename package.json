@@ -1,7 +1,7 @@
 {
     "name": "sa-stemmer",
-    "version": "0.3.0",
-    "description": "laghu stemmer - forms queries for Morpheus v.0.3.0",
+    "version": "0.4.0",
+    "description": "sa stemmer - forms queries for Morpheus v.0.4.0",
     "main": "stemmer.js",
     "directories": {
         "test": "test"
@@ -11,10 +11,11 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/mbykov/stemmer.js.git"
+        "url": "https://github.com/mbykov/stemmer.git"
     },
     "keywords": [
-        "sanskrit"
+        "sanskrit",
+        "morphology"
     ],
     "author": "Michael Bykov <mbykov@gmail.com>",
     "license": "MIT",

@@ -1,10 +1,17 @@
 /*
- * stemmer.js - forms queries for Morpheus v.2.0
+ * stemmer.js - forms queries for Morpheus v.0.4.0
  */
 
-var sup = require('./lib/sup');
+// var sup = require('./lib/sup');
 var debug = (process.env.debug == 'true') ? true : false;
 var _ = require('underscore');
+var s = require('sandhi');
+var c = s.const;
+var u = s.u;
+var sandhi = s.sandhi;
+var inc = u.include;
+var log = u.log;
+var p = u.p;
 
 exports = module.exports = stemmer();
 
@@ -15,33 +22,15 @@ function stemmer() {
 // samasa to queries array
 stemmer.prototype.query = function(query) {
     this.queries = [];
-    sup.nama.call(this, query);
-    sup.kriya.call(this, query);
-    var qs = this.queries.map(function(q) { return q.query});
-    if (!isIN(qs, query)) {
-        var plainDict = {pos: 'plain', query: query};
-        this.queries.push(plainDict);
-    }
-    // log('======STEMMER========', this.queries);
-    // var tmps = _.select(this.queries, function(q) { return q.var == 'at' || q.var == 't' });
-    // return tmps;
+    // если проходит грубый фильтр, то tiNanta ? Или нет смысла?
+    this.tiNanta(query);
     return this.queries;
 }
 
-
-// окончания f</key1>:
-// kf tf sf pf Bf Qf vf hf df Df wf gf mf - etc, практически все согласные есть
-//
-//
+stemmer.prototype.tiNanta = function(query) {
+    log('AAAAAA tiNanta', query);
 
 
-
-function ulog (obj) {
-    console.log(util.inspect(obj, showHidden=false, depth=null, colorize=true));
-}
-
-function log() { console.log.apply(console, arguments) }
-
-function isIN(arr, item) {
-    return (arr.indexOf(item) > -1) ? true : false;
+    this.queries.push('QQQ');
+    return this.queries;
 }
