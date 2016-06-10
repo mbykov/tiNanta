@@ -95,7 +95,7 @@ function getTerms(gana, la, pada, key, size, cterms) {
         // или пропускать все, в надежде, что отрежет словарь
         // первое - целое исследование //  च क ा श ि ध ्  व    ै
         // то есть - второе. А в словаре - пометка для liw и, наверное, она же для gana-3
-        if (la == 'लिट्' && per == 2 && num == 'pl' && last2syms == 'ध्वै' ) log('==>>', idx, row);
+        if (la == 'ऌट्' && per == 2 && num == 'pl' && last2syms == 'स्यध्ये' ) log('==>>', idx, row);
         // terms.push(size);
         terms.push(last2syms);
     });
