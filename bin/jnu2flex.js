@@ -85,10 +85,12 @@ function getTerms(gana, la, pada, key, size, cterms) {
         // log('A', row);
         // log('B', triplet);
 
-        var last2syms = form.slice(-size);
-        // log('last2syms:', idx, form, '-', last2syms);
+        var last2syms;
+        if (size > 0) last2syms = form.slice(-size);
+        else last2syms = '';
+        // log('last2syms:', idx, form, '-', last2syms); //
         // if (last2syms == 'ुवः') log(idx, row);
-        if (per == 3 && num == 'pl' && last2syms == '्रति' ) log('==>>', idx, row);
+        if (la == 'लङ्' && per == 3 && num == 'sg' && last2syms == 'ति' ) log('==>>', idx, row);
         // terms.push(size);
         terms.push(last2syms);
     });
