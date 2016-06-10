@@ -55,7 +55,7 @@ function getTerms(gana, la, pada, key, size, cterms) {
         row = row.trim();
         if (row[0] == '#') return;
         if (row == '') return;
-        var re_la = new RegExp(la);
+        var re_la = new RegExp(', ' + la);
         if (!re_la.test(row)) return;
         var re_pada = new RegExp(pada);
         if (!re_pada.test(row)) return;
@@ -89,8 +89,13 @@ function getTerms(gana, la, pada, key, size, cterms) {
         if (size > 0) last2syms = form.slice(-size);
         else last2syms = '';
         // log('last2syms:', idx, form, '-', last2syms); //
-        // if (last2syms == 'ुवः') log(idx, row);
-        if (la == 'लङ्' && per == 3 && num == 'sg' && last2syms == 'ति' ) log('==>>', idx, row);
+        // if (last2syms == 'ुवः') log(idx, row); // 'ाव', 'ुव'
+        // 'िथ', '्थ', 'रथ', 'ेथ', 'ोथ', 'ाथ'
+        // l-i-w => 5 значений. Или прописать гласную букву и ее гуну, соответствующую каждой гласной перед Тха, или - что?
+        // или пропускать все, в надежде, что отрежет словарь
+        // первое - целое исследование //  च क ा श ि ध ्  व    ै
+        // то есть - второе. А в словаре - пометка для liw и, наверное, она же для gana-3
+        if (la == 'लिट्' && per == 2 && num == 'pl' && last2syms == 'ध्वै' ) log('==>>', idx, row);
         // terms.push(size);
         terms.push(last2syms);
     });
