@@ -40,14 +40,13 @@ for (var gana in dru) {
                 var cterms = flexes[key];
                 var size = cterms.shift();
                 // log('size-terms', size, terms);
-                var terms = getTerms(gana, la, pada, key, size, cterms);
+                var dhatus_ = getTerms(gana, la, pada, key, size, cterms);
                 // terms.shift();
                 // log('C', terms);
             }
         }
     }
 }
-
 
 function getTerms(gana, la, pada, key, size, cterms) {
     // log('P-i', gana, la, pada, key);
@@ -99,9 +98,10 @@ function getTerms(gana, la, pada, key, size, cterms) {
         }
 
         // log(dhatu_key, stem, lastsyms);
-        var descr = {gana: gana, la:la, key: key, dhatu: dhatu, stem: stem, flex: lastsyms};
+        var descr = {gana: gana, la:la, pada: pada, dhatu: dhatu, key: key, stem: stem, flex: lastsyms};
         if (!descr) log ('NO DESCR', row);
-        dhatus[dhatu_key] = descr;
+        if (!dhatus[dhatu_key])  dhatus[dhatu_key] = [];
+        dhatus[dhatu_key].push(descr);
         // gana, la, pada, key, size, cterms;
 
         // log('lastsyms:', idx, form, '-', lastsyms); //
@@ -120,11 +120,39 @@ function getTerms(gana, la, pada, key, size, cterms) {
 
     if (JSON.stringify(uniqs) == JSON.stringify(cterms)) {
         // p('DHs', dhatus['4204-raBa']);
-        p('DHs', dhatus['7-BU']);
-        return uniqs;
+        // p('DHs', dhatus['7-BU']);
+        return dhatus;
     } else {
         log('=================', uniqs, 2, cterms);
         log('=================', gana, '-', la, '-', pada, '-', key);
         throw new Error();
     }
 }
+
+// p('DHs', dhatus['4204-raBa']);
+
+function compact(dhatus) {
+    var order = {};
+    for (var dkey in dhatus) {
+        if (dkey != '4204-raBa') continue;
+        var dhs = dhatus[dkey];
+        var sample = dhs[0];
+        var dhatu = sample.dhatu;
+        order[dhatu] = {};
+        var ganagroups = _.groupBy(dhs, 'gana');
+        for (var gana in ganagroups) {
+            order[dhatu][gana] = {};
+            var gana_arr = ganagroups[gana];
+            var la_groups = _.groupBy(gana_arr, 'la');
+            for (var la in la_groups) {
+                order[dhatu][gana][la] = {a:1};
+
+            }
+        }
+        // var pars = sample.dhatu;
+        // var dhatu = sample.dhatu;
+        p(order);
+    }
+}
+
+compact(dhatus);
