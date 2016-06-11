@@ -14,7 +14,7 @@ var p = u.p;
 var dru = require('../lib/mahavriksha');
 var salita = require('salita-component');
 
-log(dru);
+// log('DRU', dru);
 
 var jnu_verbs = './Junk/jnu-tiNanta-values.txt';
 var dataPath = path.join(__dirname, '../', jnu_verbs);
@@ -30,8 +30,12 @@ for (var gana in dru) {
     if (gana != 'भ्वादिगण') continue;
     var lakara = dru[gana];
     for (var la in lakara) {
+        // if (la != 'लट्') continue;
+        if (la != 'लट्' && la != 'ऌट्') continue;
+        // if (la != 'ऌट्') continue;
+        // if (la != 'लोट्') continue;
         log('LA', la);
-        if (la != 'ऌट्') continue;
+
         var padas = lakara[la];
         for (var pada in padas) {
             log('P', pada);
@@ -99,8 +103,7 @@ function getTerms(gana, la, pada, key, size, cterms) {
 
         // log(dhatu_key, stem, lastsyms);
         var descr = {gana: gana, la:la, pada: pada, dhatu: dhatu, key: key, stem: stem, flex: lastsyms};
-        if (!descr) log ('NO DESCR', row);
-        if (!dhatus[dhatu_key])  dhatus[dhatu_key] = [];
+        if (!dhatus[dhatu_key]) dhatus[dhatu_key] = [];
         dhatus[dhatu_key].push(descr);
         // gana, la, pada, key, size, cterms;
 
@@ -131,46 +134,64 @@ function getTerms(gana, la, pada, key, size, cterms) {
 
 // p('DHs', dhatus['4204-raBa']);
 // p('DHs', dhatus['7-BU']);
+// p('DHs', dhatus['1-BU']);
+// return;
+
+var dhatukeys = _.keys(dhatus);
+log('SIZE:', dhatukeys.length);
+
+compact(dhatus);
 
 function compact(dhatus) {
     var order = {};
     for (var dkey in dhatus) {
         // if (dkey != '4204-raBa') continue;
         // if (dkey != '7-BU') continue;
+        // order[dkey] = {};
         var dhs = dhatus[dkey];
         var sample = dhs[0];
         var dhatu = sample.dhatu;
         // if (dhatu != 'श्रथि') continue;
-        order[dhatu] = {};
+        if (!order[dhatu]) order[dhatu] = {};
         var ganagroups = _.groupBy(dhs, 'gana');
         for (var gana in ganagroups) {
-            order[dhatu][gana] = {};
+            if (!order[dhatu][gana]) order[dhatu][gana] = {};
             var gana_arr = ganagroups[gana];
             var la_groups = _.groupBy(gana_arr, 'la');
             for (var la in la_groups) {
-                order[dhatu][gana][la] = {};
+                if (!order[dhatu][gana][la]) order[dhatu][gana][la] = {};
                 var padas_groups = la_groups[la] ;
                 var par_group = _.select(padas_groups, function(gr) { return gr.pada == 'परस्मै'});
                 var atm_group = _.select(padas_groups, function(gr) { return gr.pada == 'आत्मने'});
                 var par_stems = par_group.map(function(gr) { return gr.stem});
                 var atm_stems = atm_group.map(function(gr) { return gr.stem});
+                // var par_terms = par_group.map(function(gr) { return gr.flex});
+                // var atm_terms = atm_group.map(function(gr) { return gr.flex});
                 par_stems = _.uniq(par_stems);
                 atm_stems = _.uniq(atm_stems);
+                // par_terms = _.uniq(par_terms);
+                // atm_terms = _.uniq(atm_terms);
+
                 // log(par_group);
                 // log(atm_group);
                 // log('par stem', par_stems);
                 // log('atm stem', atm_stems);
                 // continue;
-                var stkey = [dkey, dhatu, gana, la].join(', ');
+                var stkey = [dkey, dhatu, gana, la].join(' - ');
                 if (par_stems.length > 1) throw new Error('too many par stems' + stkey + '-st-' + par_stems);
                 if (atm_stems.length > 1) throw new Error('too many atm stems' + stkey +  '-st-' + atm_stems);
+                // if (par_terms.length > 1) throw new Error('too many par terms' + stkey + '-st-' + par_stems + '-trm-' + par_terms);
+                // if (atm_terms.length > 1) throw new Error('too many atm terms' + stkey +  '-st-' + atm_stems + '-trm-' + par_terms);
                 if (par_stems.length > 0) {
                     order[dhatu][gana][la]['par'] = {};
                     order[dhatu][gana][la]['par']['stem'] = par_stems[0];
+                    // order[dhatu][gana][la]['par']['a-size'] = atm_stems.length;
+                    // order[dhatu][gana][la]['par']['term'] = par_terms;
                 }
                 if (atm_stems.length > 0) {
                     order[dhatu][gana][la]['atm'] = {};
                     order[dhatu][gana][la]['atm']['stem'] = atm_stems[0];
+                    // order[dhatu][gana][la]['atm']['term'] = atm_terms;
                 }
             }
         }
@@ -179,5 +200,3 @@ function compact(dhatus) {
     }
     p(order);
 }
-
-compact(dhatus);
