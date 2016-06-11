@@ -112,7 +112,7 @@ function getTerms(gana, la, pada, key, size, cterms) {
         // первое - целое исследование //  च क ा श ि ध ्  व    ै
         // то есть - второе. А в словаре - пометка для liw и, наверное, она же для gana-3
 
-        // if (la == 'ऌट्' && per == 3 && num == 'sg' && lastsyms == 'ष्यति' ) log('==>>', idx, row);
+        if (la == 'ऌट्' && per == 3 && num == 'pl' && lastsyms == 'ष्तन्ति' ) log('==>>', idx, row);
         // terms.push(size);
         terms.push(lastsyms);
     });
@@ -130,14 +130,17 @@ function getTerms(gana, la, pada, key, size, cterms) {
 }
 
 // p('DHs', dhatus['4204-raBa']);
+// p('DHs', dhatus['7-BU']);
 
 function compact(dhatus) {
     var order = {};
     for (var dkey in dhatus) {
-        if (dkey != '4204-raBa') continue;
+        // if (dkey != '4204-raBa') continue;
+        // if (dkey != '7-BU') continue;
         var dhs = dhatus[dkey];
         var sample = dhs[0];
         var dhatu = sample.dhatu;
+        // if (dhatu != 'श्रथि') continue;
         order[dhatu] = {};
         var ganagroups = _.groupBy(dhs, 'gana');
         for (var gana in ganagroups) {
@@ -145,14 +148,36 @@ function compact(dhatus) {
             var gana_arr = ganagroups[gana];
             var la_groups = _.groupBy(gana_arr, 'la');
             for (var la in la_groups) {
-                order[dhatu][gana][la] = {a:1};
-
+                order[dhatu][gana][la] = {};
+                var padas_groups = la_groups[la] ;
+                var par_group = _.select(padas_groups, function(gr) { return gr.pada == 'परस्मै'});
+                var atm_group = _.select(padas_groups, function(gr) { return gr.pada == 'आत्मने'});
+                var par_stems = par_group.map(function(gr) { return gr.stem});
+                var atm_stems = atm_group.map(function(gr) { return gr.stem});
+                par_stems = _.uniq(par_stems);
+                atm_stems = _.uniq(atm_stems);
+                // log(par_group);
+                // log(atm_group);
+                // log('par stem', par_stems);
+                // log('atm stem', atm_stems);
+                // continue;
+                var stkey = [dkey, dhatu, gana, la].join(', ');
+                if (par_stems.length > 1) throw new Error('too many par stems' + stkey + '-st-' + par_stems);
+                if (atm_stems.length > 1) throw new Error('too many atm stems' + stkey +  '-st-' + atm_stems);
+                if (par_stems.length > 0) {
+                    order[dhatu][gana][la]['par'] = {};
+                    order[dhatu][gana][la]['par']['stem'] = par_stems[0];
+                }
+                if (atm_stems.length > 0) {
+                    order[dhatu][gana][la]['atm'] = {};
+                    order[dhatu][gana][la]['atm']['stem'] = atm_stems[0];
+                }
             }
         }
         // var pars = sample.dhatu;
         // var dhatu = sample.dhatu;
-        p(order);
     }
+    p(order);
 }
 
 compact(dhatus);
