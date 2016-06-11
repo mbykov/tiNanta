@@ -27,11 +27,13 @@ var dhatus = {};
 
 for (var gana in dru) {
     log('GANA', gana);
-    if (gana != 'भ्वादिगण') continue;
+    // if (gana != 'भ्वादिगण') continue;
+    if (gana != 'अदादिगण') continue;
+
     var lakara = dru[gana];
     for (var la in lakara) {
         // if (la != 'लट्') continue;
-        if (la != 'लट्' && la != 'ऌट्') continue;
+        // if (la != 'लट्' && la != 'ऌट्') continue;
         // if (la != 'ऌट्') continue;
         // if (la != 'लोट्') continue;
         log('LA', la);
@@ -135,11 +137,11 @@ function getTerms(gana, la, pada, key, size, cterms) {
 // p('DHs', dhatus['4204-raBa']);
 // p('DHs', dhatus['7-BU']);
 // p('DHs', dhatus['1-BU']);
-// return;
 
 var dhatukeys = _.keys(dhatus);
-log('SIZE:', dhatukeys.length);
+log('SIZE:', dhatukeys);
 
+return;
 compact(dhatus);
 
 function compact(dhatus) {
@@ -177,6 +179,11 @@ function compact(dhatus) {
                 // log('par stem', par_stems);
                 // log('atm stem', atm_stems);
                 // continue;
+
+                // low - imperative - все gacCa, но sg.1 и du.1 - gacca. Как выписать эту зависимость. Как ее вычислить?
+
+
+
                 var stkey = [dkey, dhatu, gana, la].join(' - ');
                 if (par_stems.length > 1) throw new Error('too many par stems' + stkey + '-st-' + par_stems);
                 if (atm_stems.length > 1) throw new Error('too many atm stems' + stkey +  '-st-' + atm_stems);
