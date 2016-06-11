@@ -5,3 +5,9 @@
   определяет queries для samasa по окончанию
   начало 9 июня 2016, окончить к концу сентября
   todo в _todo.org
+
+* 11 июня
+  dhatus:
+  dhatu:
+  { la: laname, par: stem, atm: stem}
+  но стем пока здесь с class maker
