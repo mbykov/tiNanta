@@ -1,4 +1,4 @@
-//
+/ /
 var fs = require('fs');
 var util = require('util');
 var _ = require('underscore');
@@ -140,6 +140,7 @@ function getTerms(gana, la, pada, key, size, cterms) {
 
 var dhatukeys = _.keys(dhatus);
 log('SIZE:', dhatukeys);
+
 
 return;
 compact(dhatus);
