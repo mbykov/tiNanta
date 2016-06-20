@@ -12,6 +12,7 @@ var sandhi = s.sandhi;
 var inc = u.include;
 var log = u.log;
 var p = u.p;
+var tins = require('./lib/tins/laN');
 
 exports = module.exports = stemmer();
 
@@ -28,8 +29,8 @@ stemmer.prototype.query = function(query) {
 }
 
 stemmer.prototype.tiNanta = function(query) {
-    log('AAAAAA tiNanta', query);
-
+    log('tiNanta', query);
+    log('Tins', tins);
 
     this.queries.push('QQQ');
     return this.queries;

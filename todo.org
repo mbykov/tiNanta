@@ -13,3 +13,55 @@
   - формы (для данной лакара) - из текущего дампа
   -
   -
+
+* TODO parse form
+  - поиск подходящего окончания - tins
+  - хеш всех tins - la-pada-person-number - (पुरुष / purusha) - (वचन / vachana)
+  - получение стема - (для определенных gana-lakara - чтобы отбросить в словаре лишние)
+  - фильтр - получение критерия для стема
+  - как-то тут же предусмотреть выявления kridanta-taddhita суффиксов в будущем
+  - в результате - массив queries к базе
+  - а пока - фейковая база стемов для тестов
+  - run tinanta Bavati
+  -
+  - правила фильтров типа:
+  - law, 1 гана - после вычита tin - заканчивается на a, т.е. на согласную
+  - перед этой согласной - гласная в vriddhi-форме, т.е. "ay", "av", "āy" and "āv" (?) и только лишь?
+  -
+
+* laN - augment
+  - не понятно, как проверять наличие A? сначала нужно вычесть все приставки
+  -
+* TODO step by step
+  - [ ] make test - читаю lib/Dump-uodi/ пока только BU-sattAyAm-BvAdiH-1.txt
+  - [ ] или сначала преобразовать все же Dump в приличную форму?
+  - [ ] в ней читаю только laN
+  - [ ] анализирую образцы
+  - [ ] вывожу queries
+  - [ ]
+
+
+* stems & terminations
+  - https://www.quora.com/How-are-the-verbs-in-Sanskrit-classified-As-well-what-are-the-most-common-tenses-and-how-are-verbs-usually-conjugated-in-those-tenses
+  - http://learning-sanskrit.blogspot.ru/2012_05_01_archive.html?view=classic
+  - http://www.sanskrit-sanscrito.com.ar/en/appendixes-verbs-appen-verbs-1-english-0/728
+
+* pratyaya
+  - http://sanatan-rigveda.blogspot.ru/p/verb-forms-krridantapada-in-chapter-3.html
+
+In the following chapters we will study the following verb forms or धातुरुप (dhaaturupa).
+
+    तुमुन् प्रत्यय (tumun pratyaya)
+    क्त्वाच् प्रत्यय (ktvaach pratyaya)
+    ल्यप् प्रत्यय (lyap pratyaya)
+    ल्युट् प्रत्यय (lyuT pratyaya)
+    क्तवतु प्रत्यय (ktavatu pratyaya)
+    क्त प्रत्यय (kta pratyaya)
+    अनीयर् प्रत्यय (aniiyar pratyaya)
+    तव्यत् प्रत्यय (tavyat pratyaya)
+    यत् प्रत्यय (yat pratyaya)
+    शतृ प्रत्यय (shatRRi pratyaya)
+    शानच् प्रत्यय (shaanach pratyaya)
+    क्तिन् प्रत्यय (ktin pratyaya)
+    घञ्ज् प्रत्यय (ghJNj pratyaya)
+    खल् प्रत्यय (khal pratyaya)
