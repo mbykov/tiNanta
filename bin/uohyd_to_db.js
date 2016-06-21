@@ -18,6 +18,9 @@ var uohyd_dumps = '../lib/Dump-uohyd';
 var dataPath = path.join(__dirname, uohyd_dumps);
 var dumpPath = path.join(__dirname, '../lib/uohyd_dump.js');
 
+var gmap = {'भ्वादिः': 1, 'अदादिः': 2, 'जुहोत्यादिः': 3, 'दिवादिः': 4, 'स्वादिः': 5, 'तुदादिः': 6, 'रुधादिः': 7, 'तनादिः': 8, 'क्रयादिः': 9, 'चुरादिः': 10};
+var pmap = {'प्रथमपुरुषः': 3, 'मध्यमपुरुषः': 2, 'उत्तमपुरुषः': 1};
+
 // to save in db:
 var docs = {};
 
@@ -33,9 +36,10 @@ function readDir(logger) {
     // logger.write('some data  2 === \n');
     writeHeader(logger);
     var fns  = fs.readdirSync(dataPath);
-    fns.forEach(function(fn) {
+    fns.forEach(function(fn, idx) {
         // if (fn != 'vid-jYAne-adAdiH-1625.txt') return;
-        if (fn != 'BU-sattAyAm-BvAdiH-1.txt' && fn != 'BU-prAptO-curAdiH-2748.txt') return;
+        // if (fn != 'BU-sattAyAm-BvAdiH-1.txt' && fn != 'BU-prAptO-curAdiH-2748.txt') return;
+        if (idx > 5) return;
         var fpath = [dataPath, fn].join('/');
         // log('F', fpath);
         var doc = parseFile(fpath);
@@ -91,16 +95,18 @@ function parseFile(dataPath) {
             doc.dhatu = harr[4];
             doc.dp = harr[2]; // dp - dhatu-pada-full
             doc.dpc = harr[3]; // dp - dhatu-pada-clean, full_1
-            doc.gana = harr[0];
+            doc.gana = gmap[harr[0]];
             doc.artha = harr[5];
-            doc.iDAgama = harr[6];
+            // doc.iDAgama = harr[6];
+            doc.set = (harr[6] == 'सेट्') ? true : false;
         }
         row = row.replace(/-/g, '');
         row = row.replace(/\s+/g, ' ');
         row = row.trim();
 
-        if (pada == 'परस्मै' && row == 'लट्') pada = 'आत्मने';
-        else if (row == 'लट्') pada = 'परस्मै';
+        // परस्मै - आत्मने;
+        if (pada == 'परस्मै' && row == 'लट्') pada = 'atm';
+        else if (row == 'लट्') pada = 'par';
         if (!pada) return;
         if (!body[pada]) body[pada]= {};
 
@@ -111,8 +117,9 @@ function parseFile(dataPath) {
         var head = arr.shift();
         if (arr.length == 2 && head == 'एकवचनम्') return;
         else if (arr.length == 3) {
+            var purusha = pmap[head];
             if (!body[pada][lakara]) body[pada][lakara] = {};
-            body[pada][lakara][head] = arr;
+            body[pada][lakara][purusha] = arr;
         }
         doc.la = body;
         // if (idx < 35) log('R', idx, row);

@@ -20,14 +20,15 @@ var dataPath = path.join(__dirname, '../lib/uohyd_dump.js');
 
 var tests = require(dataPath);
 // p(tests);
+var nmap = {'2': 'sg', '1': 'du', '0': 'pl'}; // number
 
-function _Fn(pada, lakara, purusha, idz, form){
-    describe('tinAnta', function(){
-        var pada_slp = salita.sa2slp(pada);
-        var lakara_slp = salita.sa2slp(lakara);
-        var purusha_slp = salita.sa2slp(purusha);
-        var form_slp = salita.sa2slp(form);
-        var title = [pada_slp, lakara_slp, purusha_slp, idz, form_slp].join('_');
+function _Fn(dhatu, pada, lakara, purusha, num, form){
+    var dhatu_slp = salita.sa2slp(dhatu);
+    var lakara_slp = salita.sa2slp(lakara);
+    var form_slp = salita.sa2slp(form);
+    var numper = [nmap[num], purusha].join('.');
+    describe(dhatu_slp, function(){
+        var title = [lakara_slp, pada, numper, form_slp].join('_');
         it(title, function() {
             // log('=== la name ===', laname, la_slp);
             // log('=== test ===', lakara);
@@ -49,9 +50,9 @@ tests.forEach(function(test, idx) {
                 var forms = purushas[purusha];
                 forms.forEach(function(form, idz) {
                     // log(form);
-                    _Fn(pada, lakara, purusha, idz, form);
+                    var num = idz.toString();
+                    _Fn(test.dhatu, pada, lakara, purusha, num, form);
                 });
-
             }
         }
     }
