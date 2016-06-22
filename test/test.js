@@ -50,6 +50,9 @@ tests.forEach(function(test, idx) {
                 var forms = purushas[purusha];
                 forms.forEach(function(form, idz) {
                     // log(form);
+                    // заносить / в список исключений?
+                    var check = form.split('/');
+                    if (check.length > 1) return;
                     var num = idz.toString();
                     _Fn(test.dhatu, pada, lakara, purusha, num, form);
                 });
