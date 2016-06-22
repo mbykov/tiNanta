@@ -25,9 +25,9 @@ var lakaras = require(dataPath);
 var terms = [];
 var term;
 
-
 for (var la in lakaras) {
     log(la);
+    if (la == 'la') continue;
     var padas = lakaras[la];
     for (var pada in padas) {
         var tins = padas[pada];
