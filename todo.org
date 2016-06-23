@@ -14,6 +14,9 @@
   -
   -
 
+* links *** http://sanskrit.jnu.ac.in/rstudents/mphil/
+
+
 * TODO parse form
   - поиск подходящего окончания - tins
   - хеш всех tins - la-pada-person-number - (पुरुष / purusha) - (वचन / vachana)
@@ -38,11 +41,11 @@
   - [ ] index start - пока вчерне
   - [ ] чтобы отработать-создать две вещи:
   - [ ] 1. полный объект флексий - /lib/tins.js ;
-  - [ ] 2. преобразователь - /bin/tins_to...
+  - [ ] 2. преобразователь - /bin/tins_to_cache...удобная форма
   - [ ] 2. db стемов - dhatu-stems /lib/dhatu_stems.js
-  - [ ] фильтры. Каждому gana-la-pada-numper д.соотв фильтр, не пропускающий лишние
+  - [ ] фильтры. Каждому gana-la-pada-numper д.соотв фильтр, не пропускающий лишние <<== я тут - это процесс
   - [ ] убедиться, что каждая форма в тестах дает один вариант query на одну gana - ну, стандартный набор вариантов
-  - [ ] вывожу queries
+  - [ ] index.js - вывожу queries
   - [ ]
 
 

@@ -1,4 +1,5 @@
-//
+// создает один файл dhatus со всеми формами, для тестов и дальнейшей обработки - создания файла dhatu_anga.js
+
 var fs = require('fs');
 var util = require('util');
 var _ = require('underscore');
@@ -37,9 +38,10 @@ function readDir(logger) {
     writeHeader(logger);
     var fns  = fs.readdirSync(dataPath);
     fns.forEach(function(fn, idx) {
-        // if (fn != 'vid-jYAne-adAdiH-1625.txt') return;
-        // if (fn != 'BU-sattAyAm-BvAdiH-1.txt' && fn != 'BU-prAptO-curAdiH-2748.txt') return;
-        if (idx > 5) return;
+        // log(fn)
+        // if (fn != 'As-upaveSane-adAdiH-1565.txt') return;
+        if (fn != 'BU-sattAyAm-BvAdiH-1.txt' && fn != 'As-upaveSane-adAdiH-1565.txt') return;
+        // if (idx > 5) return;
         var fpath = [dataPath, fn].join('/');
         // log('F', fpath);
         var doc = parseFile(fpath);
@@ -105,7 +107,7 @@ function parseFile(dataPath) {
         row = row.trim();
 
         // परस्मै - आत्मने;
-        if (pada == 'परस्मै' && row == 'लट्') pada = 'atm';
+        if (pada == 'par' && row == 'लट्') pada = 'atm';
         else if (row == 'लट्') pada = 'par';
         if (!pada) return;
         if (!body[pada]) body[pada]= {};
