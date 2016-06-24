@@ -51,25 +51,11 @@ verbs.forEach(function(verb) {
                     var numper = [purusha, number].join('.');
                     // log(numper, form);
                     // log(la, pada);
-                    var stins = selectTins(la, pada, numper); // можно заранне tin_for_numper
-                    // log('CTINS', stins.length, stins);
-                    var errTooMore = ['too more stins:', verb.dhatu, pada, la, number, numper, stins].join(' - ');
-                    var stin;
-                    if (stins.length > 1) throw new Error(errTooMore); // тут чудовищно:
-                    else stin = stins[0];
-                    // log('STIN', stin);
-                    // log('TERM', Object.keys(stin));
-                    var term = Object.keys(stin)[0];
-                    var errNoStem = ['no stem:', verb.dhatu, pada, la, number, numper, term].join(' - ');
-                    var re = new RegExp(term + '$');
-                    var stem = form.replace(re, '');
-                    // log('F=S', form, stem, stin);
-                    if (form == stem) throw new Error(errNoStem);
+                    var oTin = selectTins(form, la, pada, numper); // можно заранне tin_for_numper
+                    // log('TIN', oTin);
+                    var stem = oTin.stem;
                     if (number == '1') strongs.push(stem);
                     else weaks.push(stem);
-                    // var result = {};
-                    // result[numper] = [stem, term];
-                    // stems[verb.dhatu].push(result);
                 });
             }
             var errStrong = ['strong:', verb.dhatu, pada, la, number].join(' - ');
@@ -87,13 +73,34 @@ verbs.forEach(function(verb) {
 log('===========');
 p(stems);
 
-function selectTins(la, pada, numper) {
+function selectTins(form, la, pada, numper) {
     var key, val;
-    return _.select(tins, function(tin) {
+    var stins = _.select(tins, function(tin) {
         key = Object.keys(tin)[0];
         val = tin[key];
         return val.la == la && val.pada == pada && val.np == numper;
     });
+    var oTins = [];
+    stins.forEach(function(tin) {
+        log(222, tin);
+        var term = Object.keys(tin)[0];
+        var re = new RegExp(term + '$');
+        var stem = form.replace(re, '');
+        // log('F=S', form, stem, stin);
+        if (form == stem) return;
+        var oTin = {stem: stem, term: term, la: la, pada: pada, numper: numper};
+        oTins.push(oTin);
+    });
+    var errTooMoreStems = ['too more stins:', form, pada, la, numper, stins].join(' - ');
+    if (oTins.length > 1 || oTins.length == 0) {
+        log('ERR: form:', form);
+        p('stins', stins);
+        p('oTins', oTins);
+        throw new Error(errTooMoreStems);
+        // <=========== -te для B:, -nte для A: ; но как собрать это здесь компактно?
+    }
+    // log(111, oTins);
+    return oTins[0];
 }
 
 

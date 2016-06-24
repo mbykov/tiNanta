@@ -40,8 +40,8 @@ function readDir(logger) {
     fns.forEach(function(fn, idx) {
         // log(fn)
         // if (fn != 'As-upaveSane-adAdiH-1565.txt') return;
-        if (fn != 'BU-sattAyAm-BvAdiH-1.txt' && fn != 'As-upaveSane-adAdiH-1565.txt') return;
-        // if (idx > 5) return;
+        // if (fn != 'BU-sattAyAm-BvAdiH-1.txt' && fn != 'As-upaveSane-adAdiH-1565.txt') return;
+        if (idx > 5) return;
         var fpath = [dataPath, fn].join('/');
         // log('F', fpath);
         var doc = parseFile(fpath);
