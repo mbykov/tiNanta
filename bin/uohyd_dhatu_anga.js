@@ -27,6 +27,12 @@ var nmap = {'0': 'sg', '1': 'du', '2': 'pl'};
 // вычитаю -tins, собираю stems - д.б. ровно один stem для gana=1, la=law
 // нужно прогнать все глаголы для всех gana-lakara
 
+
+if (tins.length != 24) {
+    log('/lib/tins_cache should have some values !');
+    return;
+}
+
 var stems = {};
 
 verbs.forEach(function(verb) {
@@ -47,21 +53,22 @@ verbs.forEach(function(verb) {
                 var forms = numbers[number];
                 forms.forEach(function(form, idx) {
                     var purusha = nmap[idx.toString()];
-                    log('P', purusha);
+                    // log('P', purusha);
                     var numper = [purusha, number].join('.');
-                    // log(numper, form);
+                    log(pada, numper, form);
                     // log(la, pada);
+
                     var oTin = selectTins(form, la, pada, numper); // можно заранне tin_for_numper
-                    // log('TIN', oTin);
+                    log('===TIN', la, pada, numper, oTin.stem, oTin.stem == 'भाम');
                     var stem = oTin.stem;
                     if (number == '1') strongs.push(stem);
                     else weaks.push(stem);
                 });
             }
-            var errStrong = ['strong:', verb.dhatu, pada, la, number].join(' - ');
-            var errWeak = ['strong:', verb.dhatu, pada, la, number].join(' - ');
             var ustrong = _.uniq(strongs);
             var uweak = _.uniq(weaks);
+            var errStrong = ['strong:', verb.dhatu, pada, la, number, JSON.stringify(ustrong)].join(' - ');
+            var errWeak = ['strong:', verb.dhatu, pada, la, number, JSON.stringify(uweak)].join(' - ');
             if (ustrong.length > 1) throw new Error(errStrong);
             if (uweak.length > 1) throw new Error(errWeak);
             stems[verb.dhatu] = {strong: ustrong[0], weak: uweak[0]};
@@ -73,8 +80,10 @@ verbs.forEach(function(verb) {
 log('===========');
 p(stems);
 
+// это la-pada-number из цикла, а в tins - свои
 function selectTins(form, la, pada, numper) {
     var key, val;
+    // tins для данных параметров - можно зафризить
     var stins = _.select(tins, function(tin) {
         key = Object.keys(tin)[0];
         val = tin[key];
@@ -84,10 +93,23 @@ function selectTins(form, la, pada, numper) {
     stins.forEach(function(tin) {
         log(222, tin);
         var term = Object.keys(tin)[0];
+        // фильтры terms, специфичные для gana-lakara - иначе придется писать всю строку дважды-многажды
+        // добавить gana:
+        if (la == 'लट्' && pada == 'atm' && numper == 'pl.3' && term != 'न्ते') return;
+
         var re = new RegExp(term + '$');
         var stem = form.replace(re, '');
         // log('F=S', form, stem, stin);
         if (form == stem) return;
+
+        // фильтры stems, по numper, или по -va-ma для первой ганы
+        // добавить gana:
+        // передать сюда number - person
+        if ((pada == 'par' && (numper == 'sg.1' || numper == 'du.1' || numper == 'pl.1' )) || (pada == 'atm' && (numper == 'du.1' || numper == 'pl.1' ))) {
+            var last = stem[stem.length-1];
+            if (last != c.A) return;
+            stem = stem.slice(0,-1);
+        }
         var oTin = {stem: stem, term: term, la: la, pada: pada, numper: numper};
         oTins.push(oTin);
     });

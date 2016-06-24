@@ -33,8 +33,8 @@ var logger = fs.createWriteStream(dumpPath, {
 writeHeader(logger);
 
 var lakaras = require(dataPath);
-var terms = [];
-var term;
+// var terms = [];
+var doc;
 
 for (var la in lakaras) {
     log(la);
@@ -44,14 +44,37 @@ for (var la in lakaras) {
         var tins = padas[pada];
         log(pada, tins);
         tins.forEach(function(tin2, idx) {
-            var tarr = tin2.split('-');
-            tarr.forEach(function(tin) {
-                var term = {};
-                term[tin] = {la: la, pada: pada, np: npmap[idx]};
-                log(term);
-                var docData = util.inspect(term,  {depth: null});
-                logger.write(docData);
-                logger.write(',');
+            var tarrAB = tin2.split('_');
+            var thema;
+            tarrAB.forEach(function(tinAB, idz) {
+                if (tarrAB.length > 1) thema = (idz == 0) ? 'a' : 'b';
+                // log('THEMA', thema);
+                log('AB', tinAB);
+                var tarr = tinAB.split('-'); // sandhi variants
+                tarr.forEach(function(tin) {
+                    var first = tin[0];
+                    var vow = (u.isVowel(first)) ? true : false;
+                    var a;
+                    if (vow) tin = tin.slice(1);
+                    if (vow && first == 'अ') {
+                        a = true;
+                    } else {
+                        var liga = u.liga(first);
+                        tin = [liga, tin].join('');
+                    }
+                    var doc = {};
+                    doc[tin] = {la: la, pada: pada, np: npmap[idx]};
+                    if (thema) {
+                        doc[tin]['thema'] = thema;
+                    }
+                    if (vow) {
+                        doc[tin]['vow'] = true;
+                    }
+                    log(doc);
+                    var docData = util.inspect(doc,  {depth: null});
+                    logger.write(docData);
+                    logger.write(',');
+                });
             });
         });
 
