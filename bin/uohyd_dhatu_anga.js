@@ -35,20 +35,25 @@ if (tins.length == 0) {
 }
 
 var angas = [];
+// var exceptions = ['भ्लाश्', 'भ्राश्', 'भ्रम्', 'घृण्ण्', 'श्रा', 'श्रु', 'श्वच्', 'अक्ष्', 'एज्', 'ग्रुच्', 'क्रम्', 'लष्', 'म्रुच्', 'नाथ्', 'क्षुद्', 'लुञ्ज्', 'इल्', 'क्षल्', 'जल्', 'हुल्', 'क्षीव्', 'मथ्', 'क्षिप्', 'क्षिप्', 'लुट्', 'जूर्', 'क्षिप्', 'क्षिप्', 'लुन्थ्', 'जूर्', 'क्षिप्', 'जर्ज्', 'जम्भ्', 'कुप्', 'लिह्', 'क्षिप्', 'लुन्थ्', 'लाज्', 'मा', 'जूर्', 'कुस्म्', 'ह्लग्', 'हिंस्', 'ह्री', 'इन्द्', 'हुल्', 'क्षीव्', 'ह्री', 'हृ', 'हन्', 'ह्वल्', 'इन्द्', 'इट्', 'इट्', 'हृ', 'हुल्', 'हृ', 'हुल्', 'क्षीव्', 'हय्', 'हृ', 'हुल्', 'क्षुद्', 'रङ्घ्', 'रुण्ठ्', 'स्रु', 'तक्ष्', 'टीक्'];
+
+var exceptions = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'GfR-grahaRe-BvAdiH-623', 'SrA-pAke-BvAdiH-1232', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 
 verbs.forEach(function(verb) {
+    // log('V', verb.key, verb.dhatu, ' ');
     var gana = verb.gana;
     if (gana != 1) return;
     // p(verb.dhatu);
+    if (inc(exceptions, verb.key)) return;
     var aaa = filter.gana(gana);
     // angas[verb.dhatu] = {strong: [], weak: []};
     for (var pada in verb.la) {
-        log('pada:', pada);
+        // log('pada:', pada);
         var lakaras = verb.la[pada];
         for (var la in lakaras) {
             if (la != 'लट्') continue;
             var numbers = lakaras[la];
-            log('la:', la);
+            // log('la:', la);
 
             var stems = []; // это для A:
             var strongs = [];
@@ -62,7 +67,7 @@ verbs.forEach(function(verb) {
                     var numper = [purusha, number].join('.');
                     // log(pada, numper, form);
 
-                    var oStem = stemForForm(form, gana, la, pada, numper);
+                    var oStem = stemForForm(verb.key, verb.dhatu, form, gana, la, pada, numper);
                     var stem = oStem.stem;
                     // FIXME:
                     if (gana == 1) stems.push(stem);
@@ -74,9 +79,9 @@ verbs.forEach(function(verb) {
             var ustem = _.uniq(stems);
             var ustrong = _.uniq(strongs);
             var uweak = _.uniq(weaks);
-            var errStem = ['stems:', verb.dhatu, pada, la, number, JSON.stringify(ustem)].join(' - ');
-            var errStrong = ['stems:', verb.dhatu, pada, la, number, JSON.stringify(ustrong)].join(' - ');
-            var errWeak = ['strong:', verb.dhatu, pada, la, number, JSON.stringify(uweak)].join(' - ');
+            var errStem = ['eStem:', verb.key, verb.dhatu, pada, la, number, JSON.stringify(ustem)].join(' - ');
+            var errStrong = ['eStrong:', verb.key, verb.dhatu, pada, la, number, JSON.stringify(ustrong)].join(' - ');
+            var errWeak = ['eWeak:', verb.key, verb.dhatu, pada, la, number, JSON.stringify(uweak)].join(' - ');
             if (ustem.length > 1) throw new Error(errStem);
             if (ustrong.length > 1) throw new Error(errStrong);
             if (uweak.length > 1) throw new Error(errWeak);
@@ -88,7 +93,7 @@ verbs.forEach(function(verb) {
                 result.strong = ustrong[0];
                 result.weak = uweak[0];
             }
-            result.key = verb.key;
+            // result.key = verb.key;
             angas.push(result);
         }
     }
@@ -96,10 +101,11 @@ verbs.forEach(function(verb) {
 
 // log(tins);
 log('===========');
-p(angas);
+p(angas.slice(0,9));
+log(angas.length); // 859
 
 // это la-pada-number из цикла, а в tins - свои
-function stemForForm(form, gana, la, pada, numper) {
+function stemForForm(vkey, dhatu, form, gana, la, pada, numper) {
     var key, val;
     // tins для данных параметров - можно зафризить
     var thema = (inc([1,4,6,10], gana)) ? 'a' : 'b';
@@ -139,7 +145,7 @@ function stemForForm(form, gana, la, pada, numper) {
     });
     var errTooMoreStems = ['too more stins:', form, pada, la, numper].join(' - ');
     if (oStems.length > 1 || oStems.length == 0) {
-        log('ERR: form:', form);
+        log('ERR: ', vkey, dhatu, 'form:', form);
         p('stins', stins);
         p('oStems', oStems);
         throw new Error(errTooMoreStems);
