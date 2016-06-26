@@ -40,18 +40,20 @@ var angas = [];
 var exceptions = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'GfR-grahaRe-BvAdiH-623', 'SrA-pAke-BvAdiH-1232', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 
 verbs.forEach(function(verb) {
-    // log('V', verb.key, verb.dhatu, ' ');
     var gana = verb.gana;
     if (gana != 1) return;
     // p(verb.dhatu);
     if (inc(exceptions, verb.key)) return;
-    var aaa = filter.gana(gana);
+    log('V', verb.key, verb.dhatu, ' ');
+
+    // var aaa = filter.gana(gana);
     // angas[verb.dhatu] = {strong: [], weak: []};
     for (var pada in verb.la) {
         // log('pada:', pada);
         var lakaras = verb.la[pada];
         for (var la in lakaras) {
-            if (la != 'लट्') continue;
+            // if (la != 'लट्') continue;
+            if (la != 'लङ्') continue;
             var numbers = lakaras[la];
             // log('la:', la);
 
@@ -71,22 +73,22 @@ verbs.forEach(function(verb) {
                     var stem = oStem.stem;
                     // FIXME:
                     if (gana == 1) stems.push(stem);
-                    else //;
-                    if (number == '1') strongs.push(stem);
-                    else weaks.push(stem);
+                    else 'kuku'; //;
+                    // if (number == '1') strongs.push(stem);
+                    // else weaks.push(stem);
                 });
             }
             var ustem = _.uniq(stems);
             var ustrong = _.uniq(strongs);
             var uweak = _.uniq(weaks);
-            var errStem = ['eStem:', verb.key, verb.dhatu, pada, la, number, JSON.stringify(ustem)].join(' - ');
-            var errStrong = ['eStrong:', verb.key, verb.dhatu, pada, la, number, JSON.stringify(ustrong)].join(' - ');
-            var errWeak = ['eWeak:', verb.key, verb.dhatu, pada, la, number, JSON.stringify(uweak)].join(' - ');
+            var errStem = ['eStem:', verb.key, verb.dhatu, pada, la, JSON.stringify(ustem)].join(' - ');
+            var errStrong = ['eStrong:', verb.key, verb.dhatu, pada, la, JSON.stringify(ustrong)].join(' - ');
+            var errWeak = ['eWeak:', verb.key, verb.dhatu, pada, la, JSON.stringify(uweak)].join(' - ');
             if (ustem.length > 1) throw new Error(errStem);
             if (ustrong.length > 1) throw new Error(errStrong);
             if (uweak.length > 1) throw new Error(errWeak);
 
-            var result = {dhatu: verb.dhatu, gana: gana};
+            var result = {dhatu: verb.dhatu, la: la, gana: gana}; // artha: verb.artha,
             if (ustem.length == 1) {
                 result.stem = ustem[0];
             } else {
@@ -106,6 +108,7 @@ log(angas.length); // 859
 
 // это la-pada-number из цикла, а в tins - свои
 function stemForForm(vkey, dhatu, form, gana, la, pada, numper) {
+    // log('====================', vkey);
     var key, val;
     // tins для данных параметров - можно зафризить
     var thema = (inc([1,4,6,10], gana)) ? 'a' : 'b';
@@ -125,21 +128,18 @@ function stemForForm(vkey, dhatu, form, gana, la, pada, numper) {
             if (la == 'लट्' && pada == 'atm' && numper == 'pl.3' && term != 'न्ते') return;
             else if (la == 'लट्' && pada == 'par' && numper == 'pl.3' && term != 'न्ति') return;
         }
+        // if (numper == 'sg.1') log('Term', numper, term);
+
 
         var re = new RegExp(term + '$');
         var stem = form.replace(re, '');
         // log('F=S', form, stem, stin);
-        if (form == stem) return;
+        if (form == stem) return 'no correct trrmination';
 
         // фильтры angas, по numper, или по -va-ma для первой ганы
         // добавить gana:
         // filter.gana(gana);
         stem = filter.gana(gana).call(this, form, gana, la, pada, numper, stem, term);
-        // if ((pada == 'par' && (numper == 'sg.1' || numper == 'du.1' || numper == 'pl.1' )) || (pada == 'atm' && (numper == 'du.1' || numper == 'pl.1' ))) {
-        //     var last = stem[stem.length-1];
-        //     if (last != c.A) return;
-        //     stem = stem.slice(0,-1);
-        // }
         var oStem = {stem: stem, term: term, la: la, pada: pada, numper: numper};
         oStems.push(oStem);
     });
