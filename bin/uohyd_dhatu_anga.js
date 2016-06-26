@@ -44,7 +44,7 @@ verbs.forEach(function(verb) {
     if (gana != 1) return;
     // p(verb.dhatu);
     if (inc(exceptions, verb.key)) return;
-    log('V', verb.key, verb.dhatu, ' ');
+    // log('V', verb.key, verb.dhatu, ' ');
 
     // var aaa = filter.gana(gana);
     // angas[verb.dhatu] = {strong: [], weak: []};
@@ -128,13 +128,12 @@ function stemForForm(vkey, dhatu, form, gana, la, pada, numper) {
             if (la == 'लट्' && pada == 'atm' && numper == 'pl.3' && term != 'न्ते') return;
             else if (la == 'लट्' && pada == 'par' && numper == 'pl.3' && term != 'न्ति') return;
         }
-        // if (numper == 'sg.1') log('Term', numper, term);
-
+        // if (pada == 'atm' && numper == 'du.1') log('Term', numper, term);
 
         var re = new RegExp(term + '$');
         var stem = form.replace(re, '');
         // log('F=S', form, stem, stin);
-        if (form == stem) return 'no correct trrmination';
+        if (form == stem) return;
 
         // фильтры angas, по numper, или по -va-ma для первой ганы
         // добавить gana:
