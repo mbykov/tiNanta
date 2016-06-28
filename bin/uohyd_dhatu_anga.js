@@ -42,7 +42,7 @@ var exceptions = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-cala
 var excep = {};
 excep['लट्'] = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'GfR-grahaRe-BvAdiH-623', 'SrA-pAke-BvAdiH-1232', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 // GrA - и все на -A - нет долгой -A во всех практически формах - FIXME: проверить, м.б. все можно восстановить
-excep['लङ्'] = ['gurd-krIqAyAm-BvAdiH-45', 'BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'DmA-Sabde-BvAdiH-1429', 'DmA-agnisaMyoge-BvAdiH-1428', 'GrA-ganDopAdAne-BvAdiH-1427', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'gA-gatO-BvAdiH-1462', 'haw-dIptO-BvAdiH-434', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mnA-aByAse-BvAdiH-1432', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'pA-pAne-BvAdiH-1426', 'pac-pAke-BvAdiH-1531', 'takz-tanUkaraRe-BvAdiH-990', 'zWA-gatinivfttO-BvAdiH-1430', 'zwuB-stamBe-BvAdiH-562', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+excep['लङ्'] = ['gurd-krIqAyAm-BvAdiH-45', 'BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'DmA-Sabde-BvAdiH-1429', 'DmA-agnisaMyoge-BvAdiH-1428', 'GrA-ganDopAdAne-BvAdiH-1427', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'gA-gatO-BvAdiH-1462', 'haw-dIptO-BvAdiH-434', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mnA-aByAse-BvAdiH-1432', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'pA-pAne-BvAdiH-1426', 'pac-pAke-BvAdiH-1531', 'takz-tanUkaraRe-BvAdiH-990', 'zWA-gatinivfttO-BvAdiH-1430', 'zwuB-stamBe-BvAdiH-562', 'pan-vyavahAre-BvAdiH-628', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 
 verbs.forEach(function(verb) {
     var gana = verb.gana;
@@ -53,6 +53,8 @@ verbs.forEach(function(verb) {
 
     // var aaa = filter.gana(gana);
     // angas[verb.dhatu] = {strong: [], weak: []};
+    var result = {dhatu: verb.dhatu, gana: gana};
+    var stems = []; // это для A:
     for (var pada in verb.la) {
         // log('pada:', pada);
         var lakaras = verb.la[pada];
@@ -64,7 +66,6 @@ verbs.forEach(function(verb) {
             var numbers = lakaras[la];
             // log('la:', la);
 
-            var stems = []; // это для A:
             var strongs = [];
             var weaks = [];
             for (var number in numbers) {
@@ -95,15 +96,22 @@ verbs.forEach(function(verb) {
             if (ustrong.length > 1) throw new Error(errStrong);
             if (uweak.length > 1) throw new Error(errWeak);
 
-            var result = {dhatu: verb.dhatu, la: la, gana: gana}; // artha: verb.artha,
+            // var result = {dhatu: verb.dhatu, artha: verb.artha, la: la, gana: gana}; // artha: verb.artha,
+            // var result = {dhatu: verb.dhatu, gana: gana, la: la};
+            // var result = {dhatu: verb.dhatu, gana: gana};
+            if (!result.lakara) result.lakara = [];
+            var oLa = {la: la};
             if (ustem.length == 1) {
-                result.stem = ustem[0];
+                oLa.stem = ustem[0];
             } else {
-                result.strong = ustrong[0];
-                result.weak = uweak[0];
+                oLa.strong = ustrong[0];
+                oLa.weak = uweak[0];
             }
+            result.lakara.push(oLa);
             // result.key = verb.key;
             angas.push(result);
+            // log('R', result);
+            // angas.push(JSON.stringify(result));
         }
     }
 });

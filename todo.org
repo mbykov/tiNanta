@@ -6,6 +6,18 @@
   начало 9 июня 2016, окончить к концу сентября
   todo в _todo.org
 
+* == разные варианты источника форм == 28 июня, пока ни с места
+  - за исходную точку можно взять /lib/Dump-uohyd -> uohyd_dump.js
+  - либо generatedverbforms_xxx
+  - второе лучше, потому что нет неясности в порядке вариантов anga xxx/yyy/zzz
+  - 3 - jnu.ac.in
+  - 4 patel-babylon - сечас самая полная версия
+  - как совместить результаты анализа всех наборов данных?
+  - читаю общий результат-хеш и, если нет, добавляю?
+  - а если update - переписываю?
+  - очень уныло и ненадежно
+  - ну может сделает Патель чисто
+  -
 
 * 16 июня
   - скачиваю таблицы с uohid в цикле
@@ -15,6 +27,18 @@
   -
 
 * links *** http://sanskrit.jnu.ac.in/rstudents/mphil/
+ - http://sanskrit.uohyd.ac.in/Corpus/guideline.html
+ - http://sanskrit.uohyd.ac.in/Corpus/
+ - http://sanskritlibrary.org/Sanskrit/pub/
+ - http://www.sanskritworld.in/sanskrittool/SanskritVerb/tiGanta.html
+ - https://github.com/drdhaval2785/sanskritverb
+ - http://sanskrit.jnu.ac.in/tinanta/data-resources/
+ - http://www.sanskritlibrary.org/Sanskrit/Vyakarana/Dhatupatha/mdhvindx/disp/mdhv_index.html#begin_char_12
+ - http://sanskritdocuments.org/doc_giitaa/bgwords.html?lang=sa
+ - file:///home/michael/web/morpheus/DOCS/TMP/dhaatupaatha/gaNa.html <=============
+ - http://sanskrit.jnu.ac.in/rstudents/mphil/
+ - http://www.thesanskritlanguage.com/lesson-25.html
+
 
 
 * TODO parse form
