@@ -40,7 +40,10 @@ var angas = [];
 var exceptions = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'GfR-grahaRe-BvAdiH-623', 'SrA-pAke-BvAdiH-1232', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 
 var excep = {};
-excep['लट्'] = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'GfR-grahaRe-BvAdiH-623', 'SrA-pAke-BvAdiH-1232', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+// excep['लट्'] = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'GfR-grahaRe-BvAdiH-623', 'SrA-pAke-BvAdiH-1232', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+
+excep['लट्'] = ['DmA-Sabde-BvAdiH-1429', 'BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'DmA-agnisaMyoge-BvAdiH-1428', 'GfR-grahaRe-BvAdiH-623', 'GrA-ganDopAdAne-BvAdiH-1427', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gA-gatO-BvAdiH-1462', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mnA-aByAse-BvAdiH-1432', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'pA-pAne-BvAdiH-1426', 'pan-vyavahAre-BvAdiH-628', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', 'zWA-gatinivfttO-BvAdiH-1430', '', '', '', '', '', '', ''];
+
 // GrA - и все на -A - нет долгой -A во всех практически формах - FIXME: проверить, м.б. все можно восстановить
 excep['लङ्'] = ['gurd-krIqAyAm-BvAdiH-45', 'BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'DmA-Sabde-BvAdiH-1429', 'DmA-agnisaMyoge-BvAdiH-1428', 'GrA-ganDopAdAne-BvAdiH-1427', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'gA-gatO-BvAdiH-1462', 'haw-dIptO-BvAdiH-434', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mnA-aByAse-BvAdiH-1432', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'pA-pAne-BvAdiH-1426', 'pac-pAke-BvAdiH-1531', 'takz-tanUkaraRe-BvAdiH-990', 'zWA-gatinivfttO-BvAdiH-1430', 'zwuB-stamBe-BvAdiH-562', 'pan-vyavahAre-BvAdiH-628', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 
@@ -59,8 +62,9 @@ verbs.forEach(function(verb) {
         // log('pada:', pada);
         var lakaras = verb.la[pada];
         for (var la in lakaras) {
-            // if (la != 'लट्') continue;
-            if (la != 'लङ्') continue;
+            if (la != 'लट्') continue;
+            // if (la != 'लङ्') continue;
+            // if (la != 'लङ्' && la != 'लट्') continue;
             if (inc(excep[la], verb.key)) continue;
 
             var numbers = lakaras[la];
