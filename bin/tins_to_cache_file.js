@@ -17,7 +17,7 @@ var log = u.log;
 var p = u.p;
 
 // FIXME: унести в util
-var npmap = {'0': 'sg.3', '1': 'du.3', '2': 'pl.3', '3': 'sg.2', '4': 'du.2', '5': 'pl.2', '6': 'sg.1', '7': 'du.1', '8': 'pl.1' }; // num-per
+// var npmap = {'0': 'sg.3', '1': 'du.3', '2': 'pl.3', '3': 'sg.2', '4': 'du.2', '5': 'pl.2', '6': 'sg.1', '7': 'du.1', '8': 'pl.1' }; // num-per
 
 var dirtyTins = '../lib/tins';
 var dataPath = path.join(__dirname, dirtyTins);

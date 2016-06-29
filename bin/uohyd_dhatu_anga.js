@@ -52,19 +52,20 @@ excep['लङ्'] = ['gurd-krIqAyAm-BvAdiH-45', 'BlAS-dIptO-BvAdiH-1237', 'BrAS
 verbs.forEach(function(verb) {
     var gana = verb.gana;
     if (gana != 1) return;
-    if (verb.dhatu != 'भज्') return;
-    log('D', verb.dhatu);
+    // if (verb.key != 'Bez-Baye-BvAdiH-1366') return;
+    log('D', verb.key);
     var result = {gana: gana, dhatu: verb.dhatu, artha: verb.artha};
+    var oLas = [];
     lakara.forEach(function(la) {
         var stems = [];
         var strongs = [];
         var weaks = [];
-        if (la != 'लट्') return;
-        // if (la != 'लङ्') continue;
-        // if (la != 'लङ्' && la != 'लट्') continue;
+        // if (la != 'लट्') return;
+        // if (la != 'लङ्') return;
+        if (la != 'लङ्' && la != 'लट्') return;
         if (inc(excep[la], verb.key)) return;
         var laforms = verb[la];
-        log(1, la, laforms);
+        // log(1, la, laforms);
         for (var tip in laforms) {
             var form2 = laforms[tip];
             // log(333, tip, form2)
@@ -72,39 +73,36 @@ verbs.forEach(function(verb) {
             forms.forEach(function(form) {
                 var tipStem = stemForForm(verb.key, verb.dhatu, gana, form, la, tip);
                 if (!tipStem) return;
-                if (gana == 1) stems.push('stem');
+                if (gana == 1) stems.push(tipStem);
                 // else if (number == '1') strongs.push(stem);
                 // else weaks.push(stem);
             });
         }
-        return;
-            var ustem = _.uniq(stems);
-            var ustrong = _.uniq(strongs);
-            var uweak = _.uniq(weaks);
-            var errStem = ['eStem:', verb.key, verb.dhatu, tip, la, JSON.stringify(ustem)].join(' - ');
-            var errStrong = ['eStrong:', verb.key, verb.dhatu, tip, la, JSON.stringify(ustrong)].join(' - ');
-            var errWeak = ['eWeak:', verb.key, verb.dhatu, tip, la, JSON.stringify(uweak)].join(' - ');
-            if (ustem.length > 1) throw new Error(errStem);
-            if (ustrong.length > 1) throw new Error(errStrong);
-            if (uweak.length > 1) throw new Error(errWeak);
+        var ustem = _.uniq(stems);
+        var ustrong = _.uniq(strongs);
+        var uweak = _.uniq(weaks);
+        var errStem = ['uniq eStem:', verb.key, verb.dhatu, la, JSON.stringify(ustem)].join(' - ');
+        var errStrong = ['uniq eStrong:', verb.key, verb.dhatu, la, JSON.stringify(ustrong)].join(' - ');
+        var errWeak = ['uniq eWeak:', verb.key, verb.dhatu, la, JSON.stringify(uweak)].join(' - ');
+        if (ustem.length > 1) throw new Error(errStem);
+        if (ustrong.length > 1) throw new Error(errStrong);
+        if (uweak.length > 1) throw new Error(errWeak);
 
-            // var result = {dhatu: verb.dhatu, artha: verb.artha, la: la, gana: gana}; // artha: verb.artha,
-            // var result = {dhatu: verb.dhatu, gana: gana, la: la};
-            // var result = {dhatu: verb.dhatu, gana: gana};
-            if (!result.lakara) result.lakara = [];
-            var oLa = {la: la};
-            if (ustem.length == 1) {
-                oLa.stem = ustem[0];
-            } else {
-                oLa.strong = ustrong[0];
-                oLa.weak = uweak[0];
-            }
-            result.lakara.push(oLa);
-            // result.key = verb.key;
-            // angas.push(result);
-            log('R', result);
-            angas.push(JSON.stringify(result));
+        if (!result.lakara) result.lakara = [];
+        var oLa = {la: la};
+        if (ustem.length == 1) {
+            oLa.stem = ustem[0];
+        } else {
+            oLa.strong = ustrong[0];
+            oLa.weak = uweak[0];
+        }
+        oLas.push(oLa);
     });
+    result.lakara = oLas;
+    // result.key = verb.key;
+    // angas.push(result);
+    // log('R', result);
+    angas.push(JSON.stringify(result));
 });
 
 
@@ -115,9 +113,9 @@ log(angas.length); // 859
 
 // это la-pada-number из цикла, а в tins - свои
 function stemForForm(vkey, dhatu, gana, form, la, tip) {
-    log('====================', form, tip);
+    // log('====================', form, tip);
     // tins only for this tip:
-    var stins = _.select(tins, function(tin) { return tin.tip == tip}); // только данные tips
+    var stins = _.select(tins, function(tin) { return tin.la == la && tin.tip == tip}); // только подходящие tips
     var stems = [];
     stins.forEach(function(tin) {
         // log(222, tin);
@@ -127,27 +125,16 @@ function stemForForm(vkey, dhatu, gana, form, la, tip) {
         }
         var term = tin.tin;
         // фильтры terms, специфичные для gana-lakara-tip - иначе придется писать всю строку дважды-многажды
-        if (gana == 1) {
-            if (la == 'लट्' && tip == 'झ' && term != 'न्ते') return; //  atm. pl.3
-            else if (la == 'लट्' && tip == 'झि' && term != 'न्ति') return; // par. pl.3
-        }
-        // log('S', tip, tin);
-        // if (pada == 'atm' && numper == 'du.1') log('Term', numper, term);
-        // log(44, tin)
         var re = new RegExp(term + '$');
         var stem = form.replace(re, '');
-        // log('SSSStem', form, stem, term);
-        // log('F=S', form, stem, stin);
+        // log('F=S', form, stem, term);
         if (form == stem) return;
-
-        // фильтры angas, по numper, или по -va-ma для первой ганы
-        // добавить gana:
-        // filter.gana(gana);
-        // stem = filter.gana(gana).call(this, dhatu, form, gana, la, tip, stem, term);
+        // log('S0', stins);
+        stem = filter.gana(gana).call(this, dhatu, form, gana, la, tip, stem, term);
         // var oStem = {stem: stem, term: term, la: la, pada: pada, numper: numper};
         stems.push(stem);
     });
-    log('S', stems);
+    // log('S=>', la, tip, form, stems);
     var shouldBeOneStem = [form, la, tip].join(' - ');
     if (stems.length > 1) {
         log('ERR: ', vkey, dhatu, 'form:', form);

@@ -53,7 +53,7 @@ function readDir(logger) {
     fns.forEach(function(fn, idx) {
         // log(fn)
 
-        if (fn != 'Baj-sevAyAm-BvAdiH-1534.txt') return;
+        // if (fn != 'Baj-sevAyAm-BvAdiH-1534.txt') return;
         // if (fn != 'As-upaveSane-adAdiH-1565.txt') return;
         // if (fn != 'BU-sattAyAm-BvAdiH-1.txt') return;
         // if (fn != 'BU-sattAyAm-BvAdiH-1.txt' && fn != 'As-upaveSane-adAdiH-1565.txt') return;
