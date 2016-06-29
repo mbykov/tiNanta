@@ -37,48 +37,44 @@ var lakaras = require(dataPath);
 var doc;
 
 for (var la in lakaras) {
-    log(la);
-    if (la == 'la') continue;
-    var padas = lakaras[la];
-    for (var pada in padas) {
-        var tins = padas[pada];
-        log(pada, tins);
-        tins.forEach(function(tin2, idx) {
-            var tarrAB = tin2.split('_');
+    // log(la, lakaras[la]);
+    var tins = lakaras[la];
+    for (var tip in tins) {
+        var tinObj = tins[tip];
+        var tarrAB = tinObj.split('_');
+        tarrAB.forEach(function(tinSandhi, idz) {
             var thema;
-            tarrAB.forEach(function(tinAB, idz) {
-                if (tarrAB.length > 1) thema = (idz == 0) ? 'a' : 'b';
-                // log('THEMA', thema);
-                log('AB', tinAB);
-                var tarr = tinAB.split('-'); // sandhi variants
-                tarr.forEach(function(tin) {
-                    var first = tin[0];
-                    var vow = (u.isVowel(first)) ? true : false;
-                    var a;
-                    if (vow) tin = tin.slice(1);
-                    if (vow && first == 'अ') {
-                        a = true;
-                    } else {
-                        var liga = u.liga(first);
-                        tin = [liga, tin].join('');
-                    }
-                    var doc = {};
-                    doc[tin] = {la: la, pada: pada, np: npmap[idx]};
-                    if (thema) {
-                        doc[tin]['thema'] = thema;
-                    }
-                    if (vow) {
-                        doc[tin]['vow'] = true;
-                    }
-                    log(doc);
-                    var docData = util.inspect(doc,  {depth: null});
-                    logger.write(docData);
-                    logger.write(',');
-                });
+            // log(1, tip, tarrAB.length, thema);
+            if (tarrAB.length > 1) thema = (idz == 0) ? 'a' : 'b';
+            // log('THEMA', thema);
+            // return;
+            var tarr = tinSandhi.split('-'); // sandhi variants
+            // log('AB', tip, tinSandhi, tarr);
+            tarr.forEach(function(tin) {
+                var first = tin[0];
+                var vow = (u.isVowel(first)) ? true : false;
+                var a;
+                if (vow) tin = tin.slice(1);
+                if (vow && first == 'अ') {
+                    a = true;
+                } else {
+                    var liga = u.liga(first);
+                    tin = [liga, tin].join('');
+                }
+                var doc = {tin: tin, la: la, tip: tip};
+                if (thema) {
+                    doc['thema'] = thema;
+                }
+                if (vow) {
+                    doc['vow'] = true;
+                }
+                p(doc);
+                var docData = util.inspect(doc,  {depth: null});
+                logger.write(docData);
+                logger.write(',');
             });
         });
-
-    }
+    };
 }
 
 writeFooter(logger);

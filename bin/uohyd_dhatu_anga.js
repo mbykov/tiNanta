@@ -16,8 +16,8 @@ var inc = u.include;
 var log = u.log;
 var p = u.p;
 
-var dumpPath = path.join(__dirname, '../lib/uohyd_dump.js');
-var dhatuPath = path.join(__dirname, '../lib/dhatu_anga.js');
+var dumpPath = path.join(__dirname, '../lib/uohyd_dump.js'); // db-file of verbs and verbforms
+var dhatuAngaPath = path.join(__dirname, '../lib/dhatu_anga.js'); // result
 var tinsPath = path.join(__dirname, '../lib/tins_cache.js');
 
 var verbs = require(dumpPath);
@@ -28,6 +28,8 @@ var filter = require('../lib/filterGana');
 // вычитаю -tins, собираю stems - д.б. ровно один stem для gana=1, la=law
 // нужно прогнать все глаголы для всех gana-lakara
 
+//                pres. =P: impf; perf; aorist; =F: fut.1 fut2. =M: imp.m. pot.m; ben.m; cond.m;
+var lakara = ['लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'लृट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'लृङ्'];
 
 if (tins.length == 0) {
     log('/lib/tins_cache should have some values !');
@@ -50,52 +52,38 @@ excep['लङ्'] = ['gurd-krIqAyAm-BvAdiH-45', 'BlAS-dIptO-BvAdiH-1237', 'BrAS
 verbs.forEach(function(verb) {
     var gana = verb.gana;
     if (gana != 1) return;
-    // p(verb.dhatu);
-    // if (inc(exceptions, verb.key)) return;
-    // log('V', verb.key, verb.dhatu, ' ');
-
-    // var aaa = filter.gana(gana);
-    // angas[verb.dhatu] = {strong: [], weak: []};
-    var result = {dhatu: verb.dhatu, gana: gana};
-    var stems = []; // это для A:
-    for (var pada in verb.la) {
-        // log('pada:', pada);
-        var lakaras = verb.la[pada];
-        for (var la in lakaras) {
-            if (la != 'लट्') continue;
-            // if (la != 'लङ्') continue;
-            // if (la != 'लङ्' && la != 'लट्') continue;
-            if (inc(excep[la], verb.key)) continue;
-
-            var numbers = lakaras[la];
-            // log('la:', la);
-
-            var strongs = [];
-            var weaks = [];
-            for (var number in numbers) {
-                // log('N', number);
-                var forms = numbers[number];
-                forms.forEach(function(form, idx) {
-                    var purusha = nmap[idx.toString()];
-                    // log('P', purusha);
-                    var numper = [purusha, number].join('.');
-                    // log(pada, numper, form);
-
-                    var oStem = stemForForm(verb.key, verb.dhatu, form, gana, la, pada, numper);
-                    var stem = oStem.stem;
-                    // FIXME:
-                    if (gana == 1) stems.push(stem);
-                    else 'kuku'; //;
-                    // if (number == '1') strongs.push(stem);
-                    // else weaks.push(stem);
-                });
-            }
+    if (verb.dhatu != 'भज्') return;
+    log('D', verb.dhatu);
+    var result = {gana: gana, dhatu: verb.dhatu, artha: verb.artha};
+    lakara.forEach(function(la) {
+        var stems = [];
+        var strongs = [];
+        var weaks = [];
+        if (la != 'लट्') return;
+        // if (la != 'लङ्') continue;
+        // if (la != 'लङ्' && la != 'लट्') continue;
+        if (inc(excep[la], verb.key)) return;
+        var laforms = verb[la];
+        log(1, la, laforms);
+        for (var tip in laforms) {
+            var form2 = laforms[tip];
+            // log(333, tip, form2)
+            var forms = form2.split('/');
+            forms.forEach(function(form) {
+                var tipStem = stemForForm(verb.key, verb.dhatu, gana, form, la, tip);
+                if (!tipStem) return;
+                if (gana == 1) stems.push('stem');
+                // else if (number == '1') strongs.push(stem);
+                // else weaks.push(stem);
+            });
+        }
+        return;
             var ustem = _.uniq(stems);
             var ustrong = _.uniq(strongs);
             var uweak = _.uniq(weaks);
-            var errStem = ['eStem:', verb.key, verb.dhatu, pada, la, JSON.stringify(ustem)].join(' - ');
-            var errStrong = ['eStrong:', verb.key, verb.dhatu, pada, la, JSON.stringify(ustrong)].join(' - ');
-            var errWeak = ['eWeak:', verb.key, verb.dhatu, pada, la, JSON.stringify(uweak)].join(' - ');
+            var errStem = ['eStem:', verb.key, verb.dhatu, tip, la, JSON.stringify(ustem)].join(' - ');
+            var errStrong = ['eStrong:', verb.key, verb.dhatu, tip, la, JSON.stringify(ustrong)].join(' - ');
+            var errWeak = ['eWeak:', verb.key, verb.dhatu, tip, la, JSON.stringify(uweak)].join(' - ');
             if (ustem.length > 1) throw new Error(errStem);
             if (ustrong.length > 1) throw new Error(errStrong);
             if (uweak.length > 1) throw new Error(errWeak);
@@ -113,73 +101,68 @@ verbs.forEach(function(verb) {
             }
             result.lakara.push(oLa);
             // result.key = verb.key;
-            angas.push(result);
-            // log('R', result);
-            // angas.push(JSON.stringify(result));
-        }
-    }
+            // angas.push(result);
+            log('R', result);
+            angas.push(JSON.stringify(result));
+    });
 });
+
 
 // log(tins);
 log('===========');
-p(angas.slice(0,9));
+p(angas.slice(0,5));
 log(angas.length); // 859
 
 // это la-pada-number из цикла, а в tins - свои
-function stemForForm(vkey, dhatu, form, gana, la, pada, numper) {
-    // log('====================', vkey);
-    var key, val;
-    // tins для данных параметров - можно зафризить
-    var thema = (inc([1,4,6,10], gana)) ? 'a' : 'b';
-    var stins = _.select(tins, function(tin) {
-        key = Object.keys(tin)[0];
-        val = tin[key];
-        // log('T1', val.thema, 'T2', thema);
-        if (val.thema) return val.la == la && val.pada == pada && val.np == numper && val.thema == thema;
-        else return val.la == la && val.pada == pada && val.np == numper;
-    });
-    var oStems = [];
+function stemForForm(vkey, dhatu, gana, form, la, tip) {
+    log('====================', form, tip);
+    // tins only for this tip:
+    var stins = _.select(tins, function(tin) { return tin.tip == tip}); // только данные tips
+    var stems = [];
     stins.forEach(function(tin) {
         // log(222, tin);
-        var term = Object.keys(tin)[0];
-        // фильтры terms, специфичные для gana-lakara - иначе придется писать всю строку дважды-многажды
-        if (gana == 1) {
-            if (la == 'लट्' && pada == 'atm' && numper == 'pl.3' && term != 'न्ते') return;
-            else if (la == 'लट्' && pada == 'par' && numper == 'pl.3' && term != 'न्ति') return;
+        if (tin.thema) {
+            var thema = (inc([1,4,6,10], gana)) ? 'a' : 'b';
+            if (tin.thema != thema) return;
         }
+        var term = tin.tin;
+        // фильтры terms, специфичные для gana-lakara-tip - иначе придется писать всю строку дважды-многажды
+        if (gana == 1) {
+            if (la == 'लट्' && tip == 'झ' && term != 'न्ते') return; //  atm. pl.3
+            else if (la == 'लट्' && tip == 'झि' && term != 'न्ति') return; // par. pl.3
+        }
+        // log('S', tip, tin);
         // if (pada == 'atm' && numper == 'du.1') log('Term', numper, term);
-
+        // log(44, tin)
         var re = new RegExp(term + '$');
         var stem = form.replace(re, '');
+        // log('SSSStem', form, stem, term);
         // log('F=S', form, stem, stin);
         if (form == stem) return;
 
         // фильтры angas, по numper, или по -va-ma для первой ганы
         // добавить gana:
         // filter.gana(gana);
-        stem = filter.gana(gana).call(this, dhatu, form, gana, la, pada, numper, stem, term);
-        var oStem = {stem: stem, term: term, la: la, pada: pada, numper: numper};
-        oStems.push(oStem);
+        // stem = filter.gana(gana).call(this, dhatu, form, gana, la, tip, stem, term);
+        // var oStem = {stem: stem, term: term, la: la, pada: pada, numper: numper};
+        stems.push(stem);
     });
-    var errTooMoreStems = ['too more stins:', form, pada, la, numper].join(' - ');
-    if (oStems.length > 1 || oStems.length == 0) {
+    log('S', stems);
+    var shouldBeOneStem = [form, la, tip].join(' - ');
+    if (stems.length > 1) {
         log('ERR: ', vkey, dhatu, 'form:', form);
         p('stins', stins);
-        p('oStems', oStems);
-        throw new Error(errTooMoreStems);
+        p('oStems', stems);
+        throw new Error(shouldBeOneStem);
     }
     // log(111, oStems);
-    return oStems[0];
+    return stems[0];
 }
 
 
-/*
-  нужно же вычитать tins - а это sandhi, да еще внутренние.
-  в результате должно быть :
-  dhatu: [{gana: 1, stem: 'xxx'}, {gana: 2, strong: 'xxx', weak: 'yyy'}]
-  и так для всех dhatu
-*/
+// puts ============
 
-// log(verbs);
-
-// log(tins)
+var txt = angas.join('\n');
+fs.unlinkSync(dhatuAngaPath);
+// fs.writeFileSync(dhatuAngaPath, util.inspect(angas,  {depth: null}) , 'utf-8');
+fs.writeFileSync(dhatuAngaPath, txt, 'utf-8');
