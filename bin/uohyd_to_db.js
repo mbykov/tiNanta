@@ -113,7 +113,7 @@ function parseFile(dataPath) {
             doc.gana = gmap[harr[0]];
             doc.artha = harr[5];
             // doc.iDAgama = harr[6];
-            doc.set = (harr[6] == 'सेट्') ? true : false; // в файлах нет vet?
+            doc.set = (harr[6] == 'सेट्') ? true : false; // в файлах нет vet. - वेट्
         }
         row = row.replace(/-/g, '');
         row = row.replace(/\s+/g, ' ');

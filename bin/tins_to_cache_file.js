@@ -66,7 +66,8 @@ for (var la in lakaras) {
                     doc['thema'] = thema;
                 }
                 if (vow) {
-                    doc['vow'] = true;
+                    if (a) doc['a'] = true;
+                    else doc['vow'] = true;
                 }
                 p(doc);
                 var docData = util.inspect(doc,  {depth: null});

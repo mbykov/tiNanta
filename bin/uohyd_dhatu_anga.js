@@ -22,97 +22,163 @@ var tinsPath = path.join(__dirname, '../lib/tins_cache.js');
 
 var verbs = require(dumpPath);
 var tins = require(tinsPath);
-var nmap = {'0': 'sg', '1': 'du', '2': 'pl'};
-var filter = require('../lib/filterGana');
-
-// вычитаю -tins, собираю stems - д.б. ровно один stem для gana=1, la=law
-// нужно прогнать все глаголы для всех gana-lakara
+// var nmap = {'0': 'sg', '1': 'du', '2': 'pl'};
+// var filter = require('../lib/filterGana');
 
 //                pres. =P: impf; perf; aorist; =F: fut.1 fut2. =M: imp.m. pot.m; ben.m; cond.m;
 var lakara = ['लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'लृट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'लृङ्'];
+// var tipnames = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+var parTips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
+var atmTips = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 
-if (tins.length == 0) {
-    log('/lib/tins_cache should have some values !');
-    return;
-}
+// if (tins.length == 0) {
+//     log('/lib/tins_cache should have some values !');
+//     return;
+// }
 
 var angas = [];
-// var exceptions = ['भ्लाश्', 'भ्राश्', 'भ्रम्', 'घृण्ण्', 'श्रा', 'श्रु', 'श्वच्', 'अक्ष्', 'एज्', 'ग्रुच्', 'क्रम्', 'लष्', 'म्रुच्', 'नाथ्', 'क्षुद्', 'लुञ्ज्', 'इल्', 'क्षल्', 'जल्', 'हुल्', 'क्षीव्', 'मथ्', 'क्षिप्', 'क्षिप्', 'लुट्', 'जूर्', 'क्षिप्', 'क्षिप्', 'लुन्थ्', 'जूर्', 'क्षिप्', 'जर्ज्', 'जम्भ्', 'कुप्', 'लिह्', 'क्षिप्', 'लुन्थ्', 'लाज्', 'मा', 'जूर्', 'कुस्म्', 'ह्लग्', 'हिंस्', 'ह्री', 'इन्द्', 'हुल्', 'क्षीव्', 'ह्री', 'हृ', 'हन्', 'ह्वल्', 'इन्द्', 'इट्', 'इट्', 'हृ', 'हुल्', 'हृ', 'हुल्', 'क्षीव्', 'हय्', 'हृ', 'हुल्', 'क्षुद्', 'रङ्घ्', 'रुण्ठ्', 'स्रु', 'तक्ष्', 'टीक्'];
-
-var exceptions = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'GfR-grahaRe-BvAdiH-623', 'SrA-pAke-BvAdiH-1232', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
-
-var excep = {};
-// excep['लट्'] = ['BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'GfR-grahaRe-BvAdiH-623', 'SrA-pAke-BvAdiH-1232', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
-
-excep['लट्'] = ['DmA-Sabde-BvAdiH-1429', 'BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'DmA-agnisaMyoge-BvAdiH-1428', 'GfR-grahaRe-BvAdiH-623', 'GrA-ganDopAdAne-BvAdiH-1427', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'Svac-gatO-BvAdiH-235', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'ej-kampane-BvAdiH-326', 'gA-gatO-BvAdiH-1462', 'gruc-steyakaraRe-BvAdiH-281', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mnA-aByAse-BvAdiH-1432', 'mruc-gatO-BvAdiH-273', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'pA-pAne-BvAdiH-1426', 'pan-vyavahAre-BvAdiH-628', 'raG-gatO-BvAdiH-145', 'ruW-Alasye-BvAdiH-491', 'ruW-gatO-BvAdiH-495', 'ruW-gatipratiGAte-BvAdiH-492', 'sru-gatO-BvAdiH-1448', 'takz-tanUkaraRe-BvAdiH-990', 'wIk-gatO-BvAdiH-140', 'zWA-gatinivfttO-BvAdiH-1430', '', '', '', '', '', '', ''];
-
-// GrA - и все на -A - нет долгой -A во всех практически формах - FIXME: проверить, м.б. все можно восстановить
-excep['लङ्'] = ['gurd-krIqAyAm-BvAdiH-45', 'BlAS-dIptO-BvAdiH-1237', 'BrAS-dIptO-BvAdiH-1236', 'Bram-calane-BvAdiH-1278', 'DmA-Sabde-BvAdiH-1429', 'DmA-agnisaMyoge-BvAdiH-1428', 'GrA-ganDopAdAne-BvAdiH-1427', 'Sru-SravaRe-BvAdiH-1452', 'Sru-gatO-BvAdiH-1447', 'akz-saNGAte-BvAdiH-989', 'akz-vyAptO-BvAdiH-988', 'gA-gatO-BvAdiH-1462', 'haw-dIptO-BvAdiH-434', 'kram-pAdavikzepe-BvAdiH-675', 'laz-kAntO-BvAdiH-1377', 'mnA-aByAse-BvAdiH-1432', 'nAT-ESvarye-BvAdiH-11', 'nAT-upatApe-BvAdiH-10', 'nAT-yAcYAyAm-BvAdiH-12', 'pA-pAne-BvAdiH-1426', 'pac-pAke-BvAdiH-1531', 'takz-tanUkaraRe-BvAdiH-990', 'zWA-gatinivfttO-BvAdiH-1430', 'zwuB-stamBe-BvAdiH-562', 'pan-vyavahAre-BvAdiH-628', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+var excep = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'लृट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'लृङ्': []};
+var nonuniq = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': ['भण्'], 'लुट्': [], 'लृट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'लृङ्': []};
 
 verbs.forEach(function(verb) {
+    var errVerb = {};
+    var dhatu = verb.dhatu;
+    errVerb[dhatu] = [];
+    // log('E', errVerb);
     var gana = verb.gana;
     if (gana != 1) return;
     // if (verb.key != 'Bez-Baye-BvAdiH-1366') return;
+    // if (verb.key != 'BAm-kroDe-BvAdiH-630') return;
+    // if (verb.key != 'BU-sattAyAm-BvAdiH-1') return; // अपनायीत्
+
+
     log('D', verb.key);
-    var result = {gana: gana, dhatu: verb.dhatu, artha: verb.artha};
+    var result = {gana: gana, dhatu: verb.dhatu, artha: verb.artha, lakara: []};
     var oLas = [];
     lakara.forEach(function(la) {
+        // if (la != 'लिट्') return;        //
+        // if (la != 'लट्') return;        //      if (la != 'लङ्') return;
+        if (la != 'लुङ्') return;        //      if (la != 'लङ्' && la != 'लट्') return;
+        var forms = [];
         var stems = [];
         var strongs = [];
         var weaks = [];
-        // if (la != 'लट्') return;
-        // if (la != 'लङ्') return;
-        if (la != 'लङ्' && la != 'लट्') return;
-        if (inc(excep[la], verb.key)) return;
         var laforms = verb[la];
-        // log(1, la, laforms);
-        for (var tip in laforms) {
-            var form2 = laforms[tip];
-            // log(333, tip, form2)
-            var forms = form2.split('/');
-            forms.forEach(function(form) {
-                var tipStem = stemForForm(verb.key, verb.dhatu, gana, form, la, tip);
-                if (!tipStem) return;
-                if (gana == 1) stems.push(tipStem);
-                // else if (number == '1') strongs.push(stem);
-                // else weaks.push(stem);
-            });
+        if (!laforms) {
+            // log(1, la, 'no la-forms<<<==========');
+            return;
         }
-        var ustem = _.uniq(stems);
-        var ustrong = _.uniq(strongs);
-        var uweak = _.uniq(weaks);
-        var errStem = ['uniq eStem:', verb.key, verb.dhatu, la, JSON.stringify(ustem)].join(' - ');
-        var errStrong = ['uniq eStrong:', verb.key, verb.dhatu, la, JSON.stringify(ustrong)].join(' - ');
-        var errWeak = ['uniq eWeak:', verb.key, verb.dhatu, la, JSON.stringify(uweak)].join(' - ');
-        if (ustem.length > 1) throw new Error(errStem);
-        if (ustrong.length > 1) throw new Error(errStrong);
-        if (uweak.length > 1) throw new Error(errWeak);
-
-        if (!result.lakara) result.lakara = [];
-        var oLa = {la: la};
-        if (ustem.length == 1) {
-            oLa.stem = ustem[0];
-        } else {
-            oLa.strong = ustrong[0];
-            oLa.weak = uweak[0];
-        }
-        oLas.push(oLa);
+        var oRes = stemForLakara(verb, laforms);
+        // log(verb.key, stems);
     });
-    result.lakara = oLas;
-    // result.key = verb.key;
-    // angas.push(result);
-    // log('R', result);
-    angas.push(JSON.stringify(result));
+    // result.lakara = oLas;
+    // p('Res', JSON.stringify(result));
+    // angas.push(JSON.stringify(result));
 });
 
 
 // log(tins);
 log('===========');
 p(angas.slice(0,5));
-log(angas.length); // 859
+log(angas.length); // liw: 925
+// p(excep['लिट्']);
+log('====== error dirty:');
+log(excep['लिट्'].length);
+
+function stemFromArray(strArr, verb, tin) {
+    var strarr;
+    var syms = [];
+    var idx = 0;
+    while(idx < 10) {
+        strarr = strArr.map(function(stem) { return stem[idx]; });
+        var uniq = _.uniq(strarr);
+        if (uniq.length > 1) break;
+        syms.push(uniq[0]);
+        idx++;
+    };
+    var stem = syms.join('');
+    var finDhatu = verb.dhatu.replace(/्$/, '').slice(-1); // убрал вираму
+    // log(444, verb.dhatu, verb.dhatu.replace(/्$/, ''), verb.dhatu.replace(/्$/, '').slice(-1));
+    var finStem = stem.replace(/्$/, '').slice(-1);
+    // здесь проверять совпадение последних в цикле?
+    // log(111, stem, 222, finDhatu, 333, finStem);
+    if (finDhatu != finStem) {
+        stem = stem.replace(/ि$/, '').replace(/स्$/, '').replace(/िस्$/, '').replace(/स$/, '').replace(/िष्$/, '').replace(/सा$/, '').replace(/िष$/, ''); //
+    }
+    // log(222, stem);
+    finStem = stem.replace(/्$/, '').slice(-1);
+    if (finDhatu != finStem) {
+        // log('ERR dhatu:', verb.dhatu, 'stem:', stem,  verb.dhatu, 'fd', finDhatu, 'fs', finStem);
+        // log('ERR dhatu:', verb.dhatu, 'stem:', stem,  verb.dhatu, laforms);
+        // throw new Error();
+    }
+    log('stem:', stem, 'form', strArr[0]);
+    var reStem = new RegExp('^' + stem);
+    var reTin = new RegExp(tin + '$'); // это только для luN, aorist /// >>>>>>>> тут м.б. разные окончания, -ta или -wa
+    // нужно вычислять stem и набор -tins - из семи наборов - по первому окончанию?
+    // или сохранять весь набор - точнее, но объемнее
+    // или вычислить свои семь и больше наборов
+    var isuf = strArr[0].replace(reStem, '').replace(reTin, '');
+    return {stem: stem, isuf: isuf};
+}
+
+function stemForLakara(verb, laforms) {
+    // log('LA', laforms);
+    // строки forms, отбрасываю sandhi-варианты (редкие), и по отдельности для par и atm
+    // var strings = [];
+    var parStrs = [];
+    var atmStrs = [];
+    parTips.forEach(function(tip) {
+        var form2 = laforms[tip];
+        if (!form2) return;
+        var forms = form2.split('/');
+        if (forms.length > 1) return;
+        parStrs.push(form2);
+    });
+    atmTips.forEach(function(tip) {
+        var form2 = laforms[tip];
+        if (!form2) return;
+        var forms = form2.split('/');
+        if (forms.length > 1) return;
+        atmStrs.push(form2);
+    });
+    var pstem, astem, psuf, asuf;
+    if (parStrs.length == 0 && atmStrs.length == 0) return;
+    // log('STRINGS', parStrs);
+    // стем по строкам
+    if (parStrs.length > 0) pstem = stemFromArray(parStrs, verb, 'त्'); // tip - только luN
+    if (atmStrs.length > 0)  astem = stemFromArray(atmStrs, verb, 'त');
+
+    var result = [];
+    if (pstem) result.push(pstem);
+    if (astem) result.push(astem);
+    // здесь для аорист - выделить stem и s-suffix, i-s-ish
+    // return {stem: stem, tips: JSON.stringify(tips)};
+    log('res', result);
+    return result;
+}
+
+
+// var tips = {};
+// for (var tip in laforms) {
+//     form2 = laforms[tip];
+//     forms = form2.split('/');
+//     if (forms.length > 1) continue;
+//     // log(333, tip, form2);
+//     var re = new RegExp('^' + stem);
+//     var tin = form2.replace(re, '');
+//     tips[tip] = tin;
+// }
+// log({stem: stem, tips: JSON.stringify(tips)});
+
+
+// Мосфю 70 кв 238
+// Унмвер, т34, а67, 103, 130, 260 ост М - высотные башни, кварита 238 2-корпус, 4 этаж.
+
+// старое =============================
 
 // это la-pada-number из цикла, а в tins - свои
-function stemForForm(vkey, dhatu, gana, form, la, tip) {
+function stemForForm_(vkey, dhatu, gana, set, form, la, tip) {
     // log('====================', form, tip);
     // tins only for this tip:
     var stins = _.select(tins, function(tin) { return tin.la == la && tin.tip == tip}); // только подходящие tips
@@ -128,22 +194,29 @@ function stemForForm(vkey, dhatu, gana, form, la, tip) {
         var re = new RegExp(term + '$');
         var stem = form.replace(re, '');
         // log('F=S', form, stem, term);
-        if (form == stem) return;
+        if (term != '' && form == stem) return;
         // log('S0', stins);
-        stem = filter.gana(gana).call(this, dhatu, form, gana, la, tip, stem, term);
+        stem = filter.gana(gana).call(this, dhatu, form, gana, set, la, tip, stem, term);
         // var oStem = {stem: stem, term: term, la: la, pada: pada, numper: numper};
         stems.push(stem);
     });
-    // log('S=>', la, tip, form, stems);
+    stems = _.uniq(stems);
     var shouldBeOneStem = [form, la, tip].join(' - ');
-    if (stems.length > 1) {
-        log('ERR: ', vkey, dhatu, 'form:', form);
+    var res = {};
+    if (stems.length == 0) {
+        return {err: form};
+    } else if (stems.length > 1) {
+        log('ERR one stem: ', vkey, dhatu, 'form:', form);
         p('stins', stins);
         p('oStems', stems);
+        log('S=>', la, tip, form, stems);
         throw new Error(shouldBeOneStem);
     }
     // log(111, oStems);
-    return stems[0];
+    // lash should be a:
+    var last = stems[0].slice(-1);
+    if (!u.isConsonant(last)) return {err: form};
+    return {stem: stems[0]};
 }
 
 

@@ -30,6 +30,8 @@
   - [ ] подробно описать процесс - workflow
   - [ ]
 
+* two tenses -present and imperfect- and the two moods - imperative and potential
+
 * 16 июня
   - скачиваю таблицы с uohid в цикле
   - head - часть инфо из таблицы ссылок uohyd_dump_links.txt
