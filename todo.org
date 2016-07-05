@@ -19,16 +19,20 @@
   - ну может сделает Патель чисто
   -
 
-* TODO 28 июня
-  - [ ] записать dhatu-anga в файл
+
+* luN
+  сейчас я нахожу стем, но не знаю его -tin. То есть будет много вариантов
+  и с сандхи окончаний не ясно.
+
+* TODO 5 июля
+  - [ ] s-tins for luN - частоты в таблице
+  - [ ] сделать чтение файла stems, если есть stem - то через него
   - [ ] main - tinanta.js
-  - [ ] читать shatu-anga
-  - [ ] найти stem-s
   - [ ] организовать тесты
   - [ ] lat, laN
-  - [ ] остальные
-  - [ ] подробно описать процесс - workflow
   - [ ]
+
+
 
 * two tenses -present and imperfect- and the two moods - imperative and potential
 

@@ -28,6 +28,10 @@ var tins = require(tinsPath);
 //                pres. =P: impf; perf; aorist; =F: fut.1 fut2. =M: imp.m. pot.m; ben.m; cond.m;
 var lakara = ['लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'लृट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'लृङ्'];
 var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+// var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+// 'लुङ्': {'तिप्': 'त्', 'तस्': 'ताम्-इष्टाम्', 'झि': 'अन्-सुः-इषुः-सिषुः', 'सिप्': 'ः-षः', 'थस्': 'तम्-ष्टम्', 'थ': 'त-ष्ट', 'मिप्': 'अम्-षम्', 'वस्': 'व', 'मस्': 'म', 'त': 'त-स्त-इष्ट-सत', 'आताम्': 'इताम्-साताम्-इषाताम्-साताम्', 'झ': 'अन्त-सत-इषत-सन्त', 'थास्': 'थाः-स्थाः-इष्ठाः-सथाः', 'आथाम्': 'इथाम्-साथाम्-इषाथाम्', 'ध्वम्': 'ध्वम्', 'इट्': 'इ-इष', 'वहि': 'वहि', 'महिङ्': 'महि'}
+
+
 // var parTips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 // var atmTips = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 
@@ -40,6 +44,7 @@ var angas = [];
 var excep = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'लृट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'लृङ्': []};
 var nonuniq = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': ['भण्'], 'लुट्': [], 'लृट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'लृङ्': []};
 var uniqStips = [];
+var freq = {};
 
 verbs.forEach(function(verb) {
     var errVerb = {};
@@ -50,12 +55,14 @@ verbs.forEach(function(verb) {
     if (gana != 1) return;
     // if (verb.key != 'Bez-Baye-BvAdiH-1366') return;
     // if (verb.key != 'BAm-kroDe-BvAdiH-630') return;
-    // if (verb.key != 'BU-sattAyAm-BvAdiH-1') return; // अपनायीत्
+    // if (verb.key != 'BU-sattAyAm-BvAdiH-1') return;
+    if (verb.key != 'yaB-viparItamETune-BvAdiH-1505') return;
 
 
     log('D', verb.key);
     var result = {gana: gana, dhatu: verb.dhatu, artha: verb.artha, lakara: []};
-    var oLas = [];
+    // var oLas = [];
+    var oLa = {};
     lakara.forEach(function(la) {
         // if (la != 'लिट्') return;        //
         // if (la != 'लट्') return;        //      if (la != 'लङ्') return;
@@ -66,57 +73,81 @@ verbs.forEach(function(verb) {
         var weaks = [];
         var laforms = verb[la];
         if (!laforms) {
-            // log(1, la, 'no la-forms<<<==========');
+            // log(la, 'no la-forms<<<==========');
             return;
         }
         var oRes = stemForLakara(verb, laforms);
+        // log(1, oRes);
         if (!oRes) return;
-        // эту нужно загонять в la
-        if (!inc(uniqStips, oRes.stips)) uniqStips.push(oRes.stips);
-    // log(verb.key, stems);
-    });
-    // result.lakara = oLas;
+        oRes.forEach(function(r) {
+            stems.push(r.stem);
+            if (!inc(uniqStips, r.stips)) uniqStips.push(r.stips);
+            if (!freq[r.stips]) freq[r.stips] = {freq: 1, v: verb.key};
+            else {
+                freq[r.stips].freq +=1;
+                freq[r.stips].v = '';
+            }
+
+        });
+        oLa[la] = stems;
+    }); // la
+    result.lakara.push(oLa);
     // p('Res', JSON.stringify(result));
-    // angas.push(JSON.stringify(result));
+    angas.push(JSON.stringify(result));
 });
 
-log(uniqStips);
 
+log('uniq tips.length:', freq);
 
 // log(tins);
 log('===========');
 p(angas.slice(0,5));
 log(angas.length); // liw: 925
 // p(excep['लिट्']);
-log('====== error dirty:');
-log(excep['लिट्'].length);
 
 function stemForLakara(verb, laforms) {
     // log('LA', laforms);
-    // строки forms, отбрасываю sandhi-варианты (редкие), и по отдельности для par и atm
     var tipForms = [];
-    tips.forEach(function(tip) {
+    var parForms = [];
+    var atmForms = [];
+    // var pada;
+    tips.forEach(function(tip, idx) {
         var form2 = laforms[tip];
         if (!form2) return;
         var forms = form2.split('/');
+        // два дела - цикл и звонкие:
         if (forms.length > 1) return;
-        var obj = {};
-        obj[tip] = form2;
-        tipForms.push({tip: tip, form: form2});
+        if (idx < 9) parForms.push({tip: tip, form: form2});
+        else atmForms.push({tip: tip, form: form2});
     });
-    if (tipForms.length == 0) return;
-    // log('TIParr', tipForms);
-    var res = stemAndTins(tipForms, verb); // tip - только luN
-    // log('res', res);
+    if (parForms.length == 0 && atmForms.length == 0) return;
+    // log('TIParr', parForms);
+    // log('TIParr', atmForms);
+    var res = [];
+    res.push(stemAndTins(parForms, 'par'));
+    res.push(stemAndTins(atmForms, 'atm'));
     return res;
 }
 
-function stemAndTins(tipForms, verb) {
+function stemAndTins(tipForms, pada) {
     var column;
     var syms = [];
     var idx = 0;
+    var sym, next, next2;
     while(idx < 10) {
-        column = tipForms.map(function(obj) { return obj.form[idx]; });
+        // ब्ध
+        column = tipForms.map(function(obj) { // obj = { tip: 'थस्', form: 'अयाब्धम्' }
+            sym = obj.form[idx];
+            next = obj.form[idx+1];
+            next2 = obj.form[idx+2];
+            // разобраться, что меняет звонкость - всегда dha, или что-то еще? Это luN
+            // log('SYM', sym);
+            var old  = sym;
+            if (next && next == c.virama && next2 == 'ध') sym = u.soft2hard(sym) || sym;
+            if (old != sym) log('HARD SYM', old, sym);
+
+            return sym;
+        });
         var uniq = _.uniq(column);
         if (uniq.length > 1) break;
         syms.push(uniq[0]);
@@ -124,14 +155,14 @@ function stemAndTins(tipForms, verb) {
     };
     var stem = syms.join('');
     var reStem = new RegExp('^' + stem);
-    log('STEM', stem);
+    // log('STEM', stem);
     var stips = {};
     tipForms.forEach(function(obj) {
         var stin = obj.form.replace(reStem, '');
         stips[obj.tip] = stin;
     });
     var json = JSON.stringify(stips);
-    return {stem: stem, stips: json};
+    return {stem: stem, pada: pada, stips: json};
 }
 
 
