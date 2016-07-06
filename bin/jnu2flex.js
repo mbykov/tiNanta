@@ -1,4 +1,5 @@
-/ /
+// это устарело, я пытался прописать tins вручную
+
 var fs = require('fs');
 var util = require('util');
 var _ = require('underscore');
@@ -139,7 +140,7 @@ function getTerms(gana, la, pada, key, size, cterms) {
 // p('DHs', dhatus['1-BU']);
 
 var dhatukeys = _.keys(dhatus);
-log('SIZE:', dhatukeys);
+log('SIZE:', dhatus);
 
 
 return;

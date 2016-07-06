@@ -28,9 +28,6 @@ var tins = require(tinsPath);
 //                pres. =P: impf; perf; aorist; =F: fut.1 fut2. =M: imp.m. pot.m; ben.m; cond.m;
 var lakara = ['लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'लृट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'लृङ्'];
 var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-// var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-// 'लुङ्': {'तिप्': 'त्', 'तस्': 'ताम्-इष्टाम्', 'झि': 'अन्-सुः-इषुः-सिषुः', 'सिप्': 'ः-षः', 'थस्': 'तम्-ष्टम्', 'थ': 'त-ष्ट', 'मिप्': 'अम्-षम्', 'वस्': 'व', 'मस्': 'म', 'त': 'त-स्त-इष्ट-सत', 'आताम्': 'इताम्-साताम्-इषाताम्-साताम्', 'झ': 'अन्त-सत-इषत-सन्त', 'थास्': 'थाः-स्थाः-इष्ठाः-सथाः', 'आथाम्': 'इथाम्-साथाम्-इषाथाम्', 'ध्वम्': 'ध्वम्', 'इट्': 'इ-इष', 'वहि': 'वहि', 'महिङ्': 'महि'}
-
 
 // var parTips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 // var atmTips = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
@@ -45,6 +42,8 @@ var excep = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्
 var nonuniq = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': ['भण्'], 'लुट्': [], 'लृट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'लृङ्': []};
 var uniqStips = [];
 var freq = {};
+var tinsForLuN = {'तिप्': [], 'तस्': [], 'झि': [], 'सिप्': [], 'थस्': [], 'थ': [], 'मिप्': [], 'वस्': [], 'मस्': [], 'त': [], 'आताम्': [], 'झ': [], 'थास्': [], 'आथाम्': [], 'ध्वम्': [], 'इट्': [], 'वहि': [], 'महिङ्': []};
+
 
 verbs.forEach(function(verb) {
     var errVerb = {};
@@ -56,10 +55,9 @@ verbs.forEach(function(verb) {
     // if (verb.key != 'Bez-Baye-BvAdiH-1366') return;
     // if (verb.key != 'BAm-kroDe-BvAdiH-630') return;
     // if (verb.key != 'BU-sattAyAm-BvAdiH-1') return;
-    if (verb.key != 'yaB-viparItamETune-BvAdiH-1505') return;
+    // if (verb.key != 'yaB-viparItamETune-BvAdiH-1505') return;
 
-
-    log('D', verb.key);
+    // log('D', verb.key);
     var result = {gana: gana, dhatu: verb.dhatu, artha: verb.artha, lakara: []};
     // var oLas = [];
     var oLa = {};
@@ -97,7 +95,8 @@ verbs.forEach(function(verb) {
 });
 
 
-log('uniq tips.length:', freq);
+log('uniq freq:', tinsForLuN['तिप्'].toString());
+// log('freq size:', _.keys(freq).length);
 
 // log(tins);
 log('===========');
@@ -119,13 +118,17 @@ function stemForLakara(verb, laforms) {
         if (forms.length > 1) return;
         if (idx < 9) parForms.push({tip: tip, form: form2});
         else atmForms.push({tip: tip, form: form2});
+        // forms.forEach(function(form) {
+            // if (idx < 9) parForms.push({tip: tip, form: form});
+            // else atmForms.push({tip: tip, form: form});
+        // });
     });
     if (parForms.length == 0 && atmForms.length == 0) return;
     // log('TIParr', parForms);
     // log('TIParr', atmForms);
     var res = [];
     res.push(stemAndTins(parForms, 'par'));
-    res.push(stemAndTins(atmForms, 'atm'));
+    // res.push(stemAndTins(atmForms, 'atm'));
     return res;
 }
 
@@ -133,19 +136,19 @@ function stemAndTins(tipForms, pada) {
     var column;
     var syms = [];
     var idx = 0;
-    var sym, next, next2;
+    var sym, soft, next, next2;
     while(idx < 10) {
-        // ब्ध
         column = tipForms.map(function(obj) { // obj = { tip: 'थस्', form: 'अयाब्धम्' }
             sym = obj.form[idx];
             next = obj.form[idx+1];
             next2 = obj.form[idx+2];
             // разобраться, что меняет звонкость - всегда dha, или что-то еще? Это luN
-            // log('SYM', sym);
-            var old  = sym;
-            if (next && next == c.virama && next2 == 'ध') sym = u.soft2hard(sym) || sym;
-            if (old != sym) log('HARD SYM', old, sym);
-
+            // var old  = sym;
+            if (next && next == c.virama && next2 == 'ध') {
+                soft = sym;
+                sym = u.soft2hard(sym) || sym;
+            }
+            // if (old != sym) log('HARD SYM', old, sym);
             return sym;
         });
         var uniq = _.uniq(column);
@@ -154,15 +157,20 @@ function stemAndTins(tipForms, pada) {
         idx++;
     };
     var stem = syms.join('');
+    var softStem, reSoft;
+    if (soft) {
+        softStem = stem.slice(0, -2);
+        softStem = [softStem, soft, c.virama].join('');
+        reSoft = new RegExp('^' + softStem);
+    }
     var reStem = new RegExp('^' + stem);
     // log('STEM', stem);
-    var stips = {};
     tipForms.forEach(function(obj) {
         var stin = obj.form.replace(reStem, '');
-        stips[obj.tip] = stin;
+        if (soft) stin = stin.replace(reSoft, '');
+        if (!inc(tinsForLuN[obj.tip], stin)) tinsForLuN[obj.tip].push(stin);
     });
-    var json = JSON.stringify(stips);
-    return {stem: stem, pada: pada, stips: json};
+    return {stem: stem, pada: pada};
 }
 
 
