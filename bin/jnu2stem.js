@@ -17,8 +17,11 @@ var salita = require('salita-component');
 
 // log('DRU', dru);
 
-var jnu_verbs = './Junk/jnu-tiNanta-values.txt';
+var jnu_verbs = './jnu/jnu-tiNanta-values.txt';
 var dataPath = path.join(__dirname, '../', jnu_verbs);
+
+var tinsForLuN = {'तिप्': [], 'तस्': [], 'झि': [], 'सिप्': [], 'थस्': [], 'थ': [], 'मिप्': [], 'वस्': [], 'मस्': [], 'त': [], 'आताम्': [], 'झ': [], 'थास्': [], 'आथाम्': [], 'ध्वम्': [], 'इट्': [], 'वहि': [], 'महिङ्': []};
+var tins = {};
 
 // log('RUN ===', dataPath);
 
@@ -33,9 +36,10 @@ function run(rows) {
     var dhatuslp, arthaslp, ganaslp, padaslp, key;
     var stem;
     rows.forEach(function(row, idz) {
+        row = row.trim();
         if (row == '') return;
         if (row[0] == '#') return;
-        if (idz > 10) return;
+        // if (idz > 100) return;
         row = row.replace(/\s+/g, ' ');
         rowarr = row.split('\\n');
         head = rowarr.shift();
@@ -45,6 +49,7 @@ function run(rows) {
         headarr = headarr.replace(')', '');
         headarr = headarr.split(',');
         // log(rowarr);
+        if (!headarr[2]) log('E', row);
         artha = headarr[0].trim();
         gana = headarr[1].trim().replace('गण', '');
         pada = headarr[2].trim();
@@ -57,19 +62,22 @@ function run(rows) {
         // var oDhatu = {dhatu: dhatu, artha: artha, pada: pada, la: la};
         if (!dhatus[key]) dhatus[key] = {};
         // dhatus.push(oDhatu);
-        stem = stemForLa(rowarr);
+        stem = stemForLa(rowarr, la, dhatu);
         dhatus[key][la] = {stem: stem};
     });
 }
 
-function stemForLa(rowarr) {
+function stemForLa(rowarr, la, dhatu) {
     // log(111, rowarr);
+    tins[la] = [];
     var stem, column, sym, next, next2, soft;
     var syms = [];
     var forms = [];
     rowarr.forEach(function(r) { forms = forms.concat(r.trim().split(' '))});
-    // log(2, forms);
-    if (forms.length != 9) throw new Error('forms length is not 9');
+    if (forms.length != 9) {
+        log('ERR: ', la, forms);
+        throw new Error('forms length is not 9 ' + la + ' - ' +dhatu);
+    }
     var idx = 0;
     while(idx < 15) {
         column = forms.map(function(form) { //
@@ -91,11 +99,34 @@ function stemForLa(rowarr) {
         idx++;
     };
     stem = syms.join('');
+    var softStem, reSoft;
+    if (soft) {
+        softStem = stem.slice(0, -2);
+        softStem = [softStem, soft, c.virama].join('');
+        reSoft = new RegExp('^' + softStem);
+    }
+    var reStem = new RegExp('^' + stem);
+    var tinStr = {};
+    var json;
+    forms.forEach(function(form, idx) {
+        var tip = idx.toString();
+        if (!tinStr[tip]) tinStr[tip] = [];
+        var stin = form.replace(reStem, '');
+        if (soft) stin = stin.replace(reSoft, '');
+        tinStr[tip].push(stin);
+        // log('================', json);
+    });
+    json = JSON.stringify(tinStr);
+    if (!inc(tins[la], json)) tins[la].push(json);
+
     return stem;
 }
 
+
+
 run(rows);
-log(dhatus);
+// log(dhatus);
+log('TINS', tins);
 
 
  // भू (सत्तायाम्, भ्वादिगण, परस्मै, लट्) \n भवति भवतः भवन्ति \n भवसि भवथः भवथ \n भवामि भवावः भवामः
