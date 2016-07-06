@@ -28,9 +28,10 @@ log('size', rows.length);
 
 var dhatus = {};
 function run(rows) {
-    var rowarr = [];
+    var rowarr, rowforms = [];
     var head, headarr, dhatu, artha, gana, pada, la;
     var dhatuslp, arthaslp, ganaslp, padaslp, key;
+    var stem;
     rows.forEach(function(row, idz) {
         if (row == '') return;
         if (row[0] == '#') return;
@@ -38,11 +39,12 @@ function run(rows) {
         row = row.replace(/\s+/g, ' ');
         rowarr = row.split('\\n');
         head = rowarr.shift();
+        rowforms = row.split(1);
         dhatu = head.split('(')[0].trim();
         headarr = head.split('(')[1].trim();
         headarr = headarr.replace(')', '');
         headarr = headarr.split(',');
-        log(headarr);
+        // log(rowarr);
         artha = headarr[0].trim();
         gana = headarr[1].trim().replace('गण', '');
         pada = headarr[2].trim();
@@ -54,9 +56,42 @@ function run(rows) {
         key = [dhatuslp, arthaslp, ganaslp, padaslp].join('-');
         // var oDhatu = {dhatu: dhatu, artha: artha, pada: pada, la: la};
         if (!dhatus[key]) dhatus[key] = {};
-        dhatus[key][la] = {};
         // dhatus.push(oDhatu);
+        stem = stemForLa(rowarr);
+        dhatus[key][la] = {stem: stem};
     });
+}
+
+function stemForLa(rowarr) {
+    // log(111, rowarr);
+    var stem, column, sym, next, next2, soft;
+    var syms = [];
+    var forms = [];
+    rowarr.forEach(function(r) { forms = forms.concat(r.trim().split(' '))});
+    // log(2, forms);
+    if (forms.length != 9) throw new Error('forms length is not 9');
+    var idx = 0;
+    while(idx < 15) {
+        column = forms.map(function(form) { //
+            sym = form[idx];
+            next = form[idx+1];
+            next2 = form[idx+2];
+            // разобраться, что меняет звонкость - всегда dha, или что-то еще? Это luN
+            // var old  = sym;
+            if (next && next == c.virama && next2 == 'ध') {
+                soft = sym;
+                sym = u.soft2hard(sym) || sym;
+            }
+            // if (old != sym) log('HARD SYM', old, sym);
+            return sym;
+        });
+        var uniq = _.uniq(column);
+        if (uniq.length > 1) break;
+        syms.push(uniq[0]);
+        idx++;
+    };
+    stem = syms.join('');
+    return stem;
 }
 
 run(rows);
