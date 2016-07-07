@@ -12,31 +12,17 @@ var sandhi = s.sandhi;
 var inc = u.include;
 var log = u.log;
 var p = u.p;
-var dru = require('../lib/mahavriksha');
 var salita = require('salita-component');
 
 // log('DRU', dru);
 
+var jtins = require('../lib/jsontins');
 var jnu_verbs = './jnu/jnu-tiNanta-values.txt';
 var dataPath = path.join(__dirname, '../', jnu_verbs);
 
 var tinsForLuN = {'तिप्': [], 'तस्': [], 'झि': [], 'सिप्': [], 'थस्': [], 'थ': [], 'मिप्': [], 'वस्': [], 'मस्': [], 'त': [], 'आताम्': [], 'झ': [], 'थास्': [], 'आथाम्': [], 'ध्वम्': [], 'इट्': [], 'वहि': [], 'महिङ्': []};
 // var tins = {};
 var tins = {'लट्': [], 'लोट्': [], 'लङ्': [], 'विधिलिङ्': [], 'लिट्': [], 'लुट्': [], 'ऌट्': [], 'आशीर्लिङ्': [], 'लुङ्': [], 'ॡङ्': []};
-
-// a=  { 'लट्': [ '{"0":["ते"],"1":["ेते"],"2":["न्ते"],"3":["से"],"4":["ेथे"],"5":["ध्वे"],"6":["े"],"7":["ावहे"],"8":["ामहे"]}' ],
-//   'लोट्': [ '{"0":["ताम्"],"1":["ेताम्"],"2":["न्ताम्"],"3":["स्व"],"4":["ेथाम्"],"5":["ध्वम्"],"6":["ै"],"7":["ावहै"],"8":["ामहै"]}' ],
-//   'लङ्': [ '{"0":["त"],"1":["ेताम्"],"2":["न्त"],"3":["थाः"],"4":["ेथाम्"],"5":["ध्वम्"],"6":["े"],"7":["ावहि"],"8":["ामहि"]}' ],
-//   'विधिलिङ्': [ '{"0":["त"],"1":["याताम्"],"2":["रन्"],"3":["थाः"],"4":["याथाम्"],"5":["ध्वम्"],"6":["य"],"7":["वहि"],"8":["महि"]}' ],
-//   'लिट्': [ '{"0":["्रे"],"1":["्राते"],"2":["्रिरे"],"3":["ृषे"],"4":["्राथे"],"5":["ृढ्वे"],"6":["्रे"],"7":["ृवहे"],"8":["ृमहे"]}' ],
-//   'लुट्': [ '{"0":[""],"1":["रौ"],"2":["रः"],"3":["से"],"4":["साथे"],"5":["ध्वे"],"6":["हे"],"7":["स्वहे"],"8":["स्महे"]}' ],
-//   'ऌट्': [ '{"0":["ते"],"1":["ेते"],"2":["न्ते"],"3":["से"],"4":["ेथे"],"5":["ध्वे"],"6":["े"],"7":["ावहे"],"8":["ामहे"]}' ],
-//   'आशीर्लिङ्': [ '{"0":["ष्ट"],"1":["यास्ताम्"],"2":["रन्"],"3":["ष्ठाः"],"4":["यास्थाम्"],"5":["ध्वम्"],"6":["य"],"7":["वहि"],"8":["महि"]}' ],
-//   'लुङ्': [ '{"0":["त"],"1":["ेताम्"],"2":["न्त"],"3":["थाः"],"4":["ेथाम्"],"5":["ध्वम्"],"6":["े"],"7":["ावहि"],"8":["ामहि"]}' ],
-//   'ॡङ्': [ '{"0":["त"],"1":["ेताम्"],"2":["न्त"],"3":["थाः"],"4":["ेथाम्"],"5":["ध्वम्"],"6":["े"],"7":["ावहि"],"8":["ामहि"]}' ] }
-
-
-// log('RUN ===', dataPath);
 
 var rows = fs.readFileSync(dataPath).toString().split('\n');
 log('size', rows.length);
@@ -72,18 +58,24 @@ function run(rows) {
         ganaslp = salita.sa2slp(gana);
         padaslp = salita.sa2slp(pada);
 
-        if (padaslp == 'Atmane') return;
-
+        if (ganaslp != 'BvAdi') return;
+        // if (padaslp == 'Atmane') return;
         key = [dhatuslp, arthaslp, ganaslp, padaslp].join('-');
-        // var oDhatu = {dhatu: dhatu, artha: artha, pada: pada, la: la};
-        if (!dhatus[key]) dhatus[key] = {};
+        var oDhatu = {dhatu: dhatu, artha: artha, pada: pada};
+        if (!dhatus[key]) dhatus[key] = oDhatu;
         // dhatus.push(oDhatu);
-        stem = stemForLa(rowarr, la, dhatu);
-        dhatus[key][la] = {stem: stem};
+
+        if (la != 'लट्') return;
+
+        var res = stemForLa(rowarr, la, pada, dhatu);
+        dhatus[key][la] = {stem: res.stem};
+        if (res.excep && la == 'लट्') dhatus[key][la]['excep'] = res.excep;
+        // if (res.excep && la == 'लट्') log('EXCEP', dhatuslp);
+        // if (res.excep) dhatus[key]['forms'] = rowarr;
     });
 }
 
-function stemForLa(rowarr, la, dhatu) {
+function stemForLa(rowarr, la, pada, dhatu) {
     // log(111, rowarr);
     var stem, column, sym, next, next2, soft;
     var syms = [];
@@ -122,6 +114,7 @@ function stemForLa(rowarr, la, dhatu) {
     }
     var reStem = new RegExp('^' + stem);
     var tinStr = {};
+    var tinArr = [];
     var json;
     forms.forEach(function(form, idx) {
         var tip = idx.toString();
@@ -129,19 +122,38 @@ function stemForLa(rowarr, la, dhatu) {
         var stin = form.replace(reStem, '');
         if (soft) stin = stin.replace(reSoft, '');
         tinStr[tip].push(stin);
+        tinArr.push(stin);
         // log('================', json);
     });
     json = JSON.stringify(tinStr);
+    json = JSON.stringify(tinArr);
     if (!inc(tins[la], json)) tins[la].push(json);
-
-    return stem;
+    // if (json != '{"0":["ति"],"1":["तः"],"2":["न्ति"],"3":["सि"],"4":["थः"],"5":["थ"],"6":["ामि"],"7":["ावः"],"8":["ामः"]}') log('===> EXCEP', la);
+    // परस्मै
+    var res;
+    if (inc(jtins[la][pada], json)) res= {stem: stem};
+    else res = {stem: stem, excep: json};
+    return res;
 }
 
 // यामः "्यामः" "्यतः"
 
 run(rows);
-log('dhanus', _.keys(dhatus).length);
+log('dhatus', _.keys(dhatus).length);
 log('TINS', tins['लट्']);
+log('TINS', tins['लट्'].length);
+
+// var exceps = _.select(dhatus, function (dhatu) { return dhatu.excep});
+// log(exceps.slice(0,3));
+var idz = 0;
+for (var key in dhatus) {
+    var dhatu = dhatus[key];
+    log('idz', idz);
+    // if (!dhatu.la. !!! excep) continue; // ते "  ेते"  स्पर् ध ैयम्
+    log('D', key, dhatu);
+    idz = idz +1;
+    if (idz > 2) break;
+}
 
 
  // भू (सत्तायाम्, भ्वादिगण, परस्मै, लट्) \n भवति भवतः भवन्ति \n भवसि भवथः भवथ \n भवामि भवावः भवामः
