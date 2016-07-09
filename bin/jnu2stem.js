@@ -14,26 +14,68 @@ var log = u.log;
 var p = u.p;
 var salita = require('salita-component');
 
-// log('DRU', dru);
+// log('DRU', dru); // слово о полку Игоревом
 
-var jtins = require('../lib/jsontins');
+// log('JTINS', c_tins);
 var jnu_verbs = './jnu/jnu-tiNanta-values.txt';
 var dataPath = path.join(__dirname, '../', jnu_verbs);
+// var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
+// var c_tins = require(canonicalTinsPath);
 
-var tinsForLuN = {'तिप्': [], 'तस्': [], 'झि': [], 'सिप्': [], 'थस्': [], 'थ': [], 'मिप्': [], 'वस्': [], 'मस्': [], 'त': [], 'आताम्': [], 'झ': [], 'थास्': [], 'आथाम्': [], 'ध्वम्': [], 'इट्': [], 'वहि': [], 'महिङ्': []};
+// var dhatuAngaPath = path.join(__dirname, '../lib/dhatu_anga.js');
+// var canonicalTinsCachePath = path.join(__dirname, '../lib/canonical_tins_cache.js');
+var jnuTinsPath = path.join(__dirname, '../lib/jnu_tins_cache.js');
+var jnuDhatuAngaPath = path.join(__dirname, '../lib/jnu_dhatu_anga_cache.js');
+
+// var tin_names = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
+var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+var tips = {
+    'परस्मै': ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'],
+    'आत्मने': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहिङ', 'महिङ'] // 'महिङ्' ? что правильно?
+}
+
 // var tins = {};
-var tins = {'लट्': [], 'लोट्': [], 'लङ्': [], 'विधिलिङ्': [], 'लिट्': [], 'लुट्': [], 'ऌट्': [], 'आशीर्लिङ्': [], 'लुङ्': [], 'ॡङ्': []};
+// pada сидит в голове глагола, неудачно, поэтому la есть массив, пробую latins
+var lakaras = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'ऌट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'ॡङ्': []};
+var latins = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
+
+
+// to save in db-file:
+
+// fs.unlinkSync(canonicalTinsCachePath);
+fs.unlinkSync(jnuDhatuAngaPath);
+fs.unlinkSync(jnuTinsPath);
+// var logger = fs.createWriteStream(dhatuAngaPath, {
+//     flags: 'a', // 'a' means appending (old data will be preserved)
+//     defaultEncoding: 'utf8'
+// });
+// var can_logger = fs.createWriteStream(canonicalTinsCachePath, {
+//     flags: 'a', // 'a' means appending (old data will be preserved)
+//     defaultEncoding: 'utf8'
+// });
+var tin_logger = fs.createWriteStream(jnuTinsPath, {
+    flags: 'a', // 'a' means appending (old data will be preserved)
+    defaultEncoding: 'utf8'
+});
+var anga_logger = fs.createWriteStream(jnuDhatuAngaPath, {
+    flags: 'a', // 'a' means appending (old data will be preserved)
+    defaultEncoding: 'utf8'
+});
 
 var rows = fs.readFileSync(dataPath).toString().split('\n');
 log('size', rows.length);
 
+var la_to_test = 'लुङ्';
 
-var dhatus = {};
+var check = {};
+var docs = [];
 function run(rows) {
     var rowarr, rowforms = [];
     var head, headarr, dhatu, artha, gana, pada, la;
-    var dhatuslp, arthaslp, ganaslp, padaslp, key;
+    var dslp, aslp, gslp, pslp, key;
     var stem;
+    var doc;
     rows.forEach(function(row, idz) {
         row = row.trim();
         if (row == '') return;
@@ -53,26 +95,29 @@ function run(rows) {
         gana = headarr[1].trim().replace('गण', '');
         pada = headarr[2].trim();
         la = headarr[3].trim();
-        dhatuslp = salita.sa2slp(dhatu);
-        arthaslp = salita.sa2slp(artha.replace(/ /g, '_'));
-        ganaslp = salita.sa2slp(gana);
-        padaslp = salita.sa2slp(pada);
+        dslp = salita.sa2slp(dhatu);
+        aslp = salita.sa2slp(artha.replace(/ /g, '_'));
+        gslp = salita.sa2slp(gana);
+        pslp = salita.sa2slp(pada);
 
-        if (ganaslp != 'BvAdi') return;
-        // if (padaslp == 'Atmane') return;
-        key = [dhatuslp, arthaslp, ganaslp, padaslp].join('-');
-        var oDhatu = {dhatu: dhatu, artha: artha, pada: pada};
-        if (!dhatus[key]) dhatus[key] = oDhatu;
-        // dhatus.push(oDhatu);
+        if (gslp != 'BvAdi') return;
+        // if (pslp == 'Atmane') return;
+        // if (pslp == 'parasmE') return;
+        // if (la != la_to_test) return;
 
-        if (la != 'लट्') return;
+        key = [dslp, aslp, gslp, pslp].join('-');
+        if (!check[key]) {
+            if (doc) {
+                docs.push(doc);
+            }
+            doc = {key: key, dhatu: dhatu, artha: artha, pada: pada};
+        }
+        if (!check[key]) check[key] = true;
 
         var res = stemForLa(rowarr, la, pada, dhatu);
-        dhatus[key][la] = {stem: res.stem};
-        if (res.excep && la == 'लट्') dhatus[key][la]['excep'] = res.excep;
-        // if (res.excep && la == 'लट्') log('EXCEP', dhatuslp);
-        // if (res.excep) dhatus[key]['forms'] = rowarr;
+        doc[la] = {stem: res.stem, tvar: res.tvar};
     });
+    docs.push(doc);
 }
 
 function stemForLa(rowarr, la, pada, dhatu) {
@@ -91,13 +136,6 @@ function stemForLa(rowarr, la, pada, dhatu) {
             sym = form[idx];
             next = form[idx+1];
             next2 = form[idx+2];
-            // разобраться, что меняет звонкость - всегда dha, или что-то еще? Это luN
-            // var old  = sym;
-            if (next && next == c.virama && next2 == 'ध') {
-                soft = sym;
-                sym = u.soft2hard(sym) || sym;
-            }
-            // if (old != sym) log('HARD SYM', old, sym);
             return sym;
         });
         var uniq = _.uniq(column);
@@ -106,63 +144,100 @@ function stemForLa(rowarr, la, pada, dhatu) {
         idx++;
     };
     stem = syms.join('');
-    var softStem, reSoft;
-    if (soft) {
-        softStem = stem.slice(0, -2);
-        softStem = [softStem, soft, c.virama].join('');
-        reSoft = new RegExp('^' + softStem);
-    }
     var reStem = new RegExp('^' + stem);
-    var tinStr = {};
     var tinArr = [];
     var json;
     forms.forEach(function(form, idx) {
         var tip = idx.toString();
-        if (!tinStr[tip]) tinStr[tip] = [];
         var stin = form.replace(reStem, '');
-        if (soft) stin = stin.replace(reSoft, '');
-        tinStr[tip].push(stin);
         tinArr.push(stin);
-        // log('================', json);
     });
-    json = JSON.stringify(tinStr);
+
     json = JSON.stringify(tinArr);
-    if (!inc(tins[la], json)) tins[la].push(json);
-    // if (json != '{"0":["ति"],"1":["तः"],"2":["न्ति"],"3":["सि"],"4":["थः"],"5":["थ"],"6":["ामि"],"7":["ावः"],"8":["ामः"]}') log('===> EXCEP', la);
-    // परस्मै
     var res;
-    if (inc(jtins[la][pada], json)) res= {stem: stem};
-    else res = {stem: stem, excep: json};
+    res = {stem: stem};
+    if (!latins[la][pada]) latins[la][pada] = [];
+    var index = latins[la][pada].indexOf(json);
+    if (latins[la][pada].indexOf(json) > -1) {
+        res.tvar = index;
+    } else {
+        latins[la][pada].push(json);
+        res.tvar = 0;
+    }
     return res;
 }
 
-// यामः "्यामः" "्यतः"
-
 run(rows);
-log('dhatus', _.keys(dhatus).length);
-log('TINS', tins['लट्']);
-log('TINS', tins['लट्'].length);
 
-// var exceps = _.select(dhatus, function (dhatu) { return dhatu.excep});
-// log(exceps.slice(0,3));
-var idz = 0;
-for (var key in dhatus) {
-    var dhatu = dhatus[key];
-    log('idz', idz);
-    // if (!dhatu.la. !!! excep) continue; // ते "  ेते"  स्पर् ध ैयम्
-    log('D', key, dhatu);
-    idz = idz +1;
-    if (idz > 2) break;
+// log('LATINS', latins[la_to_test]);
+// log('TEST', docs.slice(-9));
+log('check', _.keys(check).length);
+log('docs', docs.length);
+
+var tincount = 0;
+
+writeStemCache(docs);
+writeTinCache(latins);
+
+log('tins', tincount);
+
+function writeStemCache(docs) {
+    writeHeader(anga_logger);
+    docs.forEach(function(doc, idx) {
+        if (idx > 5) return;
+        var las = _.keys(lakaras);
+        las.forEach(function(la) {
+            var oStem = {stem: doc[la].stem, dhatu: doc.dhatu, la: la, pada: doc.pada, tvar: doc[la].tvar};
+            var stemData = util.inspect(oStem,  {depth: null});
+            anga_logger.write(stemData);
+            anga_logger.write(',\n');
+        });
+    });
+    writeFooter(anga_logger);
+    anga_logger.end();
 }
 
+function writeTinCache(latins) {
+    writeHeader(tin_logger);
+    var check = {};
+    var tkey;
+    for (var la in latins) {
+        var padas = latins[la];
+        // log('LA', la);
+        for (var pada in padas) {
+            var jsons = padas[pada];
+            // log(la, pada, jsons);
+            jsons.forEach(function(json, tvar) {
+                if (tvar > 1) return;
+                var tins = JSON.parse(json);
+                // log(la, pada, tins);
+                var oTin, tinData;
+                var tip;
+                tins.forEach(function(tin, idz) {
+                    // log(la, pada, tin);
+                    tip = tips[pada][idz];
+                    tkey = [tin, la, pada, tip].join('-');
+                    if (check[tkey]) return;
+                    check[tkey] = true;
+                    oTin = {tin: tin, la: la, tip: tips[pada][idz], size: tin.length, tvar: tvar}; // pada: pada,
+                    tinData = util.inspect(oTin,  {depth: null});
+                    tin_logger.write(tinData);
+                    tin_logger.write(',\n');
+                    tincount +=1;
+                });
+            });
+        }
+    }
+    writeFooter(tin_logger);
+    tin_logger.end();
+}
 
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, लट्) \n भवति भवतः भवन्ति \n भवसि भवथः भवथ \n भवामि भवावः भवामः
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, लोट्) \n भवतु भवताम् भवन्तु \n भव भवतम् भवत \n भवानि भवाव भवाम
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, लङ्) \n अभवत् अभवताम् अभवन् \n अभवः अभवतम् अभवत \n अभवम् अभवाव अभवाम
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, विधिलिङ्) \n भवेत् भवेताम् भवेयुः \n भवेः भवेतम् भवेत \n भवेयम् भवेव भवेम
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, लिट्) \n बभूव बभूवतुः बभूवुः \n बभूविथ बभुवथुः बभूव \n बभूव बभुविव बभूविम
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, लुट्) \n भविता भवितारौ भवितारः \n भवितासि भवितास्थः भवितास्थ \n भवितास्मि भवितास्वः भवितास्मः
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, ऌट्) \n भविष्यति भविष्यतः भविष्यन्ति \n भविष्यसि भविष्यथः भविष्यथ \n भविष्यामि भविष्यावः भविष्यामः
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, आशीर्लिङ्) \n भूयात् भूयास्ताम् भूयासुः \n भूयाः भूयास्तम् भूयास्त \n भूयासम् भूयास्व भूयास्म
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, लुङ्) \n अभूत् अभूताम् अभूवन् \n अभूः अभूतम् अभूत \n अभूवम् अभूव अभूम
- // भू (सत्तायाम्, भ्वादिगण, परस्मै, ॡङ्) \n अभविष्यत् अभविष्यताम् अभविष्यन् \n अभविष्यः अभविष्यतम् अभविष्यत \n अभविष्यम् अभविष्याव अभविष्याम
+function writeHeader(logger) {
+    var data = 'var data = [\n';
+    logger.write(data);
+}
+
+function writeFooter(logger) {
+    var data = ']; \nexports = module.exports = data;';
+    logger.write(data);
+}
