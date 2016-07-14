@@ -59,7 +59,7 @@ tests.forEach(function(test, idx) {
             }
         }
     }
-})
+});
 
 for (var pname in tests) {
     var pada = tests[pname];

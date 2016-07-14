@@ -30,6 +30,6 @@ log('morpheus querying...', lat, form);
 
 var queries = stemmer.query(form);
 
-log('============= RESULT-STEMS: ============');
+// log('============= RESULT-STEMS: ============');
 p(queries);
 log('qs size:', queries.length);
