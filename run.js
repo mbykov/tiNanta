@@ -3,6 +3,7 @@
 */
 
 var lat = process.argv.slice(2)[0] || false;
+var find = process.argv.slice(3)[0] || false;
 
 var _ = require('underscore');
 var util = require('util');
@@ -26,9 +27,12 @@ if (/[a-zA-Z]/.test(lat[0])) {
     lat = salita.sa2slp(form);
 }
 
-log('morpheus querying...', lat, form);
+if (find) log('stemmer find:', lat, form); // लोकृ्-लोक् // लोचृ्-लोच्// प्-पा
+else log('stemmer parse:', lat, form);
 
-var queries = stemmer.query(form);
+var queries;
+if (find) queries = stemmer.query(form);
+else queries = stemmer.parse(form);
 
 // log('============= RESULT-STEMS: ============');
 p(queries);

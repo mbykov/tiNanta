@@ -63,7 +63,7 @@ stemmer.prototype.tiNanta = function(query) {
         das = _.select(jnuDhatuAnga, function(da) { return da.tvar == tin.tvar && da.stem == stem && da.la == tin.la && da.pada == tin.pada});
         if (!das) return;
         das.forEach(function(da) {
-            res = {dhatu: da.dhatu, stem: stem, tin: tin.tin, la: tin.la, tip: tin.tip };
+            res = {dhatu: da.dhatu, stem: stem, tin: tin.tin, la: tin.la, pada: tin.pada, tip: tin.tip };
             results.push(res);
         });
     });
@@ -84,11 +84,11 @@ stemmer.prototype.tiNanta = function(query) {
     // log('R', results); // ==>>  बुधिर्_buDir aboDizyAma_XN_parasmE_अबोधिष्याम_ॡङ्_tip_मस्:
 
     // если dhatu нет, parse
-    results = [];
-    if (results.length == 0) {
-        // log('parsing...');
-        results = this.parse(query);
-    }
+    // results = [];
+    // if (results.length == 0) {
+    //     // log('parsing...');
+    //     results = this.parse(query);
+    // }
     return results;
     // this.queries.push('QQQ');
     // return this.queries;
@@ -142,13 +142,13 @@ dhatuMethods['लट्'] = function(tin, query) {
         if (u.isVowel(sym)) vows.push(sym);
     });
     if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
-    // else if (vows.length == 0) tin.dhatu = addVirama(tin.stem); // vow => c.a
-    else if (vows.length == 0) return;
+    else if (vows.length == 0) tin.dhatu = addVirama(tin.stem); // vow => c.a
+    // else if (vows.length == 0) return; // <<====== COMM // vow => c.a
     else {
         vow = vows[0];
         vidx = syms.indexOf(vow);
-        if (inc(c.dirgha_ligas, vow) && false) tin.dhatu = addVirama(tin.stem); // FIXME: но не последняя в корне - это не про первую гану ?
-        // else if (syms.length - vidx > 3) tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant
+        if (inc(c.dirgha_ligas, vow)) tin.dhatu = addVirama(tin.stem); // FIXME: но не последняя в корне - это не про первую гану ?
+        else if (syms.length - vidx > 3) tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant // <<====== COMM
         else {
             weak = aguna(vow); // FIXME: u.aguna()
             if (!weak) return;

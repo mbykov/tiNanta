@@ -39,7 +39,8 @@ tests.forEach(function(json, idx) {
     // log(json);
     if (json == '') return;
     test = JSON.parse(json);
-    if (test.la != 'लट्' || test.pada != 'परस्मै' || test.gana != 'भ्वादि' || test.tip != 'तिप्' ) return;
+    if (test.la != 'लट्' || test.pada != 'परस्मै' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्'
+    if (test.excep) return;
     _Fn(test);
     // log('T', index, test);
     index +=1;
@@ -59,12 +60,12 @@ function _Fn(test) {
         var title = [fslp, test.lslp, test.pslp, form, test.la, 'tip', test.tip].join('_');
         it(title, function() {
             results = stemmer.parse(form);
-            true.should.equal(true);
-            log('t:', test.dhatu, test.dslp, fslp);
-            return;
+            // log('t:', test.dhatu, test.dslp, fslp);
+            // true.should.equal(true);
+            // return;
             // results.length.should.equal(1); // например, cukzuBe चुक्षुभे
-            var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.tip].join('-')});
-            var key = [test.dhatu, test.la, test.tip].join('-');
+            var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
+            var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
             // log(rkeys);
             // log(key);
             // log(inc(rkeys, key));

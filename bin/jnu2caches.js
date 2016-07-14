@@ -184,9 +184,9 @@ function run(rows) {
                 if (la == 'लट्' && pada == 'परस्मै' && res.tvar == 0) {
                     sres = stemmer.parse(form);
                     sdhatus = sres.map(function(r) { return r.dhatu});
-                    if (form == 'उङ्खथ') log('================ Stemmer RES', sres);
-                    if (form == 'उङ्खथ') log('================ RES for LA', res);
-                    if (form == 'उङ्खथ') log('================ rowarr', rowarr);
+                    // if (form == 'उङ्खथ') log('================ Stemmer RES', sres);
+                    // if (form == 'उङ्खथ') log('================ RES for LA', res);
+                    // if (form == 'उङ्खथ') log('================ rowarr', rowarr);
                     if (!inc(sdhatus, dhatu)) test.excep = true;
                     // log('================', form, test);
                     tests.push(test);
