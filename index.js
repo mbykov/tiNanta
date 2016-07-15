@@ -172,15 +172,17 @@ dhatuMethods['लट्'] = function(tin, query) {
 
 // laN
 dhatuMethods['लङ्'] = function(tin, query) {
-    log(JSON.stringify(tin));
+    // log(JSON.stringify(tin));
     var result;
-    var dhatu;
+    // var dhatu;
+    // var stem;
     var fin = tin.stem.slice(-1);
     // if (!u.isConsonant(fin)) return;
     var syms = tin.stem.split('');
     // var beg = syms[0];
     var aug = syms.shift();
     if (!u.isVowel(aug)) return;
+    if (!inc([c.a], aug)) return; // AI, AU, AR
     // var vow = c.a;
     // var weak;
     // var wstem;
@@ -191,6 +193,11 @@ dhatuMethods['लङ्'] = function(tin, query) {
         if (u.isVowel(sym)) vows.push(sym);
     });
     if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
+    tin.aug = aug;
+    tin.stem = syms.join('');
+    tin.dhatu = addVirama(tin.stem);
+    if (!inc(cdhatus, tin.dhatu)) return;
+    this.results.push(tin);
 }
 
 function addVirama(str) {

@@ -39,7 +39,7 @@ tests.forEach(function(json, idx) {
     // log(json);
     if (json == '') return;
     test = JSON.parse(json);
-    if (test.la != 'लट्' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्' // test.pada != 'परस्मै' ||
+    if (test.la != 'लङ्' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्' // test.pada != 'परस्मै' ||
     if (test.excep) return;
     _Fn(test);
     // log('T', index, test);

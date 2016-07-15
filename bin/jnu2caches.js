@@ -319,7 +319,7 @@ function writeTinCache(latins, canons) {
                 tins.forEach(function(tin, idz) {
                     // log(la, pada, tin);
                     tip = tips[pada][idz];
-                    tkey = [tin, la, pada, tip].join('-');
+                    tkey = [tin, la, pada, tip].join('-'); // добавить json не нужно в parse - иначе дубли. Но нет ли пропуска в find?
                     if (check[tkey]) return;
                     check[tkey] = true;
                     oTin = {tin: tin, la: la, tip: tips[pada][idz], size: tin.length, pada: pada, tvar: tvar};
