@@ -22,7 +22,7 @@ var jnu_verbs = './lib/jnu-tiNanta-values.txt';
 var dataPath = path.join(__dirname, '../', jnu_verbs);
 var dhatuListSourcePath = path.join(__dirname, '../', './lib/uohyd_dhatu_list.txt');
 var dhatuListPath = path.join(__dirname, '../', './lib/dhatu_list_cache.txt');
-// var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
+var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.txt');
 // var c_tins = require(canonicalTinsPath);
 
 // var dhatuAngaPath = path.join(__dirname, '../lib/dhatu_anga.js');
@@ -44,6 +44,7 @@ var tips = {
 var lakaras = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'ऌट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'ॡङ्': []};
 var latins = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
 
+var la_to_test = 'लट्';
 
 // to save in db-file:
 
@@ -105,8 +106,6 @@ dhatuList.forEach(function(row) {
 
 var rows = fs.readFileSync(dataPath).toString().split('\n');
 log('size', rows.length);
-
-var la_to_test = 'लुङ्';
 
 var check = {};
 var docs = [];
@@ -181,7 +180,7 @@ function run(rows) {
                 test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
                 // if (form != 'उङ्खथ') return;
 
-                if (la == 'लट्' && pada == 'परस्मै' && res.tvar == 0) {
+                if (la == la_to_test && res.tvar == 0) { // pada == 'परस्मै' &&
                     sres = stemmer.parse(form);
                     sdhatus = sres.map(function(r) { return r.dhatu});
                     // if (form == 'उङ्खथ') log('================ Stemmer RES', sres);
@@ -197,7 +196,7 @@ function run(rows) {
         });
 
     });
-    docs.push(doc);
+    docs.push(doc); // final unprocessed doc
 }
 
 function stemForLa(rowarr, la, pada, dhatu) {
@@ -233,18 +232,23 @@ function stemForLa(rowarr, la, pada, dhatu) {
         tinArr.push(stin);
     });
 
-    json = JSON.stringify(tinArr);
+    // json = JSON.stringify(tinArr);
+    json = tinArr.toString();
     var res;
     res = {stem: stem};
+
+    // ========== TVAR =====================
+    // res соответствует tvar
+    // если json - стандартные-canonical окончания, то res.canon = true - но это не нужно, не все canon - non-excep
     if (!latins[la][pada]) latins[la][pada] = [];
     var index = latins[la][pada].indexOf(json);
     if (index > -1) {
         res.tvar = index;
-        res.old = true;
+        // res.old = true;
     } else {
         latins[la][pada].push(json);
         res.tvar = latins[la][pada].indexOf(json);
-        res.new = true;
+        // res.new = true;
     }
     return res;
 }
@@ -286,7 +290,20 @@ function writeStemCache(docs) {
     anga_logger.end();
 }
 
-function writeTinCache(latins) {
+var canons = fs.readFileSync(canonicalTinsPath).toString().split('\n');
+// var canons = [];
+// canrows.forEach(function(crow) {
+//     if (crow == '') return;
+//     if (crow[0] == '#') return;
+//     // crow = crow.replace(/"/g, '');
+//     // var arr = crow.split(',');
+//     canons.push(crow);
+// });
+
+log('C', canons);
+
+var canon;
+function writeTinCache(latins, canons) {
     writeHeader(tin_logger);
     var check = {};
     var tkey;
@@ -296,9 +313,15 @@ function writeTinCache(latins) {
         for (var pada in padas) {
             var jsons = padas[pada];
             // log(la, pada, jsons);
-            jsons.forEach(function(json, tvar) {
-                var tins = JSON.parse(json);
+            canon = false;
+            jsons.forEach(function(json, tvar, canons) {
+                // log('CAN', canons);
+                if (inc(canons, json)) canon = true;
+                // var tins = JSON.parse(json);
+                var tins = json.split(',');
                 // log(la, pada, tins);
+                // <<<<<<<<<<<<<<<<<<<============= HERE =========
+                // если json - canonical, то oTin - тоже canonical
                 var oTin, tinData;
                 var tip;
                 tins.forEach(function(tin, idz) {
@@ -308,6 +331,7 @@ function writeTinCache(latins) {
                     if (check[tkey]) return;
                     check[tkey] = true;
                     oTin = {tin: tin, la: la, tip: tips[pada][idz], size: tin.length, pada: pada, tvar: tvar};
+                    if (canon) oTin.canon = true;
                     tinData = util.inspect(oTin,  {depth: null});
                     tin_logger.write(tinData);
                     tin_logger.write(',\n');
@@ -320,10 +344,13 @@ function writeTinCache(latins) {
     tin_logger.end();
 }
 
+// =========== TEST TVAR
 //{ stem: 'अचेट', dhatu: 'चिट', la: 'लुङ्', pada: 'परस्मै', tvar: 0 }
-// log('==>> json tins:', latins['लट्']['परस्मै'][0]);
-// log('==>> json tins:', latins['लुङ्']['परस्मै'][7]);
-log('==>> json tins 0 ==>');
+log('==>> la_to_test:', la_to_test);
+log('==>> json tins p:', latins[la_to_test]['परस्मै']);
+log('==>> json tins a:', latins[la_to_test]['आत्मने']);
+// latins[la_to_test]['परस्मै'].forEach(function(latin) { log(JSON.stringify(latin))});
+
 
 function writeTestsCache(tests) {
     // writeHeader(anga_logger);

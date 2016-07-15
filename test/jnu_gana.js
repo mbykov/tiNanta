@@ -39,7 +39,7 @@ tests.forEach(function(json, idx) {
     // log(json);
     if (json == '') return;
     test = JSON.parse(json);
-    if (test.la != 'लट्' || test.pada != 'परस्मै' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्'
+    if (test.la != 'लट्' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्' // test.pada != 'परस्मै' ||
     if (test.excep) return;
     _Fn(test);
     // log('T', index, test);
@@ -69,7 +69,9 @@ function _Fn(test) {
             // log(rkeys);
             // log(key);
             // log(inc(rkeys, key));
-            inc(rkeys, key).should.equal(true);
+            // inc(rkeys, key).should.equal(true);
+            var rkey = rkeys[0];
+            rkey.should.equal(key);
             // form.should.equal(form);
         });
     });

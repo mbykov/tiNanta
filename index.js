@@ -105,6 +105,8 @@ stemmer.prototype.parse = function(query) {
         if (ctin.tvar != 0) return;
         if (ctin.tin == '') return;
         if (ctin.la != 'लट्') return;
+        // if (ctin.canon) log('CAN:', ctin);
+        if (!ctin.canon) return;
         fit = (ctin.size == 0) ? '' : query.slice(-ctin.size);
         if (fit == ctin.tin) fits.push(ctin);
     });
