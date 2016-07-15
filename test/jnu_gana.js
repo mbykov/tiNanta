@@ -31,6 +31,7 @@ var tips = {
 
 
 var tests = fs.readFileSync(testPath).toString().split('\n');
+// log('TS', tests.length);
 
 // भू_BU Bavati_law_parasmE_भवति_लट्_tip_तिप्:
 var test, index = 0;
@@ -40,6 +41,8 @@ tests.forEach(function(json, idx) {
     if (json == '') return;
     test = JSON.parse(json);
     if (test.la != 'लङ्' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्' // test.pada != 'परस्मै' ||
+    // log('t', test);
+    // HERE ==== нет excep=false для laN
     if (test.excep) return;
     _Fn(test);
     // log('T', index, test);

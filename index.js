@@ -24,9 +24,14 @@ var ctins = require(jnuTinsPath);
 var jnuTinsEx = require(jnuTinsPath);
 var jnuDhatuAngaPath = path.join(__dirname, './lib/jnu_dhatu_anga_cache.js');
 var jnuDhatuAnga = require(jnuDhatuAngaPath);
+
 var dhatuListPath = path.join(__dirname, './lib/dhatu_list_cache.txt');
 var dlist = fs.readFileSync(dhatuListPath).toString().split('\n');
-var cdhatus = dlist.map(function(str) {return str.split('-')[1]});
+// 48-भ्वादि-ह्लादीँ॒-ह्लाद्-अव्यक्ते_शब्दे-सेट्-आ.प
+var cdhatus = dlist.map(function(str) {
+    var d = str.split('-');
+    return {gana: d[1], dhatu: d[3], pada: d[6]};
+});
 
 
 exports = module.exports = stemmer();
@@ -105,7 +110,7 @@ stemmer.prototype.parse = function(query) {
         // if (ctin.tvar != 0) return;
         // if (ctin.tin == '') return;
         // if (ctin.la != 'लट्') return;
-        if (ctin.la != 'लङ्') return;
+        // if (ctin.la != 'लङ्') return;
 
         if (!ctin.canon) return;
         // if (ctin.canon) log('CAN:', ctin);
@@ -120,7 +125,10 @@ stemmer.prototype.parse = function(query) {
     // конструирую простейший dhatu:
     // все эти циклы можно убрать в один
     var that = this;
-    fits.forEach(function(tin) {dhatuMethods[tin.la].call(that, tin, query) });
+    fits.forEach(function(tin) {
+        if (!dhatuMethods[tin.la]) return;
+        dhatuMethods[tin.la].call(that, tin, query);
+    });
 
     // var results = [];
     // log('RR', this.results);
@@ -166,7 +174,11 @@ dhatuMethods['लट्'] = function(tin, query) {
         };
     }
 
-    if (!inc(cdhatus, tin.dhatu)) return;
+    // if (!inc(cdhatus, tin.dhatu)) return;
+    var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+
     this.results.push(tin);
 }
 
@@ -181,8 +193,13 @@ dhatuMethods['लङ्'] = function(tin, query) {
     var syms = tin.stem.split('');
     // var beg = syms[0];
     var aug = syms.shift();
-    if (!u.isVowel(aug)) return;
-    if (!inc([c.a], aug)) return; // AI, AU, AR
+    // if (!u.isVowel(aug)) return;
+    if (!inc([c.a, 'ऐ', 'औ'], aug)) return; // AI, AU, AR
+    // if (aug = c.a) ;
+    // <<<<<<<<<< ====================
+    // м.б. краткая, долгая, или сам дифтонг
+    if (aug == 'ऐ') syms.unshift('इ'); // опять, или e- // "औयत","dhatu":"ऊयी्", // "ओ
+    else if (aug == 'औ') syms.unshift('उ'); // опять, или e- // "औयत","dhatu":"ऊ यी्", // "ऊह् // "उक्ष्"
     // var vow = c.a;
     // var weak;
     // var wstem;
@@ -196,7 +213,10 @@ dhatuMethods['लङ्'] = function(tin, query) {
     tin.aug = aug;
     tin.stem = syms.join('');
     tin.dhatu = addVirama(tin.stem);
-    if (!inc(cdhatus, tin.dhatu)) return;
+    // if (!inc(cdhatus, tin.dhatu)) return;
+    var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
     this.results.push(tin);
 }
 

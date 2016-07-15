@@ -35,8 +35,8 @@ var jnuTestsPath = path.join(__dirname, '../test/jnu_tests_cache.txt');
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var tips = {
-    'परस्मै': ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'],
-    'आत्मने': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहिङ', 'महिङ'] // 'महिङ्' ? что правильно?
+    'प.प': ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'],
+    'आ.प': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहिङ', 'महिङ'] // 'महिङ्' ? что правильно?
 }
 
 // var tins = {};
@@ -84,20 +84,24 @@ var list_logger = fs.createWriteStream(dhatuListPath, {
 var dhatuList = fs.readFileSync(dhatuListSourcePath).toString().split('\n');
 var dnames = [];
 // log('DN', dhatuList[0]);
+// 1; भ्वादिः; भू ( भू ) ; सत्तायाम् ; सेट् ; प.प
 dhatuList.forEach(function(row) {
     if (row[0] == '#') return;
     if (row == '') return;
     var arr = row.split(';');
-    var cdhatu, dhatu;
-    [cdhatu, dhatu] = arr[2].split('(');
-    // var dname = {};
     var listData;
-    // dname.cdhatu = cdhatu.trim().replace('॒', '').replace('ँ', c.virama);
-    // dname.cdhatu = cdhatu.trim().replace('॒', '').replace('ँ', ''); //  एधँ॒ ( एध्)
+    var cdhatu, dhatu, gana, artha, set, pada, num;
+    // var crow = {};
+    num = arr[0].trim();
+    gana = arr[1].trim().replace(c.visarga, '');
+    [cdhatu, dhatu] = arr[2].split('(');
     cdhatu = cdhatu.trim();
-    dhatu = dhatu.replace(')', '').trim(); // कुचँ ( कुच् )
+    dhatu = dhatu.replace(')', '').trim();
+    artha = arr[3].trim().replace(/ /g, '_');
+    set = arr[4].trim();
+    pada = arr[5].trim();
     // dnames.push(dname);
-    listData = [cdhatu, dhatu].join('-');
+    listData = [num, gana, cdhatu, dhatu, artha, set, pada].join('-');
     listData = [listData, '\n'].join('');
     list_logger.write(listData);
 
@@ -137,6 +141,8 @@ function run(rows) {
         artha = headarr[0].trim();
         gana = headarr[1].trim().replace('गण', '');
         pada = headarr[2].trim();
+        if (pada == 'परस्मै') pada = 'प.प';
+        else if (pada == 'आत्मने') pada = 'आ.प';
         la = headarr[3].trim();
         dslp = salita.sa2slp(dhatu);
         aslp = salita.sa2slp(artha.replace(/ /g, '_'));
@@ -180,7 +186,7 @@ function run(rows) {
                 test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
                 // if (form != 'उङ्खथ') return;
 
-                if (la == la_to_test) { // pada == 'परस्मै' &&  res.tvar == 0
+                if (la == la_to_test) { // pada == 'प.प' &&  res.tvar == 0
                     sres = stemmer.parse(form);
                     sdhatus = sres.map(function(r) { return r.dhatu});
                     // if (form == 'उङ्खथ') log('================ Stemmer RES', sres);
@@ -200,7 +206,6 @@ function run(rows) {
 }
 
 function stemForLa(rowarr, la, pada, dhatu) {
-    // log(111, rowarr);
     var stem, column, sym, next, next2, soft;
     var syms = [];
     var forms = [];
