@@ -44,7 +44,7 @@ var tips = {
 var lakaras = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'ऌट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'ॡङ्': []};
 var latins = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
 
-var la_to_test = 'लट्';
+var la_to_test = 'लङ्';
 
 // to save in db-file:
 
@@ -180,7 +180,7 @@ function run(rows) {
                 test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
                 // if (form != 'उङ्खथ') return;
 
-                if (la == la_to_test && res.tvar == 0) { // pada == 'परस्मै' &&
+                if (la == la_to_test) { // pada == 'परस्मै' &&  res.tvar == 0
                     sres = stemmer.parse(form);
                     sdhatus = sres.map(function(r) { return r.dhatu});
                     // if (form == 'उङ्खथ') log('================ Stemmer RES', sres);
@@ -291,14 +291,6 @@ function writeStemCache(docs) {
 }
 
 var canons = fs.readFileSync(canonicalTinsPath).toString().split('\n');
-// var canons = [];
-// canrows.forEach(function(crow) {
-//     if (crow == '') return;
-//     if (crow[0] == '#') return;
-//     // crow = crow.replace(/"/g, '');
-//     // var arr = crow.split(',');
-//     canons.push(crow);
-// });
 
 log('C', canons);
 
@@ -327,7 +319,7 @@ function writeTinCache(latins, canons) {
                 tins.forEach(function(tin, idz) {
                     // log(la, pada, tin);
                     tip = tips[pada][idz];
-                    tkey = [tin, la, pada, tip, json].join('-');
+                    tkey = [tin, la, pada, tip].join('-');
                     if (check[tkey]) return;
                     check[tkey] = true;
                     oTin = {tin: tin, la: la, tip: tips[pada][idz], size: tin.length, pada: pada, tvar: tvar};

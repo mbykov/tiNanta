@@ -102,19 +102,23 @@ stemmer.prototype.parse = function(query) {
     var fits = [];
     var fit;
     ctins.forEach(function(ctin) {
-        if (ctin.tvar != 0) return;
-        if (ctin.tin == '') return;
-        if (ctin.la != 'लट्') return;
-        // if (ctin.canon) log('CAN:', ctin);
+        // if (ctin.tvar != 0) return;
+        // if (ctin.tin == '') return;
+        // if (ctin.la != 'लट्') return;
+        if (ctin.la != 'लङ्') return;
+
         if (!ctin.canon) return;
+        // if (ctin.canon) log('CAN:', ctin);
         fit = (ctin.size == 0) ? '' : query.slice(-ctin.size);
         if (fit == ctin.tin) fits.push(ctin);
     });
 
+    // stems:
     fits.forEach(function(tin) {tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size) });
-    // log('parse - stems:', fits);
+    // log('parse - stems FITS:', fits);
 
     // конструирую простейший dhatu:
+    // все эти циклы можно убрать в один
     var that = this;
     fits.forEach(function(tin) {dhatuMethods[tin.la].call(that, tin, query) });
 
@@ -164,6 +168,29 @@ dhatuMethods['लट्'] = function(tin, query) {
 
     if (!inc(cdhatus, tin.dhatu)) return;
     this.results.push(tin);
+}
+
+// laN
+dhatuMethods['लङ्'] = function(tin, query) {
+    log(JSON.stringify(tin));
+    var result;
+    var dhatu;
+    var fin = tin.stem.slice(-1);
+    // if (!u.isConsonant(fin)) return;
+    var syms = tin.stem.split('');
+    // var beg = syms[0];
+    var aug = syms.shift();
+    if (!u.isVowel(aug)) return;
+    // var vow = c.a;
+    // var weak;
+    // var wstem;
+    // var vidx = 0;
+    var vows = [];
+    // log('S', tin.stem, aug, syms);
+    syms.forEach(function(sym) {
+        if (u.isVowel(sym)) vows.push(sym);
+    });
+    if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
 }
 
 function addVirama(str) {
