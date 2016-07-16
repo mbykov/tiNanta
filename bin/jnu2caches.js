@@ -91,6 +91,7 @@ dhatuList.forEach(function(row) {
     var arr = row.split(';');
     var listData;
     var cdhatu, dhatu, gana, artha, set, pada, num;
+    var padas; // उ.प
     // var crow = {};
     num = arr[0].trim();
     gana = arr[1].trim().replace(c.visarga, '');
@@ -100,10 +101,12 @@ dhatuList.forEach(function(row) {
     artha = arr[3].trim().replace(/ /g, '_');
     set = arr[4].trim();
     pada = arr[5].trim();
-    // dnames.push(dname);
-    listData = [num, gana, cdhatu, dhatu, artha, set, pada].join('-');
-    listData = [listData, '\n'].join('');
-    list_logger.write(listData);
+    padas = (pada == 'उ.प') ? ['प.प', 'आ.प'] : [pada];
+    padas.forEach(function(p) {
+        listData = [num, gana, cdhatu, dhatu, artha, set, p].join('-');
+        listData = [listData, '\n'].join('');
+        list_logger.write(listData);
+    });
 
 });
 // log('DN', dnames.slice(0,9));
