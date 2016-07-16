@@ -154,6 +154,8 @@ function run(rows) {
         lslp = salita.sa2slp(la);
 
         if (gslp != 'BvAdi') return;
+        // 'लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'ऌट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'ॡङ्'
+        if (!inc(['लट्', 'लङ्'], la)) return;
 
         // if (dhatu != 'चिट') return; // खन्
         // if (pslp == 'Atmane') return;
@@ -189,7 +191,7 @@ function run(rows) {
                 test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
                 // if (form != 'उङ्खथ') return;
 
-                if (la == la_to_test) { // pada == 'प.प' &&  res.tvar == 0
+                // if (la == la_to_test) { // pada == 'प.प' &&  res.tvar == 0
                     sres = stemmer.parse(form);
                     sdhatus = sres.map(function(r) { return r.dhatu});
                     // if (form == 'उङ्खथ') log('================ Stemmer RES', sres);
@@ -198,7 +200,7 @@ function run(rows) {
                     if (!inc(sdhatus, dhatu)) test.excep = true;
                     // log('================', form, test);
                     tests.push(test);
-                }
+                // }
                 // tests.push(test);
                 index +=1;
             });
@@ -300,7 +302,7 @@ function writeStemCache(docs) {
 
 var canons = fs.readFileSync(canonicalTinsPath).toString().split('\n');
 
-log('C', canons);
+// log('C', canons);
 
 var canon;
 function writeTinCache(latins, canons) {
@@ -347,8 +349,8 @@ function writeTinCache(latins, canons) {
 // =========== TEST TVAR
 //{ stem: 'अचेट', dhatu: 'चिट', la: 'लुङ्', pada: 'परस्मै', tvar: 0 }
 log('==>> la_to_test:', la_to_test);
-log('==>> json tins p:', latins[la_to_test]['परस्मै']);
-log('==>> json tins a:', latins[la_to_test]['आत्मने']);
+log('==>> json tins p:', latins[la_to_test]['प.प']);
+log('==>> json tins a:', latins[la_to_test]['आ.प']);
 // latins[la_to_test]['परस्मै'].forEach(function(latin) { log(JSON.stringify(latin))});
 
 
