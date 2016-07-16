@@ -27,6 +27,26 @@ var tips = {
 }
 
 var tests = fs.readFileSync(testPath).toString().split('\n');
+// log('TS', tests.length);
+
+// भू_BU Bavati_law_parasmE_भवति_लट्_tip_तिप्:
+var test, index = 0;
+tests.forEach(function(json, idx) {
+    // if (index > 0) return;
+    // log(json);
+    if (json == '') return;
+    test = JSON.parse(json);
+    if (test.la != 'लोट्' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्' // test.pada != 'परस्मै' || // लङ्
+    // log('t', test);
+    // HERE ==== нет excep=false для laN
+    if (test.excep) return;
+    _Fn(test);
+    // log('T', index, test);
+    index +=1;
+});
+
+// "la":"लट्","pada":"परस्मै"
+
 
 // p(tests.slice(0,5));
 
@@ -38,26 +58,13 @@ function _Fn(test) {
         var results, result;
         var title = [fslp, test.lslp, test.pslp, form, test.la, 'tip', test.tip].join('_');
         it(title, function() {
-            results = stemmer.query(form);
-            // log('=== test ===', test);
-            // results.length.should.equal(1); // например, cukzuBe चुक्षुभे
-            var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.tip].join('-')});
-            var key = [test.dhatu, test.la, test.tip].join('-');
-            // log(rkeys);
-            // log(key);
-            // log(inc(rkeys, key));
+            results = stemmer.parse(form);
+            // log('t:', test.dhatu, test.dslp, fslp);
+            // results.length.should.equal(1);
+            // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
+            var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
+            var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
             inc(rkeys, key).should.equal(true);
-            // form.should.equal(form);
         });
     });
 }
-
-
-var test;
-tests.forEach(function(json, idx) {
-    // if (idx > 5) return;
-    // log(json);
-    if (json == '') return;
-    test = JSON.parse(json);
-    _Fn(test);
-});

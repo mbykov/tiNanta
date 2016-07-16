@@ -14,14 +14,14 @@ test:
 		test/test.js \
 #		2> /dev/null
 
-jnutest:
+find:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--require should \
 		--reporter $(REPORTER) \
 		--slow 500 \
 		--grep $(g) \
 		--timeout 3000 \
-		test/jnu.js \
+		test/jnu_find.js \
 #		2> /dev/null
 
 parse:
@@ -32,11 +32,11 @@ parse:
 		--grep $(g) \
 		--timeout 3000 \
 		--bail \
-		test/jnu_gana.js \
+		test/jnu_parse.js \
 #		2> /dev/null
 
 
-gana:
+ganaXX:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--require should \
 		--reporter $(REPORTER) \

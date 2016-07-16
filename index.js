@@ -49,6 +49,7 @@ stemmer.prototype.query = function(query) {
     // return this.queries;
 }
 
+// переименовать в find
 stemmer.prototype.tiNanta = function(query) {
     // log('tiNanta', query);
     // 1. выбираю подходящие tins:
@@ -258,11 +259,6 @@ dhatuMethods['लोट्'] = function(tin, query) {
 
     this.results.push(tin);
 }
-
-
-
-
-
 
 function addVirama(str) {
     return [str, c.virama].join('');
