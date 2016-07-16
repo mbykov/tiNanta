@@ -139,8 +139,10 @@ stemmer.prototype.parse = function(query) {
 // [ { dhatu: 'वप्', stem: 'वप', tin: 'ति', la: 'लट्', tip: 'तिप्' } ]
 
 var dhatuMethods = {};
+
 dhatuMethods['लट्'] = function(tin, query) {
-    var result;
+    // var result;
+    if (tin.tin == '') return;
     var dhatu;
     var fin = tin.stem.slice(-1);
     if (!u.isConsonant(fin)) return;
@@ -185,40 +187,82 @@ dhatuMethods['लट्'] = function(tin, query) {
 // laN
 dhatuMethods['लङ्'] = function(tin, query) {
     // log(JSON.stringify(tin));
-    var result;
-    // var dhatu;
-    // var stem;
+    // var result;
+    if (tin.tin == '') return;
     var fin = tin.stem.slice(-1);
-    // if (!u.isConsonant(fin)) return;
     var syms = tin.stem.split('');
-    // var beg = syms[0];
     var aug = syms.shift();
-    // if (!u.isVowel(aug)) return;
     if (!inc([c.a, 'ऐ', 'औ'], aug)) return; // AI, AU, AR
-    // if (aug = c.a) ;
-    // <<<<<<<<<< ====================
+    // <<<<<<<<<< ==================== AR осталось
     // м.б. краткая, долгая, или сам дифтонг
     if (aug == 'ऐ') syms.unshift('इ'); // опять, или e- // "औयत","dhatu":"ऊयी्", // "ओ
     else if (aug == 'औ') syms.unshift('उ'); // опять, или e- // "औयत","dhatu":"ऊ यी्", // "ऊह् // "उक्ष्"
-    // var vow = c.a;
-    // var weak;
-    // var wstem;
-    // var vidx = 0;
     var vows = [];
     // log('S', tin.stem, aug, syms);
     syms.forEach(function(sym) {
         if (u.isVowel(sym)) vows.push(sym);
     });
-    if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
+    if (vows.length > 1) return;
     tin.aug = aug;
     tin.stem = syms.join('');
     tin.dhatu = addVirama(tin.stem);
-    // if (!inc(cdhatus, tin.dhatu)) return;
     var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
     if (!found) return;
     this.results.push(tin);
 }
+
+// low
+// खाद् (भक्षणे, भ्वादिगण, परस्मै, लोट्) \n खादतु खादताम् खादन्तु \n खाद खादतम् खादत \n खादानि खादाव खादाम
+// स्पर्ध् (सङ्घर्षे, भ्वादिगण, आत्मने, लोट्) \n स्पर्धताम् स्पर्धेताम् स्पर्धन्ताम् \n स्पर्धस्व स्पर्धेथाम् स्पर्धध्वम् \n स्पर्धै स्पर्धावहै स्पर्धामहै
+dhatuMethods['लोट्'] = function(tin, query) {
+    // log(JSON.stringify(tin));
+    // FIXME: точно то же что в law,  вынести в метод
+    var dhatu;
+    var fin = tin.stem.slice(-1);
+    if (!u.isConsonant(fin)) return;
+    var syms = tin.stem.split('');
+    var beg = syms[0];
+    var vow = c.a;
+    var weak;
+    var wstem;
+    var vidx = 0;
+    var vows = [];
+    // log('S', syms);
+    syms.forEach(function(sym) {
+        if (u.isVowel(sym)) vows.push(sym);
+    });
+    if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
+    else if (vows.length == 0) tin.dhatu = addVirama(tin.stem); // vow => c.a
+    // else if (vows.length == 0) return; // <<====== COMM // vow => c.a
+    else {
+        vow = vows[0];
+        vidx = syms.indexOf(vow);
+        if (inc(c.dirgha_ligas, vow)) tin.dhatu = addVirama(tin.stem); // FIXME: но не последняя в корне - это не про первую гану ?
+        else if (syms.length - vidx > 3) tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant // <<====== COMM
+        else {
+            weak = aguna(vow); // FIXME: u.aguna()
+            if (!weak) return;
+            if (vow == beg) weak = u.vowel(weak); // first - full form //    'एजृ्-एज्',
+            // но dhatu -ej- сам содержит гуну <<<==============
+            wstem = tin.stem.replace(vow, weak);
+            tin.dhatu = addVirama(wstem);
+            // if (weak) log('WEAK', query, tin, weak);
+        };
+    }
+
+    // if (!inc(cdhatus, tin.dhatu)) return;
+    var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+
+    this.results.push(tin);
+}
+
+
+
+
+
 
 function addVirama(str) {
     return [str, c.virama].join('');

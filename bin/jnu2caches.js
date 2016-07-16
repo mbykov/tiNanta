@@ -44,7 +44,7 @@ var tips = {
 var lakaras = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'ऌट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'ॡङ्': []};
 var latins = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
 
-var la_to_test = 'लङ्';
+var la_to_test = 'लोट्';
 
 // to save in db-file:
 
@@ -155,12 +155,12 @@ function run(rows) {
 
         if (gslp != 'BvAdi') return;
         // 'लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'ऌट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'ॡङ्'
-        if (!inc(['लट्', 'लङ्'], la)) return;
+        // if (!inc(['लट्', 'लङ्', 'लोट्'], la)) return;
+        if (la != la_to_test) return;
 
         // if (dhatu != 'चिट') return; // खन्
-        // if (pslp == 'Atmane') return;
-        // if (pslp == 'parasmE') return;
-        // if (la != la_to_test) return;
+        // if (pslp == 'pa ? ') return;
+        // if (pslp == 'Apa ?') return;
 
         // if ('वदि' == dhatu) log('==========>>', dhatu, gslp, dslp, la, pslp);
         // if ('वदि' == dhatu) log('==========>>', check[key]);

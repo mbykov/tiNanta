@@ -40,7 +40,7 @@ tests.forEach(function(json, idx) {
     // log(json);
     if (json == '') return;
     test = JSON.parse(json);
-    if (test.la != 'लङ्' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्' // test.pada != 'परस्मै' ||
+    if (test.la != 'लोट्' || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्' // test.pada != 'परस्मै' || // लङ्
     // log('t', test);
     // HERE ==== нет excep=false для laN
     if (test.excep) return;
