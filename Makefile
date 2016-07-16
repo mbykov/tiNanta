@@ -24,13 +24,14 @@ jnutest:
 		test/jnu.js \
 #		2> /dev/null
 
-jnu_gana:
+parse:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--require should \
 		--reporter $(REPORTER) \
 		--slow 500 \
 		--grep $(g) \
 		--timeout 3000 \
+		--bail \
 		test/jnu_gana.js \
 #		2> /dev/null
 

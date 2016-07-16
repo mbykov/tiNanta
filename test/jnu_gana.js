@@ -64,18 +64,11 @@ function _Fn(test) {
         it(title, function() {
             results = stemmer.parse(form);
             // log('t:', test.dhatu, test.dslp, fslp);
-            // true.should.equal(true);
-            // return;
-            // results.length.should.equal(1); // например, cukzuBe चुक्षुभे
+            // results.length.should.equal(1);
+            // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
             var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
             var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
-            // log(rkeys);
-            // log(key);
-            // log(inc(rkeys, key));
-            // inc(rkeys, key).should.equal(true);
-            var rkey = rkeys[0];
-            rkey.should.equal(key);
-            // form.should.equal(form);
+            inc(rkeys, key).should.equal(true);
         });
     });
 }
