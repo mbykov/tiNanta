@@ -23,7 +23,6 @@ var dataPath = path.join(__dirname, '../', jnu_verbs);
 var dhatuListSourcePath = path.join(__dirname, '../', './lib/uohyd_dhatu_list.txt');
 var dhatuListPath = path.join(__dirname, '../', './lib/dhatu_list_cache.txt');
 var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.txt');
-// var c_tins = require(canonicalTinsPath);
 
 // var dhatuAngaPath = path.join(__dirname, '../lib/dhatu_anga.js');
 // var canonicalTinsCachePath = path.join(__dirname, '../lib/canonical_tins_cache.js');
@@ -41,10 +40,10 @@ var tips = {
 
 // var tins = {};
 // pada сидит в голове глагола, неудачно, поэтому la есть массив, пробую latins
-var lakaras = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'ऌट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'ॡङ्': []};
+// var lakaras = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'ऌट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'ॡङ्': []};
 var latins = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
 
-var la_to_test = 'लोट्';
+var la_to_test = 'विधिलिङ्';
 
 // to save in db-file:
 
@@ -88,11 +87,10 @@ var dnames = [];
 dhatuList.forEach(function(row) {
     if (row[0] == '#') return;
     if (row == '') return;
-    var arr = row.split(';');
+    var arr = row.trim('').split(';');
     var listData;
     var cdhatu, dhatu, gana, artha, set, pada, num;
     var padas; // उ.प
-    // var crow = {};
     num = arr[0].trim();
     gana = arr[1].trim().replace(c.visarga, '');
     [cdhatu, dhatu] = arr[2].split('(');
@@ -190,18 +188,12 @@ function run(rows) {
                 tip = tips[pada][index];
                 test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
                 // if (form != 'उङ्खथ') return;
-
                 // if (la == la_to_test) { // pada == 'प.प' &&  res.tvar == 0
-                    sres = stemmer.parse(form);
-                    sdhatus = sres.map(function(r) { return r.dhatu});
-                    // if (form == 'उङ्खथ') log('================ Stemmer RES', sres);
-                    // if (form == 'उङ्खथ') log('================ RES for LA', res);
-                    // if (form == 'उङ्खथ') log('================ rowarr', rowarr);
-                    if (!inc(sdhatus, dhatu)) test.excep = true;
-                    // log('================', form, test);
-                    tests.push(test);
+                sres = stemmer.parse(form);
+                sdhatus = sres.map(function(r) { return r.dhatu});
+                if (!inc(sdhatus, dhatu)) test.excep = true;
+                tests.push(test);
                 // }
-                // tests.push(test);
                 index +=1;
             });
         });
@@ -232,7 +224,14 @@ function stemForLa(rowarr, la, pada, dhatu) {
         syms.push(uniq[0]);
         idx++;
     };
+    // XXX LAKARAS:
     stem = syms.join('');
+    var fin = stem.slice(-1);
+    if (la == 'law') ;
+    else if (la == 'विधिलिङ्' && fin == c.e) stem = stem.slice(0, -1);
+    fin = stem.slice(-1);
+    if (!u.isConsonant(fin)) log('---------- fin:', stem, 2, fin, 3, forms[0], 4, la, pada, dhatu);
+
     var reStem = new RegExp('^' + stem);
     var tinArr = [];
     var json;
@@ -249,7 +248,6 @@ function stemForLa(rowarr, la, pada, dhatu) {
 
     // ========== TVAR =====================
     // res соответствует tvar
-    // если json - стандартные-canonical окончания, то res.canon = true - но это не нужно, не все canon - non-excep
     if (!latins[la][pada]) latins[la][pada] = [];
     var index = latins[la][pada].indexOf(json);
     if (index > -1) {
@@ -285,7 +283,8 @@ function writeStemCache(docs) {
     var stemcount = 0;
     docs.forEach(function(doc, idx) {
         // if (idx > 5) return;
-        var las = _.keys(lakaras);
+        // var las = _.keys(lakaras);
+        var las = _.keys(latins);
         las.forEach(function(la) {
             if (!doc[la]) return;
             var oStem = {stem: doc[la].stem, dhatu: doc.dhatu, la: la, pada: doc.pada, tvar: doc[la].tvar};
@@ -322,8 +321,7 @@ function writeTinCache(latins, canons) {
                 // var tins = JSON.parse(json);
                 var tins = json.split(',');
                 // log(la, pada, tins);
-                // <<<<<<<<<<<<<<<<<<<============= HERE =========
-                // если json - canonical, то oTin - тоже canonical
+                // ============= если json - canonical, то oTin - тоже canonical
                 var oTin, tinData;
                 var tip;
                 tins.forEach(function(tin, idz) {

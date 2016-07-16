@@ -49,7 +49,7 @@ stemmer.prototype.query = function(query) {
     // return this.queries;
 }
 
-// переименовать в find
+// переименовать в find, и в run.js тоже
 stemmer.prototype.tiNanta = function(query) {
     // log('tiNanta', query);
     // 1. выбираю подходящие tins:
@@ -108,11 +108,7 @@ stemmer.prototype.parse = function(query) {
     var fits = [];
     var fit;
     ctins.forEach(function(ctin) {
-        // if (ctin.tvar != 0) return;
-        // if (ctin.tin == '') return;
-        // if (ctin.la != 'लट्') return;
         // if (ctin.la != 'लङ्') return;
-
         if (!ctin.canon) return;
         // if (ctin.canon) log('CAN:', ctin);
         fit = (ctin.size == 0) ? '' : query.slice(-ctin.size);
@@ -124,14 +120,13 @@ stemmer.prototype.parse = function(query) {
     // log('parse - stems FITS:', fits);
 
     // конструирую простейший dhatu:
-    // все эти циклы можно убрать в один
+    // все циклы в parse можно убрать в один
     var that = this;
     fits.forEach(function(tin) {
         if (!dhatuMethods[tin.la]) return;
         dhatuMethods[tin.la].call(that, tin, query);
     });
 
-    // var results = [];
     // log('RR', this.results);
     return this.results;
 }
@@ -142,7 +137,6 @@ stemmer.prototype.parse = function(query) {
 var dhatuMethods = {};
 
 dhatuMethods['लट्'] = function(tin, query) {
-    // var result;
     if (tin.tin == '') return;
     var dhatu;
     var fin = tin.stem.slice(-1);
@@ -188,7 +182,6 @@ dhatuMethods['लट्'] = function(tin, query) {
 // laN
 dhatuMethods['लङ्'] = function(tin, query) {
     // log(JSON.stringify(tin));
-    // var result;
     if (tin.tin == '') return;
     var fin = tin.stem.slice(-1);
     var syms = tin.stem.split('');
@@ -260,11 +253,63 @@ dhatuMethods['लोट्'] = function(tin, query) {
     this.results.push(tin);
 }
 
+dhatuMethods['विधिलिङ्'] = function(tin, query) {
+    var found = common_gana_one(tin, query);
+    if (found) this.results.push(tin);
+}
+
+function common_gana_one(tin, query) {
+    var dhatu;
+    var fin = tin.stem.slice(-1);
+    if (!u.isConsonant(fin)) return;
+    var syms = tin.stem.split('');
+    var beg = syms[0];
+    var vow = c.a;
+    var weak;
+    var wstem;
+    var vidx = 0;
+    var vows = [];
+    // log('S', syms);
+    syms.forEach(function(sym) {
+        if (u.isVowel(sym)) vows.push(sym);
+    });
+    if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
+    else if (vows.length == 0) tin.dhatu = addVirama(tin.stem); // vow => c.a
+    // else if (vows.length == 0) return; // <<====== COMM // vow => c.a
+    else {
+        vow = vows[0];
+        vidx = syms.indexOf(vow);
+        if (inc(c.dirgha_ligas, vow)) tin.dhatu = addVirama(tin.stem); // FIXME: но не последняя в корне - это не про первую гану ?
+        else if (syms.length - vidx > 3) tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant // <<====== COMM
+        else {
+            weak = aguna(vow); // FIXME: u.aguna()
+            if (!weak) return;
+            if (vow == beg) weak = u.vowel(weak); // first - full form //    'एजृ्-एज्',
+            // но dhatu -ej- сам содержит гуну <<<==============
+            wstem = tin.stem.replace(vow, weak);
+            tin.dhatu = addVirama(wstem);
+            // if (weak) log('WEAK', query, tin, weak);
+        };
+    }
+
+    // if (!inc(cdhatus, tin.dhatu)) return;
+    var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    // if (!found) return;
+    return found;
+}
+
+
+
+// это в sandhi.utils, сделать симлинк <<<<<<<<<<< ===========================================
+
+
 function addVirama(str) {
     return [str, c.virama].join('');
 }
 
 // это в sandhi.utils, сделать симлинк <<<<<<<<<<< ===========================================
+
 
 // semivow, vow, liga, dirgha, dl, guna, gl, vriddhi, vl
 var Const = {};
