@@ -22,10 +22,8 @@ var jnu_verbs = './lib/jnu-tiNanta-values.txt';
 var dataPath = path.join(__dirname, '../', jnu_verbs);
 var dhatuListSourcePath = path.join(__dirname, '../', './lib/uohyd_dhatu_list.txt');
 var dhatuListPath = path.join(__dirname, '../', './lib/dhatu_list_cache.txt');
-var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.txt');
+var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
 
-// var dhatuAngaPath = path.join(__dirname, '../lib/dhatu_anga.js');
-// var canonicalTinsCachePath = path.join(__dirname, '../lib/canonical_tins_cache.js');
 var jnuTinsPath = path.join(__dirname, '../lib/jnu_tins_cache.js');
 var jnuDhatuAngaPath = path.join(__dirname, '../lib/jnu_dhatu_anga_cache.js');
 var jnuTestsPath = path.join(__dirname, '../test/jnu_tests_cache.txt');
@@ -46,9 +44,11 @@ var lakara = {};
 // var glpcheck = {};
 
 var la_to_test;
-// la_to_test = 'लट्';
+la_to_test = 'लट्';
+// GANAS: भ्वादि, अदादि, जुहोत्यादि, दिवादि, तुदादि, रुधादि, तनादि, क्र्यादि, क्र्यादि, चुरादि
+var gana_to_test;
+gana_to_test = 'भ्वादि';
 
-// to save in db-file:
 
 // // fs.unlinkSync(canonicalTinsCachePath);
 fs.unlinkSync(dhatuListPath);
@@ -154,26 +154,18 @@ function run(rows) {
         pslp = salita.sa2slp(pada);
         lslp = salita.sa2slp(la);
 
-        if (gslp != 'BvAdi') return;
         // 'लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'ऌट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'ॡङ्'
         if (inc(['लिट्', 'लुङ्', 'लुट्', 'ऌट्', 'लोट्', 'आशीर्लिङ्', 'ॡङ्'], la)) return;
         if (la_to_test && la != la_to_test) return;
+        if (gana_to_test && gana != gana_to_test) return;
 
-        // if (dhatu != 'चिट') return; // खन्
-        // if (pslp == 'pa ? ') return;
-        // if (pslp == 'Apa ?') return;
-
-        // if ('वदि' == dhatu) log('==========>>', dhatu, gslp, dslp, la, pslp);
-        // if ('वदि' == dhatu) log('==========>>', check[key]);
         rowarrstr = rowarr.join('-');
         key = [la, dslp, aslp, gslp, pslp, rowarrstr].join('-');
         if (!check[key]) {
             if (doc) {
                 docs.push(doc);
-                // if ('वदि' == doc.dhatu) log('========== doc >>>>>', doc);
             }
             doc = {dhatu: dhatu, artha: artha, gana: gana, la: la, pada: pada}; // key: key,
-            // if ('वदि' == dhatu) log('========== doc >>', doc);
         }
         if (!check[key]) check[key] = true;
 
@@ -236,7 +228,7 @@ function stemForLa(rowarr, gana, la, pada) {
     if (la == 'law') ;
     else if (la == 'विधिलिङ्' && fin == c.e) stem = stem.slice(0, -1);
     fin = stem.slice(-1);
-    if (!u.isConsonant(fin)) log('--------- fin is not a --------- stem:', stem, 'fin:', fin, 'form0:', forms[0], 'gana:', gana, 'la:', la, 'pada:', pada);
+    // if (!u.isConsonant(fin)) log('--------- fin is not a --------- stem:', stem, 'fin:', fin, 'form0:', forms[0], 'gana:', gana, 'la:', la, 'pada:', pada);
 
     var reStem = new RegExp('^' + stem);
     var tinArr = [];
@@ -279,8 +271,12 @@ log('docs', docs.length);
 
 var tincount = 0;
 
+var canons, canon;
+var canonObj = require(canonicalTinsPath);
+// p('C', canonObj);
+
 writeStemCache(docs);
-writeTinCache(lakara);
+writeTinCache(lakara, canonObj);
 writeTestsCache(tests);
 
 log('tins', tincount);
@@ -301,11 +297,7 @@ function writeStemCache(docs) {
     anga_logger.end();
 }
 
-var canons = fs.readFileSync(canonicalTinsPath).toString().split('\n');
-// log('C', canons);
-
-var canon;
-function writeTinCache(lakara, canons) {
+function writeTinCache(lakara, canonObj) {
     writeHeader(tin_logger);
     var check = {};
     var tkey;
@@ -314,6 +306,7 @@ function writeTinCache(lakara, canons) {
         [gana, la, pada] = glpkey.split('-');
         // log(1, gana, la, pada, 2, lakara[glpkey]);
         var jsons = lakara[glpkey];
+        canons = canonObj[gana][la][pada];
         jsons.forEach(function(json, tvar, canons) {
             // log('CAN', canons);
             if (inc(canons, json)) canon = true;
@@ -345,6 +338,7 @@ function writeTinCache(lakara, canons) {
 // =========== TEST TVAR
 //{ stem: 'अचेट', dhatu: 'चिट', la: 'लुङ्', pada: 'परस्मै', tvar: 0 }
 log('==>> la_to_test:', la_to_test);
+log('==>> json tins :', lakara);
 // log('==>> json tins p:', latins[la_to_test]['प.प']);
 // log('==>> json tins a:', latins[la_to_test]['आ.प']);
 

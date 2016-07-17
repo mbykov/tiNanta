@@ -26,10 +26,9 @@ var tips = {
     'आत्मने': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहिङ', 'महिङ'] // 'महिङ्' ? что правильно?
 }
 
-// var la_to_test = 'विधिलिङ्';
-
 var tests = fs.readFileSync(testPath).toString().split('\n');
 // log('TS', tests.length);
+// p(tests.slice(0,5));
 
 // भू_BU Bavati_law_parasmE_भवति_लट्_tip_तिप्:
 var test;
@@ -37,15 +36,10 @@ tests.forEach(function(json, idx) {
     // if (idx > 0) return;
     if (json == '') return;
     test = JSON.parse(json);
-    // if (test.la != la_to_test || test.gana != 'भ्वादि') return; // || test.tip != 'तिप्' // test.pada != 'परस्मै' || // लङ्
     if (test.excep) return;
     _Fn(test);
 });
 
-// "la":"लट्","pada":"परस्मै"
-
-
-// p(tests.slice(0,5));
 
 function _Fn(test) {
     var descr = [test.dhatu, test.dslp].join('_');
