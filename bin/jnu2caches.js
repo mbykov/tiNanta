@@ -47,7 +47,7 @@ var la_to_test;
 la_to_test = 'लट्';
 // GANAS: भ्वादि, अदादि, जुहोत्यादि, दिवादि, तुदादि, रुधादि, तनादि, क्र्यादि, क्र्यादि, चुरादि
 var gana_to_test;
-gana_to_test = 'भ्वादि';
+gana_to_test = 'अदादि';
 
 
 // // fs.unlinkSync(canonicalTinsCachePath);
@@ -170,8 +170,6 @@ function run(rows) {
         if (!check[key]) check[key] = true;
 
         var res = stemForLa(rowarr, gana, la, pada);
-        // doc[la] = {stem: res.stem, tvar: res.tvar};
-        // doc = {stem: res.stem, tvar: res.tvar};
         doc.stem = res.stem;
         doc.tvar = res.tvar;
 

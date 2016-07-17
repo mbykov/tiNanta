@@ -138,7 +138,54 @@ stemmer.prototype.parse = function(query) {
 
 var dhatuMethods = {};
 
+// adAdi !!!
 dhatuMethods['लट्'] = function(tin, query) {
+    if (tin.tin == '') return;
+    // log('S', tin, query);
+    var dhatu;
+    var fin = tin.stem.slice(-1);
+    if (fin != c.virama) return;
+    var syms = tin.stem.split('');
+    var beg = syms[0];
+    var vow = c.a;
+    var weak;
+    var wstem;
+    var vidx = 0;
+    var vows = [];
+    // log('S', syms);
+    syms.forEach(function(sym) {
+        if (u.isVowel(sym)) vows.push(sym);
+    });
+    if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
+    else if (vows.length == 0) tin.dhatu = addVirama(tin.stem); // vow => c.a
+    else if (vows.length == 1) tin.dhatu = tin.stem;
+    else if (false) {
+        vow = vows[0];
+        vidx = syms.indexOf(vow);
+        if (inc(c.dirgha_ligas, vow)) tin.dhatu = addVirama(tin.stem); // FIXME: но не последняя в корне - это не про первую гану ?
+        else if (syms.length - vidx > 3) tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant // <<====== COMM
+        else {
+            weak = aguna(vow); // FIXME: u.aguna()
+            if (!weak) return;
+            if (vow == beg) weak = u.vowel(weak); // first - full form //    'एजृ्-एज्',
+            // но dhatu -ej- сам содержит гуну <<<==============
+            wstem = tin.stem.replace(vow, weak);
+            tin.dhatu = addVirama(wstem);
+            // if (weak) log('WEAK', query, tin, weak);
+        };
+    }
+
+    // if (!inc(cdhatus, tin.dhatu)) return;
+    var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+
+    this.results.push(tin);
+}
+
+// gana one ======================= ::::
+
+dhatuMethods['लट्_'] = function(tin, query) {
     if (tin.tin == '') return;
     var dhatu;
     var fin = tin.stem.slice(-1);
