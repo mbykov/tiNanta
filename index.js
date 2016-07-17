@@ -254,11 +254,12 @@ dhatuMethods['लोट्'] = function(tin, query) {
 }
 
 dhatuMethods['विधिलिङ्'] = function(tin, query) {
-    var found = common_gana_one(tin, query);
-    if (found) this.results.push(tin);
+    // var found = gana_one(tin, query);
+    if (gana_one(tin, query)) this.results.push(tin);
 }
 
-function common_gana_one(tin, query) {
+function gana_one(tin, query) {
+    log(JSON.stringify(tin));
     var dhatu;
     var fin = tin.stem.slice(-1);
     if (!u.isConsonant(fin)) return;

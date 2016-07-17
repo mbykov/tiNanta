@@ -42,6 +42,8 @@ var tips = {
 // pada сидит в голове глагола, неудачно, поэтому la есть массив, пробую latins
 // var lakaras = {'लट्': [], 'लङ्': [], 'लिट्': [], 'लुङ्': [], 'लुट्': [], 'ऌट्': [], 'लोट्': [], 'विधिलिङ्': [], 'आशीर्लिङ्': [], 'ॡङ्': []};
 var latins = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
+var lakara = {};
+// var glpcheck = {};
 
 var la_to_test = 'विधिलिङ्';
 
@@ -169,13 +171,16 @@ function run(rows) {
                 docs.push(doc);
                 // if ('वदि' == doc.dhatu) log('========== doc >>>>>', doc);
             }
-            doc = {key: key, dhatu: dhatu, artha: artha, pada: pada};
+            doc = {dhatu: dhatu, artha: artha, gana: gana, la: la, pada: pada}; // key: key,
             // if ('वदि' == dhatu) log('========== doc >>', doc);
         }
         if (!check[key]) check[key] = true;
 
-        var res = stemForLa(rowarr, la, pada, dhatu);
-        doc[la] = {stem: res.stem, tvar: res.tvar};
+        var res = stemForLa(rowarr, gana, la, pada);
+        // doc[la] = {stem: res.stem, tvar: res.tvar};
+        // doc = {stem: res.stem, tvar: res.tvar};
+        doc.stem = res.stem;
+        doc.tvar = res.tvar;
 
         var index = 0;
         var tip, test;
@@ -189,9 +194,10 @@ function run(rows) {
                 test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
                 // if (form != 'उङ्खथ') return;
                 // if (la == la_to_test) { // pada == 'प.प' &&  res.tvar == 0
-                sres = stemmer.parse(form);
-                sdhatus = sres.map(function(r) { return r.dhatu});
-                if (!inc(sdhatus, dhatu)) test.excep = true;
+                // sres = stemmer.parse(form);
+                // sdhatus = sres.map(function(r) { return r.dhatu});
+                // if (!inc(sdhatus, dhatu)) test.excep = true;
+
                 tests.push(test);
                 // }
                 index +=1;
@@ -202,14 +208,14 @@ function run(rows) {
     docs.push(doc); // final unprocessed doc
 }
 
-function stemForLa(rowarr, la, pada, dhatu) {
+function stemForLa(rowarr, gana, la, pada) {
     var stem, column, sym, next, next2, soft;
     var syms = [];
     var forms = [];
     rowarr.forEach(function(r) { forms = forms.concat(r.trim().split(' '))});
     if (forms.length != 9) {
         log('ERR: ', la, forms);
-        throw new Error('forms length is not 9 ' + la + ' - ' +dhatu);
+        throw new Error('forms length is not 9 ' + la);
     }
     var idx = 0;
     while(idx < 15) {
@@ -224,13 +230,13 @@ function stemForLa(rowarr, la, pada, dhatu) {
         syms.push(uniq[0]);
         idx++;
     };
-    // XXX LAKARAS:
+    // ============================= TIN LAKARA REFINE ====================:
     stem = syms.join('');
     var fin = stem.slice(-1);
     if (la == 'law') ;
     else if (la == 'विधिलिङ्' && fin == c.e) stem = stem.slice(0, -1);
     fin = stem.slice(-1);
-    if (!u.isConsonant(fin)) log('---------- fin:', stem, 2, fin, 3, forms[0], 4, la, pada, dhatu);
+    if (!u.isConsonant(fin)) log('---------- fin:', stem, 2, fin, 3, forms[0], 4, gana, la, pada);
 
     var reStem = new RegExp('^' + stem);
     var tinArr = [];
@@ -248,16 +254,28 @@ function stemForLa(rowarr, la, pada, dhatu) {
 
     // ========== TVAR =====================
     // res соответствует tvar
-    if (!latins[la][pada]) latins[la][pada] = [];
-    var index = latins[la][pada].indexOf(json);
+    // if (!latins[la][pada]) latins[la][pada] = [];
+    // var index = latins[la][pada].indexOf(json);
+    // if (index > -1) {
+    //     res.tvar = index;
+    //     // res.old = true;
+    // } else {
+    //     latins[la][pada].push(json);
+    //     res.tvar = latins[la][pada].indexOf(json);
+    //     // res.new = true;
+    // }
+    var glpkey = [gana, la, pada].join('-');
+    if (!lakara[glpkey]) lakara[glpkey] = [];
+    var index = lakara[glpkey].indexOf(json);
     if (index > -1) {
         res.tvar = index;
         // res.old = true;
     } else {
-        latins[la][pada].push(json);
-        res.tvar = latins[la][pada].indexOf(json);
+        lakara[glpkey].push(json);
+        res.tvar = lakara[glpkey].indexOf(json);
         // res.new = true;
     }
+
     return res;
 }
 
@@ -266,6 +284,7 @@ run(rows);
 // log('LATINS', latins[la_to_test]);
 // log('TEST', docs.slice(-9));
 log('check', _.keys(check).length);
+log('docs', docs.slice(0,3));
 log('docs', docs.length);
 
 // return;
@@ -273,7 +292,7 @@ log('docs', docs.length);
 var tincount = 0;
 
 writeStemCache(docs);
-writeTinCache(latins);
+writeTinCache(lakara);
 writeTestsCache(tests);
 
 log('tins', tincount);
@@ -284,15 +303,10 @@ function writeStemCache(docs) {
     docs.forEach(function(doc, idx) {
         // if (idx > 5) return;
         // var las = _.keys(lakaras);
-        var las = _.keys(latins);
-        las.forEach(function(la) {
-            if (!doc[la]) return;
-            var oStem = {stem: doc[la].stem, dhatu: doc.dhatu, la: la, pada: doc.pada, tvar: doc[la].tvar};
-            var stemData = util.inspect(oStem,  {depth: null});
-            anga_logger.write(stemData);
-            anga_logger.write(',\n');
-            stemcount += 1;
-        });
+        var oStem = {stem: doc.stem, dhatu: doc.dhatu, gana: doc.gana, la: doc.la, pada: doc.pada, tvar: doc.tvar};
+        var stemData = util.inspect(oStem,  {depth: null});
+        anga_logger.write(stemData);
+        anga_logger.write(',\n');
     });
     log('stems:', stemcount);
     writeFooter(anga_logger);
@@ -300,49 +314,85 @@ function writeStemCache(docs) {
 }
 
 var canons = fs.readFileSync(canonicalTinsPath).toString().split('\n');
-
 // log('C', canons);
 
 var canon;
-function writeTinCache(latins, canons) {
+function writeTinCache(lakara, canons) {
     writeHeader(tin_logger);
     var check = {};
     var tkey;
-    for (var la in latins) {
-        var padas = latins[la];
-        // log('LA', la);
-        for (var pada in padas) {
-            var jsons = padas[pada];
-            // log(la, pada, jsons);
-            canon = false;
-            jsons.forEach(function(json, tvar, canons) {
-                // log('CAN', canons);
-                if (inc(canons, json)) canon = true;
-                // var tins = JSON.parse(json);
-                var tins = json.split(',');
-                // log(la, pada, tins);
-                // ============= если json - canonical, то oTin - тоже canonical
-                var oTin, tinData;
-                var tip;
-                tins.forEach(function(tin, idz) {
-                    // log(la, pada, tin);
-                    tip = tips[pada][idz];
-                    tkey = [tin, la, pada, tip].join('-'); // добавить json не нужно в parse - иначе дубли. Но нет ли пропуска в find?
-                    if (check[tkey]) return;
-                    check[tkey] = true;
-                    oTin = {tin: tin, la: la, tip: tips[pada][idz], size: tin.length, pada: pada, tvar: tvar};
-                    if (canon) oTin.canon = true;
-                    tinData = util.inspect(oTin,  {depth: null});
-                    tin_logger.write(tinData);
-                    tin_logger.write(',\n');
-                    tincount +=1;
-                });
+    for (var glpkey in lakara) {
+        var gana, la, pada;
+        [gana, la, pada] = glpkey.split('-');
+        // log(1, gana, la, pada, 2, lakara[glpkey]);
+        var jsons = lakara[glpkey];
+        jsons.forEach(function(json, tvar, canons) {
+            // log('CAN', canons);
+            if (inc(canons, json)) canon = true;
+            // var tins = JSON.parse(json);
+            var tins = json.split(',');
+            // log(la, pada, tins);
+            // ============= если json - canonical, то oTin - тоже canonical
+            var oTin, tinData;
+            var tip;
+            tins.forEach(function(tin, idz) {
+                // log(la, pada, tin);
+                tip = tips[pada][idz];
+                tkey = [tin, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
+                if (check[tkey]) return;
+                check[tkey] = true;
+                oTin = {tin: tin, tip: tips[pada][idz], size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
+                if (canon) oTin.canon = true;
+                tinData = util.inspect(oTin,  {depth: null});
+                tin_logger.write(tinData);
+                tin_logger.write(',\n');
+                tincount +=1;
             });
-        }
+        });
     }
     writeFooter(tin_logger);
     tin_logger.end();
 }
+
+// function writeTinCache(latins, canons) {
+//     writeHeader(tin_logger);
+//     var check = {};
+//     var tkey;
+//     for (var la in latins) {
+//         var padas = latins[la];
+//         // log('LA', la);
+//         for (var pada in padas) {
+//             var jsons = padas[pada];
+//             // log(la, pada, jsons);
+//             canon = false;
+//             jsons.forEach(function(json, tvar, canons) {
+//                 // log('CAN', canons);
+//                 if (inc(canons, json)) canon = true;
+//                 // var tins = JSON.parse(json);
+//                 var tins = json.split(',');
+//                 // log(la, pada, tins);
+//                 // ============= если json - canonical, то oTin - тоже canonical
+//                 var oTin, tinData;
+//                 var tip;
+//                 tins.forEach(function(tin, idz) {
+//                     // log(la, pada, tin);
+//                     tip = tips[pada][idz];
+//                     tkey = [tin, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
+//                     if (check[tkey]) return;
+//                     check[tkey] = true;
+//                     oTin = {tin: tin, la: la, tip: tips[pada][idz], size: tin.length, pada: pada, tvar: tvar};
+//                     if (canon) oTin.canon = true;
+//                     tinData = util.inspect(oTin,  {depth: null});
+//                     tin_logger.write(tinData);
+//                     tin_logger.write(',\n');
+//                     tincount +=1;
+//                 });
+//             });
+//         }
+//     }
+//     writeFooter(tin_logger);
+//     tin_logger.end();
+// }
 
 // =========== TEST TVAR
 //{ stem: 'अचेट', dhatu: 'चिट', la: 'लुङ्', pada: 'परस्मै', tvar: 0 }
