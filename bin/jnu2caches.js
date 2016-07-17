@@ -50,20 +50,10 @@ var gana_to_test;
 gana_to_test = 'अदादि';
 
 
-// // fs.unlinkSync(canonicalTinsCachePath);
 fs.unlinkSync(dhatuListPath);
 fs.unlinkSync(jnuDhatuAngaPath);
 fs.unlinkSync(jnuTinsPath);
 fs.unlinkSync(jnuTestsPath);
-
-// var logger = fs.createWriteStream(dhatuAngaPath, {
-//     flags: 'a', // 'a' means appending (old data will be preserved)
-//     defaultEncoding: 'utf8'
-// });
-// var can_logger = fs.createWriteStream(canonicalTinsCachePath, {
-//     flags: 'a', // 'a' means appending (old data will be preserved)
-//     defaultEncoding: 'utf8'
-// });
 
 var tin_logger = fs.createWriteStream(jnuTinsPath, {
     flags: 'a', // 'a' means appending (old data will be preserved)
@@ -269,9 +259,9 @@ log('docs', docs.length);
 
 var tincount = 0;
 
-var canons, canon;
 var canonObj = require(canonicalTinsPath);
 // p('C', canonObj);
+// p('D', lakara);
 
 writeStemCache(docs);
 writeTinCache(lakara, canonObj);
@@ -295,6 +285,7 @@ function writeStemCache(docs) {
     anga_logger.end();
 }
 
+
 function writeTinCache(lakara, canonObj) {
     writeHeader(tin_logger);
     var check = {};
@@ -302,25 +293,21 @@ function writeTinCache(lakara, canonObj) {
     for (var glpkey in lakara) {
         var gana, la, pada;
         [gana, la, pada] = glpkey.split('-');
-        // log(1, gana, la, pada, 2, lakara[glpkey]);
         var jsons = lakara[glpkey];
-        canons = canonObj[gana][la][pada];
-        jsons.forEach(function(json, tvar, canons) {
-            // log('CAN', canons);
+        var canons = canonObj[gana][la][pada];
+        jsons.forEach(function(json, tvar) {
+            var canon = false;
             if (inc(canons, json)) canon = true;
-            // var tins = JSON.parse(json);
             var tins = json.split(',');
-            // log(la, pada, tins);
             // ============= если json - canonical, то oTin - тоже canonical
             var oTin, tinData;
             var tip;
             tins.forEach(function(tin, idz) {
-                // log(la, pada, tin);
                 tip = tips[pada][idz];
-                tkey = [tin, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
+                tkey = [tin, gana, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
                 if (check[tkey]) return;
                 check[tkey] = true;
-                oTin = {tin: tin, tip: tips[pada][idz], size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
+                oTin = {tin: tin, tip: tip, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
                 if (canon) oTin.canon = true;
                 tinData = util.inspect(oTin,  {depth: null});
                 tin_logger.write(tinData);

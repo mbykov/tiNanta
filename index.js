@@ -125,7 +125,6 @@ stemmer.prototype.parse = function(query) {
     var that = this;
     fits.forEach(function(tin) {
         if (!dhatuMethods[tin.la]) return;
-        // log(JSON.stringify(tin));
         dhatuMethods[tin.la].call(that, tin, query);
     });
 
@@ -141,7 +140,7 @@ var dhatuMethods = {};
 // adAdi !!!
 dhatuMethods['लट्'] = function(tin, query) {
     if (tin.tin == '') return;
-    // log('S', tin, query);
+    // log(JSON.stringify(tin));
     var dhatu;
     var fin = tin.stem.slice(-1);
     if (fin != c.virama) return;
