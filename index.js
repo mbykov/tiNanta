@@ -155,30 +155,29 @@ dhatuMethods['लट्'] = function(tin, query) {
     syms.forEach(function(sym) {
         if (u.isVowel(sym)) vows.push(sym);
     });
-    if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
-    else if (vows.length == 0) tin.dhatu = addVirama(tin.stem); // vow => c.a
-    else if (vows.length == 1) tin.dhatu = tin.stem;
-    else if (false) {
+    // FIXME: can_non_be_gunated
+    // FIXME: или weakStem ?
+    // несколько вариантов FIXME:
+    if (vows.length > 1) return;
+    else if (tin.pada == 'आ.प') tin.dhatu = tin.stem;
+    else if (vows.length == 0) tin.dhatu = tin.stem; // c.a
+    else {
         vow = vows[0];
         vidx = syms.indexOf(vow);
-        if (inc(c.dirgha_ligas, vow)) tin.dhatu = addVirama(tin.stem); // FIXME: но не последняя в корне - это не про первую гану ?
-        else if (syms.length - vidx > 3) tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant // <<====== COMM
+        if (inc(c.dirgha_ligas, vow)) tin.dhatu = tin.stem; // FIXME: но не последняя в корне
+        else if (syms.length - vidx > 3) tin.dhatu = tin.stem; // vowel followed by a double consonant // <<====== COMM
         else {
             weak = aguna(vow); // FIXME: u.aguna()
             if (!weak) return;
             if (vow == beg) weak = u.vowel(weak); // first - full form //    'एजृ्-एज्',
-            // но dhatu -ej- сам содержит гуну <<<==============
+            // но dhatu -ej- сам содержит гуну <<<==============, нужны несколько ответов
             wstem = tin.stem.replace(vow, weak);
-            tin.dhatu = addVirama(wstem);
+            tin.dhatu = wstem;
             // if (weak) log('WEAK', query, tin, weak);
         };
     }
-
-    // if (!inc(cdhatus, tin.dhatu)) return;
     var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
-    // log(111, tin, found);
     if (!found) return;
-
     this.results.push(tin);
 }
 
