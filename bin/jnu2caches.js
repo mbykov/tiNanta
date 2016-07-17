@@ -45,7 +45,8 @@ var latins = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ�
 var lakara = {};
 // var glpcheck = {};
 
-var la_to_test = 'लट्';
+var la_to_test;
+// la_to_test = 'लट्';
 
 // to save in db-file:
 
@@ -155,7 +156,7 @@ function run(rows) {
 
         if (gslp != 'BvAdi') return;
         // 'लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'ऌट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'ॡङ्'
-        // if (!inc(['लट्', 'लङ्', 'लोट्'], la)) return;
+        if (inc(['लिट्', 'लुङ्', 'लुट्', 'ऌट्', 'लोट्', 'आशीर्लिङ्', 'ॡङ्'], la)) return;
         if (la_to_test && la != la_to_test) return;
 
         // if (dhatu != 'चिट') return; // खन्
@@ -235,7 +236,7 @@ function stemForLa(rowarr, gana, la, pada) {
     if (la == 'law') ;
     else if (la == 'विधिलिङ्' && fin == c.e) stem = stem.slice(0, -1);
     fin = stem.slice(-1);
-    if (!u.isConsonant(fin)) log('---------- fin:', stem, 2, fin, 3, forms[0], 4, gana, la, pada);
+    if (!u.isConsonant(fin)) log('--------- fin is not a --------- stem:', stem, 'fin:', fin, 'form0:', forms[0], 'gana:', gana, 'la:', la, 'pada:', pada);
 
     var reStem = new RegExp('^' + stem);
     var tinArr = [];
@@ -248,21 +249,10 @@ function stemForLa(rowarr, gana, la, pada) {
 
     // json = JSON.stringify(tinArr);
     json = tinArr.toString();
-    var res;
-    res = {stem: stem};
+    var res = {stem: stem};
 
     // ========== TVAR =====================
-    // res соответствует tvar
-    // if (!latins[la][pada]) latins[la][pada] = [];
-    // var index = latins[la][pada].indexOf(json);
-    // if (index > -1) {
-    //     res.tvar = index;
-    //     // res.old = true;
-    // } else {
-    //     latins[la][pada].push(json);
-    //     res.tvar = latins[la][pada].indexOf(json);
-    //     // res.new = true;
-    // }
+
     var glpkey = [gana, la, pada].join('-');
     if (!lakara[glpkey]) lakara[glpkey] = [];
     var index = lakara[glpkey].indexOf(json);

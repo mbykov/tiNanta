@@ -107,6 +107,7 @@ stemmer.prototype.parse = function(query) {
     this.results = [];
     var fits = [];
     var fit;
+    if (_.keys(ctins).length == 0) return [];
     ctins.forEach(function(ctin) {
         // if (ctin.la != 'लङ्') return;
         if (!ctin.canon) return;
