@@ -143,8 +143,13 @@ dhatuMethods['लट्'] = function(tin, query) {
     // log(JSON.stringify(tin));
     var dhatu;
     var fin = tin.stem.slice(-1);
-    if (fin != c.virama) return;
     var syms = tin.stem.split('');
+    // log('SSyms:', syms);
+    if (u.isConsonant(fin) && u.isVowel(tin.tin[0])) {
+        syms.push(c.virama); // FIXME: это пока примерка
+        tin.stem = syms.join('');
+    }
+    // log('SSyms:', syms);
     var beg = syms[0];
     var vow = c.a;
     var weak;
@@ -158,15 +163,22 @@ dhatuMethods['लट्'] = function(tin, query) {
     // FIXME: can_non_be_gunated
     // FIXME: или weakStem ?
     // несколько вариантов FIXME:
+    var found;
     if (vows.length > 1) return;
     else if (tin.pada == 'आ.प') tin.dhatu = tin.stem;
     else if (vows.length == 0) tin.dhatu = tin.stem; // c.a
     else {
         vow = vows[0];
         vidx = syms.indexOf(vow);
+        // log('HERE', vow);
         if (inc(c.dirgha_ligas, vow)) tin.dhatu = tin.stem; // FIXME: но не последняя в корне
         else if (syms.length - vidx > 3) tin.dhatu = tin.stem; // vowel followed by a double consonant // <<====== COMM
         else {
+            // log('HERE');
+            var ctin = JSON.parse(JSON.stringify(tin));
+            ctin.dhatu = ctin.stem;
+            found = _.find(cdhatus, function(d) { return ctin.dhatu == d.dhatu && ctin.pada == d.pada});
+            if (found) this.results.push(ctin);
             weak = aguna(vow); // FIXME: u.aguna()
             if (!weak) return;
             if (vow == beg) weak = u.vowel(weak); // first - full form //    'एजृ्-एज्',
@@ -176,9 +188,8 @@ dhatuMethods['लट्'] = function(tin, query) {
             // if (weak) log('WEAK', query, tin, weak);
         };
     }
-    var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
-    if (!found) return;
-    this.results.push(tin);
+    found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    if (found) this.results.push(tin);
 }
 
 // gana one ======================= ::::
