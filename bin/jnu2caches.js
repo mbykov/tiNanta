@@ -45,7 +45,7 @@ var latins = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ�
 var lakara = {};
 // var glpcheck = {};
 
-var la_to_test = 'विधिलिङ्';
+var la_to_test = 'लट्';
 
 // to save in db-file:
 
@@ -156,7 +156,7 @@ function run(rows) {
         if (gslp != 'BvAdi') return;
         // 'लट्', 'लङ्', 'लिट्', 'लुङ्', 'लुट्', 'ऌट्', 'लोट्', 'विधिलिङ्', 'आशीर्लिङ्', 'ॡङ्'
         // if (!inc(['लट्', 'लङ्', 'लोट्'], la)) return;
-        if (la != la_to_test) return;
+        if (la_to_test && la != la_to_test) return;
 
         // if (dhatu != 'चिट') return; // खन्
         // if (pslp == 'pa ? ') return;
@@ -189,17 +189,16 @@ function run(rows) {
         rowarr.forEach(function(row, idx) {
             rowforms = row.trim().split(' ');
             rowforms.forEach(function(form, idy) {
-                if (gslp != 'BvAdi') return;
                 tip = tips[pada][index];
                 test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
-                // if (form != 'उङ्खथ') return;
-                // if (la == la_to_test) { // pada == 'प.प' &&  res.tvar == 0
-                // sres = stemmer.parse(form);
-                // sdhatus = sres.map(function(r) { return r.dhatu});
-                // if (!inc(sdhatus, dhatu)) test.excep = true;
+                // if (form != 'स्पर्धेते') return;
+
+                sres = stemmer.parse(form);
+                sdhatus = sres.map(function(r) { return r.dhatu});
+                if (!inc(sdhatus, dhatu)) test.excep = true;
+                // log('RES', sres, 2, sdhatus, 3, dhatu);
 
                 tests.push(test);
-                // }
                 index +=1;
             });
         });
@@ -281,10 +280,9 @@ function stemForLa(rowarr, gana, la, pada) {
 
 run(rows);
 
-// log('LATINS', latins[la_to_test]);
 // log('TEST', docs.slice(-9));
 log('check', _.keys(check).length);
-log('docs', docs.slice(0,3));
+// log('docs', docs.slice(0,3));
 log('docs', docs.length);
 
 // return;
@@ -354,53 +352,11 @@ function writeTinCache(lakara, canons) {
     tin_logger.end();
 }
 
-// function writeTinCache(latins, canons) {
-//     writeHeader(tin_logger);
-//     var check = {};
-//     var tkey;
-//     for (var la in latins) {
-//         var padas = latins[la];
-//         // log('LA', la);
-//         for (var pada in padas) {
-//             var jsons = padas[pada];
-//             // log(la, pada, jsons);
-//             canon = false;
-//             jsons.forEach(function(json, tvar, canons) {
-//                 // log('CAN', canons);
-//                 if (inc(canons, json)) canon = true;
-//                 // var tins = JSON.parse(json);
-//                 var tins = json.split(',');
-//                 // log(la, pada, tins);
-//                 // ============= если json - canonical, то oTin - тоже canonical
-//                 var oTin, tinData;
-//                 var tip;
-//                 tins.forEach(function(tin, idz) {
-//                     // log(la, pada, tin);
-//                     tip = tips[pada][idz];
-//                     tkey = [tin, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
-//                     if (check[tkey]) return;
-//                     check[tkey] = true;
-//                     oTin = {tin: tin, la: la, tip: tips[pada][idz], size: tin.length, pada: pada, tvar: tvar};
-//                     if (canon) oTin.canon = true;
-//                     tinData = util.inspect(oTin,  {depth: null});
-//                     tin_logger.write(tinData);
-//                     tin_logger.write(',\n');
-//                     tincount +=1;
-//                 });
-//             });
-//         }
-//     }
-//     writeFooter(tin_logger);
-//     tin_logger.end();
-// }
-
 // =========== TEST TVAR
 //{ stem: 'अचेट', dhatu: 'चिट', la: 'लुङ्', pada: 'परस्मै', tvar: 0 }
 log('==>> la_to_test:', la_to_test);
-log('==>> json tins p:', latins[la_to_test]['प.प']);
-log('==>> json tins a:', latins[la_to_test]['आ.प']);
-// latins[la_to_test]['परस्मै'].forEach(function(latin) { log(JSON.stringify(latin))});
-
+// log('==>> json tins p:', latins[la_to_test]['प.प']);
+// log('==>> json tins a:', latins[la_to_test]['आ.प']);
 
 function writeTestsCache(tests) {
     // writeHeader(anga_logger);

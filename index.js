@@ -124,6 +124,7 @@ stemmer.prototype.parse = function(query) {
     var that = this;
     fits.forEach(function(tin) {
         if (!dhatuMethods[tin.la]) return;
+        // log(JSON.stringify(tin));
         dhatuMethods[tin.la].call(that, tin, query);
     });
 
@@ -181,7 +182,6 @@ dhatuMethods['लट्'] = function(tin, query) {
 
 // laN
 dhatuMethods['लङ्'] = function(tin, query) {
-    // log(JSON.stringify(tin));
     if (tin.tin == '') return;
     var fin = tin.stem.slice(-1);
     var syms = tin.stem.split('');
@@ -259,7 +259,7 @@ dhatuMethods['विधिलिङ्'] = function(tin, query) {
 }
 
 function gana_one(tin, query) {
-    log(JSON.stringify(tin));
+    // log(JSON.stringify(tin));
     var dhatu;
     var fin = tin.stem.slice(-1);
     if (!u.isConsonant(fin)) return;
