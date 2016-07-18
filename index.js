@@ -192,6 +192,11 @@ dhatuMethods['लट्'] = function(tin, query) {
     if (found) this.results.push(tin);
 }
 
+// अं॑सँ॑     ०४६०
+// धातुः गणः इट् परस्मैपदी/आत्मनेपदी उपदेशः रूपान्तरम् अर्थः गणः सङ्ख्या इत् इत् (इर् ञि टु ष्) इत् (म् ओ)
+// अंस (अंस्) चुरादिः सेट् उभयपदी अं॑सँ॑ समाघाते १० ०४६० ॥
+// http://sanskritdocuments.org/doc_z_misc_major_works // ,विद्,
+
 // gana one ======================= ::::
 
 dhatuMethods['लट्_'] = function(tin, query) {

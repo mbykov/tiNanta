@@ -15,8 +15,6 @@ var p = u.p;
 var salita = require('salita-component');
 var stemmer = require('../index');
 
-// log('DRU', dru); // слово о полку Игоревом
-
 // log('JTINS', c_tins);
 var jnu_verbs = './lib/jnu-tiNanta-values.txt';
 var dataPath = path.join(__dirname, '../', jnu_verbs);
