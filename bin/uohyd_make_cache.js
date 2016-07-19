@@ -21,6 +21,7 @@ var tinsPath = path.join(__dirname, '../lib/uohyd_tins_cache.js');
 var dhatuAngaPath = path.join(__dirname, '../lib/uohyd_dhatu_anga_cache.js');
 var testsPath = path.join(__dirname, '../test/uohyd_tests_cache.txt');
 
+var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
 var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
@@ -48,9 +49,10 @@ function formsRun(rows) {
         [form, dhatu, la, tip, nums] = row.split(',');
         key = [dhatu, nums].join('-');
         line = {form: form, la: la, tip: tip};
+        gana = nums.split('.')[0];
+        if (gana != '01') return; // ============================================ GANA ============
         if (!check[key]) {
             check[key] = true;
-            gana = nums.split('.')[0];
             // doc = {dhatu: dhatu, gana: gana, la: la}; // key: key,
             // log('D', dhatu, 'NUM', nums, gana);
             if (nest) parseNest(nest, gana);
@@ -119,7 +121,7 @@ function parseTvar(gana, la, laStem) {
 */
 
 function parseLakara(la, nest) {
-    // if (la != 'लट्') return;
+    if (la != 'लट्') return []; // =========================================== LA ====================
     // log('la size:', la, nest.length);
     if (nest.length > 35) {
         log('ERR', la, nest.length);
@@ -139,7 +141,7 @@ function parseLakara(la, nest) {
     [pforms, aforms].forEach(function(forms, idx) {
         stem = parseStem(pforms);
         // if (stem == '') return;
-        pada = (idx == 0) ? 'p' : 'a';
+        pada = (idx == 0) ? 'p' : 'a'; // FIXME: это не верно, могут быть две или неск. p подряд
         json = parseJSON(stem, pforms);
         doc = {stem: stem, pada: pada, json: json};
         docs.push(doc);
@@ -186,4 +188,4 @@ formsRun();
 // else res = {err: 'no stem'};
 // log('res', res);
 
-log('E:', endings);
+// log('E:', endings);
