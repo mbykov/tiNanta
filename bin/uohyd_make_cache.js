@@ -42,6 +42,7 @@ function formsRun(rows) {
     var nests = [];
     var nest, doc, line;
     var gana;
+    var docs = [];
     // आंसयत्,अंस,लङ्,तिप्,10.0460
     listForms.forEach(function(row, idz) {
         // if (idz > 10000) return;
@@ -53,6 +54,7 @@ function formsRun(rows) {
         if (gana != '01') return; // ============================================ GANA ============
         if (!check[key]) {
             check[key] = true;
+            docs.push(key);
             // doc = {dhatu: dhatu, gana: gana, la: la}; // key: key,
             // log('D', dhatu, 'NUM', nums, gana);
             if (nest) parseNest(nest, gana);
@@ -62,6 +64,7 @@ function formsRun(rows) {
             nest.push(line);
         }
     });
+    log('d:', docs.length, docs.slice(0,5));
 }
 
 function parseNest(nest, gana) {
@@ -98,6 +101,26 @@ function parseNest(nest, gana) {
 }
 
 function parseTvar(gana, la, laStem) {
+    var pada = laStem.pada;
+    var json = laStem.json;
+    var tvar;
+    var glpkey = [gana, la, pada].join('-');
+    if (!endings[glpkey]) endings[glpkey] = {arr: [], freq: []};
+    var index = endings[glpkey].arr.indexOf(json);
+    if (index > -1) {
+        tvar = index;
+        if (!endings[glpkey].freq[index]) endings[glpkey].freq[index] = 0;
+        endings[glpkey].freq[index] +=1;
+    } else {
+        endings[glpkey].arr.push(json);
+        tvar = endings[glpkey].arr.indexOf(json);
+        if (!endings[glpkey].freq[tvar]) endings[glpkey].freq[tvar] = 0;
+        endings[glpkey].freq[tvar] +=1;
+    }
+    return tvar;
+}
+
+function parseTvar_(gana, la, laStem) {
     var pada = laStem.pada;
     var json = laStem.json;
     var tvar;
@@ -139,10 +162,10 @@ function parseLakara(la, nest) {
     var results = {};
     var pada, doc, stem, json;
     [pforms, aforms].forEach(function(forms, idx) {
-        stem = parseStem(pforms);
+        stem = parseStem(forms);
         // if (stem == '') return;
         pada = (idx == 0) ? 'p' : 'a'; // FIXME: это не верно, могут быть две или неск. p подряд
-        json = parseJSON(stem, pforms);
+        json = parseJSON(stem, forms);
         doc = {stem: stem, pada: pada, json: json};
         docs.push(doc);
     });
@@ -180,12 +203,5 @@ function parseJSON(stem, forms) {
 
 formsRun();
 
-// stems.push(syms.join(''));
-// stems = _.uniq(stems);
-// var res;
-// if (stems.length == 1) res = {la: la, stem: stems[0]};
-// else if (stems.length == 2) res = {la: la, par: stems[0], atm: stems[1]};
-// else res = {err: 'no stem'};
-// log('res', res);
 
-// log('E:', endings);
+log('E:', endings);
