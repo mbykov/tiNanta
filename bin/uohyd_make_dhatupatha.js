@@ -1,4 +1,4 @@
-// conjugationa l - two tenses - present-law and imperfect-laN - and the two moods - imperative-low and potential-v-lin
+//
 
 var fs = require('fs');
 var util = require('util');

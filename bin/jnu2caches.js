@@ -187,7 +187,7 @@ function run(rows) {
 }
 
 function stemForLa(rowarr, gana, la, pada) {
-    var stem, column, sym, next, next2, soft;
+    var stem, column, sym, next, next2;
     var syms = [];
     var forms = [];
     rowarr.forEach(function(r) { forms = forms.concat(r.trim().split(' '))});
