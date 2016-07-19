@@ -26,6 +26,7 @@ var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
+var la_to_test = 'लङ्';
 
 // fs.unlinkSync(dhatuPathaCachePath);
 
@@ -120,22 +121,6 @@ function parseTvar(gana, la, laStem) {
     return tvar;
 }
 
-function parseTvar_(gana, la, laStem) {
-    var pada = laStem.pada;
-    var json = laStem.json;
-    var tvar;
-    var glpkey = [gana, la, pada].join('-');
-    if (!endings[glpkey]) endings[glpkey] = [];
-    var index = endings[glpkey].indexOf(json);
-    if (index > -1) {
-        tvar = index;
-    } else {
-        endings[glpkey].push(json);
-        tvar = endings[glpkey].indexOf(json);
-    }
-    return tvar;
-}
-
 /*
   в parseLakara - разбить на пады. Если стемы равны, то stem, else - par, atm.
   если tips > 1, то через дефис, чтобы было 18=9+9
@@ -144,7 +129,7 @@ function parseTvar_(gana, la, laStem) {
 */
 
 function parseLakara(la, nest) {
-    if (la != 'लट्') return []; // =========================================== LA ====================
+    if (la_to_test && la != la_to_test) return []; // ================================== LA TO TEST ============
     // log('la size:', la, nest.length);
     if (nest.length > 35) {
         log('ERR', la, nest.length);
@@ -162,6 +147,7 @@ function parseLakara(la, nest) {
     var results = {};
     var pada, doc, stem, json;
     [pforms, aforms].forEach(function(forms, idx) {
+        if (forms.length == 0) return;
         stem = parseStem(forms);
         // if (stem == '') return;
         pada = (idx == 0) ? 'p' : 'a'; // FIXME: это не верно, могут быть две или неск. p подряд
