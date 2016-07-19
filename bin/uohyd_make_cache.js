@@ -43,7 +43,8 @@ function formsRun(rows) {
     var gana;
     // आंसयत्,अंस,लङ्,तिप्,10.0460
     listForms.forEach(function(row, idz) {
-        if (idz > 200) return;
+        // if (idz > 10000) return;
+        if (row == '') return;
         [form, dhatu, la, tip, nums] = row.split(',');
         key = [dhatu, nums].join('-');
         line = {form: form, la: la, tip: tip};
@@ -51,7 +52,7 @@ function formsRun(rows) {
             check[key] = true;
             gana = nums.split('.')[0];
             // doc = {dhatu: dhatu, gana: gana, la: la}; // key: key,
-            log('D', dhatu, 'NUM', nums, gana);
+            // log('D', dhatu, 'NUM', nums, gana);
             if (nest) parseNest(nest, gana);
             // или здесь сделать коррекцию stem по gana?
             nest = [line];
@@ -77,8 +78,10 @@ function parseNest(nest, gana) {
                 // log('LA====', line.la, prev);
                 las.push({la: prev, nest: lanest});
                 laStems = parseLakara(prev, lanest);
-                tvar = parseTvar(gana, prev, laStems);
-                log('==>>', laStems);
+                laStems.forEach(function(laStem) {
+                    tvar = parseTvar(gana, prev, laStem);
+                    // log('==>>', la, 'tvar', tvar, laStem);
+                });
             }
             lanest = [line];
             prev = la;
@@ -92,9 +95,9 @@ function parseNest(nest, gana) {
     // p(las);
 }
 
-function parseTvar(gana, la, laStems) {
-    var pada = laStems.pada;
-    var json = laStems.json;
+function parseTvar(gana, la, laStem) {
+    var pada = laStem.pada;
+    var json = laStem.json;
     var tvar;
     var glpkey = [gana, la, pada].join('-');
     if (!endings[glpkey]) endings[glpkey] = [];
@@ -117,14 +120,18 @@ function parseTvar(gana, la, laStems) {
 
 function parseLakara(la, nest) {
     // if (la != 'लट्') return;
-    log('la size:', la, nest.length);
-    if (nest.length > 35) throw new Error(nest[0]);
+    // log('la size:', la, nest.length);
+    if (nest.length > 35) {
+        log('ERR', la, nest.length);
+        // throw new Error(nest[0]);
+        nest = nest.slice(0, 8);
+    }
     var pforms = [];
     var aforms = [];
     var docs = [];
     nest.forEach(function(line) {
         if (inc(pars, line.tip)) pforms.push(line.form);
-        else if (inc(atms, line.tip)) pforms.push(line.form);
+        else if (inc(atms, line.tip)) aforms.push(line.form);
         else log('NO TIP', la, line);
     });
     var results = {};
@@ -134,7 +141,7 @@ function parseLakara(la, nest) {
         // if (stem == '') return;
         pada = (idx == 0) ? 'p' : 'a';
         json = parseJSON(stem, pforms);
-        doc = {stem: stem, pada: 'p', json: json};
+        doc = {stem: stem, pada: pada, json: json};
         docs.push(doc);
     });
     return docs;
@@ -179,4 +186,4 @@ formsRun();
 // else res = {err: 'no stem'};
 // log('res', res);
 
-log(endings);
+log('E:', endings);
