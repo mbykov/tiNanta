@@ -66,7 +66,7 @@ stemmer.prototype.tiNanta = function(query) {
         stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
         // каждому stem соответствует строго один dhatu?
         das = _.select(jnuDhatuAnga, function(da) { return da.tvar == tin.tvar && da.stem == stem && da.la == tin.la && da.pada == tin.pada});
-        if (!das) return;
+        if (!das) return; // FIXME: select!
         das.forEach(function(da) {
             res = {dhatu: da.dhatu, stem: stem, tin: tin.tin, la: tin.la, pada: tin.pada, tip: tin.tip };
             results.push(res);

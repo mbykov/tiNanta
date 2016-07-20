@@ -16,20 +16,25 @@
   -
 
 * index.js
-  - [ ] рабочий dhatu list - lib/dhatu_anga_cache
+  - [ ] рабочий dhatu list - lib/dhatu_anga_cache.txt
 
 * 18 июля UOHYD
   - чтение uohyd-generated-forms, как более полной версии
   - [X] прочитать rawcomplete.txt - DP
-  - [X] добавить номер в dhatu_list_cache
+  - [X] добавить номер в dhatupatha_cache
+  - [ ] что должно быть в sha1 ?
   - [X] uohyd_make_dhatupatha
+  - [ ] проверить на уникальность после удаления воск. знака - !
   - [X] прогнать g.forms, разделить на гнезда dhatu
   - [X] uohyd_cache
   - [ ]
   - [ ] For SLP1, use ! for anunAsika. e.g. bADf! for बाधृँ. - salita //   -ँ-
+  - [ ]
   - [ ] 36 и больше
-  - [ ] canonical
+  - [ ] canonical - процесс
   - [ ] вывод dhatu_anga - sha1 ?
+  - [ ] что должно быть в sha1 ?
+  - [ ] сформировать tins_cache
   - [ ] write caches
   - [ ] index - это процесс
   - [ ] tests

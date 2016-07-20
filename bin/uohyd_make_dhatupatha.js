@@ -15,7 +15,7 @@ var p = u.p;
 var salita = require('salita-component');
 
 var dataPath = path.join(__dirname, '../uohyd/rawcomplete.txt');
-var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatu_list_cache.txt');
+var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatupatha_cache.txt');
 
 fs.unlinkSync(dhatuPathaCachePath);
 
@@ -54,7 +54,7 @@ dhatuList.forEach(function(row, idx) {
     else if (darr.length == 1) dhatu = wosvara = darr[0].trim();
     else {
         wosvara = darr[0].trim();
-        dhatu = darr[1].trim().replace(')', '');
+        dhatu = darr[1].trim().replace(')', '').replace('!', '');
     }
     num = salita.sa2slp(num);
     // сейчас сам лишаю ударений, но можно все же читать из dhatus?

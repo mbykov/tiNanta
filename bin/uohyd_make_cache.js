@@ -13,13 +13,14 @@ var inc = u.include;
 var log = u.log;
 var p = u.p;
 var salita = require('salita-component');
+var sha1 = require('sha1');
 
 var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva20062016.csv');
 var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatu_list_cache.txt');
 
 var tinsPath = path.join(__dirname, '../lib/uohyd_tins_cache.js');
-var dhatuAngaPath = path.join(__dirname, '../lib/uohyd_dhatu_anga_cache.js');
-var testsPath = path.join(__dirname, '../test/uohyd_tests_cache.txt');
+var dhatuAngaCachePath = path.join(__dirname, '../lib/dhatu_anga_cache.txt');
+var testsCachePath = path.join(__dirname, '../test/uohyd_tests_cache.txt');
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
 var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
@@ -30,10 +31,11 @@ var la_to_test = 'लट्'; // लृङ्
 
 // fs.unlinkSync(dhatuPathaCachePath);
 
-var list_logger = fs.createWriteStream(dhatuPathaCachePath, {
-    flags: 'a', // 'a' means appending (old data will be preserved)
-    defaultEncoding: 'utf8'
-});
+// var list_logger = fs.createWriteStream(dhatuPathaCachePath, {
+//     flags: 'a', // 'a' means appending (old data will be preserved)
+//     defaultEncoding: 'utf8'
+// });
+
 
 function formsRun(rows) {
     var listForms = fs.readFileSync(dataPath).toString().split('\n');
@@ -54,12 +56,17 @@ function formsRun(rows) {
         line = {form: form, la: la, tip: tip};
         gana = nums.split('.')[0];
         if (gana != '01') return; // ============================================ GANA ============
+        // if (dhatu != 'अक!') return; // ============================================ GANA ============
+        // अक
+        // dhatu = dhatu.replace('!', ''); // FIXME: верно-ли убирать "!" ? или м.б. совпадающие после этого? Или c.virama ?
         if (!check[key]) {
             check[key] = true;
             doc = {dhatu: dhatu, gana: gana, la: la}; // key: key,
             // log('D', dhatu, 'NUM', nums, gana);
+            // HERE НЕ ВЕРНО dhatu - nest !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
             if (nest) {
                 laDocs = parseNest(nest, gana, dhatu);
+                // return;
                 laDocs.forEach(function(ladoc) {
                     doc.stem = ladoc.stem;
                     doc.pada = ladoc.pada;
@@ -74,12 +81,16 @@ function formsRun(rows) {
         }
     });
     log('d:', docs.length, docs.slice(0,5));
+    // writeDhatuAnga(docs);
 }
 
 // { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
 // test: {"form":"दोग्धि","dhatu":"दुह्","gana":"अदादि","la":"लट्","pada":"प.प","tip":"तिप्","dslp.... pa","excep":true}
 
 function parseNest(nest, gana, dhatu) {
+    if (dhatu != 'अक!') return [];
+    // log('D', dhatu, nest);
+    // return;
     var check = {};
     var lakaras = [];
     var la, prev;
@@ -103,7 +114,7 @@ function parseNest(nest, gana, dhatu) {
             laDoc.tvar = tvar;
         });
     });
-    // log('==>>', laDocs);
+    log('==>>', laDocs);
     return laDocs;
 }
 
@@ -197,3 +208,27 @@ function parseJSON(stem, forms) {
 formsRun();
 
 // log('E:', endings);
+
+// этот файл - только для поиска исключений:
+function writeDhatuAnga(docs) {
+    fs.unlinkSync(dhatuAngaCachePath);
+    var da_logger = fs.createWriteStream(dhatuAngaCachePath, {
+        flags: 'a', // 'a' means appending (old data will be preserved)
+        defaultEncoding: 'utf8'
+    });
+    docs.forEach(function(doc) {
+        var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar].join('-');
+        var shakey = sha1(shamsg);
+        var row = [doc.dhatu, shamsg, shakey].join('-');
+        da_logger.write(row);
+        da_logger.write('\n');
+    });
+    da_logger.end();
+}
+
+// [ { dhatu: 'अक!',
+//     gana: '01',
+//     la: 'लट्',
+//     stem: 'अंह',
+//     pada: 'आ',
+//     tvar: 0 },
