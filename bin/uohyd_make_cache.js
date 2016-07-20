@@ -41,9 +41,10 @@ function formsRun(rows) {
     var form, dhatu, la, tip, nums;
     var check = {};
     // var nests = [];
-    var nest, doc, line;
+    var nest, line;
     var gana;
     var docs = [];
+    var doc, laDocs, laDoc;
     // आंसयत्,अंस,लङ्,तिप्,10.0460
     listForms.forEach(function(row, idz) {
         // if (idz > 10000) return;
@@ -55,11 +56,18 @@ function formsRun(rows) {
         if (gana != '01') return; // ============================================ GANA ============
         if (!check[key]) {
             check[key] = true;
-            docs.push(key);
-            // doc = {dhatu: dhatu, gana: gana, la: la}; // key: key,
+            doc = {dhatu: dhatu, gana: gana, la: la}; // key: key,
             // log('D', dhatu, 'NUM', nums, gana);
-            if (nest) parseNest(nest, gana, dhatu);
-            // или здесь сделать коррекцию stem по gana?
+            if (nest) {
+                laDocs = parseNest(nest, gana, dhatu);
+                laDocs.forEach(function(ladoc) {
+                    doc.stem = ladoc.stem;
+                    doc.pada = ladoc.pada;
+                    doc.tvar = ladoc.tvar;
+                });
+                docs.push(doc);
+                // FIXME: или здесь сделать коррекцию stem по gana? где ее делать?
+            }
             nest = [line];
         } else {
             nest.push(line);
@@ -68,12 +76,15 @@ function formsRun(rows) {
     log('d:', docs.length, docs.slice(0,5));
 }
 
+// { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
+// test: {"form":"दोग्धि","dhatu":"दुह्","gana":"अदादि","la":"लट्","pada":"प.प","tip":"तिप्","dslp.... pa","excep":true}
+
 function parseNest(nest, gana, dhatu) {
     var check = {};
     var lakaras = [];
     var la, prev;
     var lanest;
-    var laStems;
+    var laDocs;
     var tvar;
     var re;
     _.keys(laks).forEach(function(la) {
@@ -81,19 +92,24 @@ function parseNest(nest, gana, dhatu) {
         lakaras.push({la: la, nest: lanest});
     });
     // p(lakaras);
+    var docs = [];
+    var doc;
     lakaras.forEach(function(lakara) {
         if (la_to_test && lakara.la != la_to_test) return; // ================================== LA TO TEST ============
-        laStems = parseLakara(lakara.la, lakara.nest, dhatu);
-        laStems.forEach(function(laStem) {
-            tvar = parseTvar(gana, lakara.la, laStem);
-            // log('==>>', l.la, 'tvar', tvar, laStem);
+        laDocs = parseLakara(lakara.la, lakara.nest);
+        laDocs.forEach(function(laDoc) {
+            tvar = parseTvar(gana, lakara.la, laDoc);
+            // log('==>>', lakara.la, 'tvar:', tvar, laDoc);
+            laDoc.tvar = tvar;
         });
     });
+    // log('==>>', laDocs);
+    return laDocs;
 }
 
-function parseTvar(gana, la, laStem) {
-    var pada = laStem.pada;
-    var json = laStem.json;
+function parseTvar(gana, la, laDoc) {
+    var pada = laDoc.pada;
+    var json = laDoc.json;
     var tvar;
     var glpkey = [gana, la, pada].join('-');
     if (!endings[glpkey]) endings[glpkey] = {arr: [], freq: []};
@@ -118,10 +134,10 @@ function parseTvar(gana, la, laStem) {
   если tip не подходит,
 */
 
-function parseLakara(la, nest, dhatu) {
+function parseLakara(la, nest) {
     // log('la size:', la, nest.length);
     if (nest.length > 18) {
-        log('ERR', la, dhatu, nest.length);
+        log('ERR', la, nest.length);
         // throw new Error(nest[0]);
         // FIXME: похоже, если четко кратно 9, то разбить на 9 и в цикле FIXME:
         nest = nest.slice(0, 8);
@@ -140,11 +156,12 @@ function parseLakara(la, nest, dhatu) {
         if (forms.length == 0) return;
         stem = parseStem(forms);
         // if (stem == '') return;
-        pada = (idx == 0) ? 'p' : 'a'; // FIXME: это не верно, могут быть две или неск. p подряд
+        pada = (idx == 0) ? 'प' : 'आ'; // FIXME: это не верно, могут быть две или неск. p подряд
         json = parseJSON(stem, forms);
         doc = {stem: stem, pada: pada, json: json};
         docs.push(doc);
     });
+    // [ { stem: 'तप', pada: 'प', json: 'ति,तः,न्ति,सि,थः,थ,ामि,ावः,ामः' } ]
     return docs;
 }
 
@@ -180,4 +197,4 @@ function parseJSON(stem, forms) {
 formsRun();
 
 
-log('E:', endings);
+// log('E:', endings);
