@@ -82,7 +82,7 @@ function parseNest(nest, gana, dhatu) {
     });
     // p(lakaras);
     lakaras.forEach(function(lakara) {
-        // if (la_to_test && lakara.la != la_to_test) return; // ================================== LA TO TEST ============
+        if (la_to_test && lakara.la != la_to_test) return; // ================================== LA TO TEST ============
         laStems = parseLakara(lakara.la, lakara.nest, dhatu);
         laStems.forEach(function(laStem) {
             tvar = parseTvar(gana, lakara.la, laStem);
@@ -120,7 +120,7 @@ function parseTvar(gana, la, laStem) {
 
 function parseLakara(la, nest, dhatu) {
     // log('la size:', la, nest.length);
-    if (nest.length > 35) {
+    if (nest.length > 18) {
         log('ERR', la, dhatu, nest.length);
         // throw new Error(nest[0]);
         // FIXME: похоже, если четко кратно 9, то разбить на 9 и в цикле FIXME:
@@ -180,4 +180,4 @@ function parseJSON(stem, forms) {
 formsRun();
 
 
-// log('E:', endings);
+log('E:', endings);
