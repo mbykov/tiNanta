@@ -26,7 +26,7 @@ var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
-var la_to_test = 'लङ्';
+var la_to_test = 'लट्'; // लृङ्
 
 // fs.unlinkSync(dhatuPathaCachePath);
 
@@ -40,7 +40,7 @@ function formsRun(rows) {
     var key;
     var form, dhatu, la, tip, nums;
     var check = {};
-    var nests = [];
+    // var nests = [];
     var nest, doc, line;
     var gana;
     var docs = [];
@@ -58,7 +58,7 @@ function formsRun(rows) {
             docs.push(key);
             // doc = {dhatu: dhatu, gana: gana, la: la}; // key: key,
             // log('D', dhatu, 'NUM', nums, gana);
-            if (nest) parseNest(nest, gana);
+            if (nest) parseNest(nest, gana, dhatu);
             // или здесь сделать коррекцию stem по gana?
             nest = [line];
         } else {
@@ -68,37 +68,27 @@ function formsRun(rows) {
     log('d:', docs.length, docs.slice(0,5));
 }
 
-function parseNest(nest, gana) {
+function parseNest(nest, gana, dhatu) {
     var check = {};
-    var las = [];
+    var lakaras = [];
     var la, prev;
     var lanest;
     var laStems;
     var tvar;
-    nest.forEach(function(line) {
-        prev = la;
-        la = line.la;
-        if (!check[la]) {
-            check[la] = true;
-            if (lanest) {
-                // log('LA====', line.la, prev);
-                las.push({la: prev, nest: lanest});
-                laStems = parseLakara(prev, lanest);
-                laStems.forEach(function(laStem) {
-                    tvar = parseTvar(gana, prev, laStem);
-                    // log('==>>', la, 'tvar', tvar, laStem);
-                });
-            }
-            lanest = [line];
-            prev = la;
-            // log('LA', line.la, lanest);
-        } else {
-            lanest.push(line);
-        }
+    var re;
+    _.keys(laks).forEach(function(la) {
+        lanest = _.select(nest, function(line) { return line.la == la});
+        lakaras.push({la: la, nest: lanest});
     });
-    las.push({la: la, nest: lanest});
-    laStems = parseLakara(la, lanest); // FIXME: как-то надо последнюю вместе со всеми бы
-    // p(las);
+    // p(lakaras);
+    lakaras.forEach(function(lakara) {
+        // if (la_to_test && lakara.la != la_to_test) return; // ================================== LA TO TEST ============
+        laStems = parseLakara(lakara.la, lakara.nest, dhatu);
+        laStems.forEach(function(laStem) {
+            tvar = parseTvar(gana, lakara.la, laStem);
+            // log('==>>', l.la, 'tvar', tvar, laStem);
+        });
+    });
 }
 
 function parseTvar(gana, la, laStem) {
@@ -128,12 +118,12 @@ function parseTvar(gana, la, laStem) {
   если tip не подходит,
 */
 
-function parseLakara(la, nest) {
-    if (la_to_test && la != la_to_test) return []; // ================================== LA TO TEST ============
+function parseLakara(la, nest, dhatu) {
     // log('la size:', la, nest.length);
     if (nest.length > 35) {
-        log('ERR', la, nest.length);
+        log('ERR', la, dhatu, nest.length);
         // throw new Error(nest[0]);
+        // FIXME: похоже, если четко кратно 9, то разбить на 9 и в цикле FIXME:
         nest = nest.slice(0, 8);
     }
     var pforms = [];
@@ -190,4 +180,4 @@ function parseJSON(stem, forms) {
 formsRun();
 
 
-log('E:', endings);
+// log('E:', endings);
