@@ -140,7 +140,7 @@ function parseLakara(la, nest) {
         log('ERR', la, nest.length);
         // throw new Error(nest[0]);
         // FIXME: похоже, если четко кратно 9, то разбить на 9 и в цикле FIXME:
-        nest = nest.slice(0, 8);
+        nest = nest.slice(0, 9);
     }
     var pforms = [];
     var aforms = [];
@@ -195,6 +195,5 @@ function parseJSON(stem, forms) {
 }
 
 formsRun();
-
 
 // log('E:', endings);

@@ -24,11 +24,10 @@ var ctins = require(jnuTinsPath);
 var jnuTinsEx = require(jnuTinsPath);
 var jnuDhatuAngaPath = path.join(__dirname, './lib/jnu_dhatu_anga_cache.js');
 var jnuDhatuAnga = require(jnuDhatuAngaPath);
-
 var dhatuListPath = path.join(__dirname, './lib/dhatu_list_cache.txt');
-var dlist = fs.readFileSync(dhatuListPath).toString().split('\n');
+var dhatulist = fs.readFileSync(dhatuListPath).toString().split('\n');
 // 48-भ्वादि-ह्लादीँ॒-ह्लाद्-अव्यक्ते_शब्दे-सेट्-आ.प
-var cdhatus = dlist.map(function(str) {
+var cdhatus = dhatulist.map(function(str) {
     var d = str.split('-');
     return {gana: d[1], dhatu: d[3], pada: d[6]};
 });
@@ -138,7 +137,7 @@ stemmer.prototype.parse = function(query) {
 var dhatuMethods = {};
 
 // adAdi !!!
-dhatuMethods['लट्'] = function(tin, query) {
+dhatuMethods['लट्_'] = function(tin, query) {
     if (tin.tin == '') return;
     // log(JSON.stringify(tin));
     var dhatu;
@@ -190,6 +189,8 @@ dhatuMethods['लट्'] = function(tin, query) {
     }
     found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     if (found) this.results.push(tin);
+    // FIXME:
+    this.results.push(tin);
 }
 
 // अं॑सँ॑     ०४६०
@@ -197,10 +198,11 @@ dhatuMethods['लट्'] = function(tin, query) {
 // अंस (अंस्) चुरादिः सेट् उभयपदी अं॑सँ॑ समाघाते १० ०४६० ॥
 // http://sanskritdocuments.org/doc_z_misc_major_works // ,विद्,
 
-// gana one ======================= ::::
+// gana one Bvadi ======================= ::::
 
-dhatuMethods['लट्_'] = function(tin, query) {
+dhatuMethods['लट्'] = function(tin, query) {
     if (tin.tin == '') return;
+    // log(JSON.stringify(tin));
     var dhatu;
     var fin = tin.stem.slice(-1);
     if (!u.isConsonant(fin)) return;
@@ -217,16 +219,18 @@ dhatuMethods['लट्_'] = function(tin, query) {
     });
     if (vows.length > 1) return; // FIXME: всегда только одна гласная ?????????????????? <<<===================
     else if (vows.length == 0) tin.dhatu = addVirama(tin.stem); // vow => c.a
-    // else if (vows.length == 0) return; // <<====== COMM // vow => c.a
+    // else if (vows.length == 0) tin.dhatu = addVirama(tin.stem);
     else {
         vow = vows[0];
         vidx = syms.indexOf(vow);
         if (inc(c.dirgha_ligas, vow)) tin.dhatu = addVirama(tin.stem); // FIXME: но не последняя в корне - это не про первую гану ?
         else if (syms.length - vidx > 3) tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant // <<====== COMM
+        else if (vow == 'अ') tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant // <<====== COMM
         else {
             weak = aguna(vow); // FIXME: u.aguna()
             if (!weak) return;
             if (vow == beg) weak = u.vowel(weak); // first - full form //    'एजृ्-एज्',
+            // log('HERE', vow, weak);
             // но dhatu -ej- сам содержит гуну <<<==============
             wstem = tin.stem.replace(vow, weak);
             tin.dhatu = addVirama(wstem);
@@ -237,7 +241,7 @@ dhatuMethods['लट्_'] = function(tin, query) {
     // if (!inc(cdhatus, tin.dhatu)) return;
     var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
-    if (!found) return;
+    // if (!found) return;
 
     this.results.push(tin);
 }
