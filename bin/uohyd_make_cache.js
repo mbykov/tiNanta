@@ -163,24 +163,37 @@ function parseLakara(la, nest) {
         // FIXME: похоже, если четко кратно 9, то разбить на 9 и в цикле FIXME:
         nest = nest.slice(0, 9);
     }
-    var pforms = [];
-    var aforms = [];
+    var pforms = {};
+    var aforms = {};
     var docs = [];
     nest.forEach(function(line) {
-        if (inc(pars, line.tip)) pforms.push(line.form);
-        else if (inc(atms, line.tip)) aforms.push(line.form);
+        // if (inc(pars, line.tip)) pforms.push(line.form);
+        // else if (inc(atms, line.tip)) aforms.push(line.form);
+        // else log('NO TIP', la, line);
+        var tinForm = {};
+        tinForm[line.tip] = line.form;
+        if (inc(pars, line.tip)) {
+            if (!pforms[line.tip]) pforms[line.tip] = [];
+            pforms[line.tip].push(line.form);
+        } else if (inc(atms, line.tip)) {
+            if (!aforms[line.tip]) aforms[line.tip] = [];
+            aforms[line.tip].push(line.form);
+        }
         else log('NO TIP', la, line);
     });
-    var results = {};
+    // var results = {};
     var pada, doc, stem, json;
     [pforms, aforms].forEach(function(forms, idx) {
-        if (forms.length == 0) return;
+        if (_.keys(forms).length == 0) return;
+        // log('F', forms);
         stem = parseStem(forms);
         // if (stem == '') return;
         pada = (idx == 0) ? 'प' : 'आ'; // FIXME: это не верно, могут быть две или неск. p подряд
-        json = parseJSON(stem, forms);
+        // json = parseJSON(stem, forms);
+        json = 'json';
         doc = {stem: stem, pada: pada, json: json};
         docs.push(doc);
+        // log('D', doc);
     });
     // [ { stem: 'तप', pada: 'प', json: 'ति,तः,न्ति,सि,थः,थ,ामि,ावः,ामः' } ]
     return docs;
@@ -191,8 +204,9 @@ function parseStem(forms) {
     var syms = [];
     var stem;
     var idx = 0;
+    var values = _.values(forms); // тут м.б. засада, если разные стемы? => 36 ?
     while(idx < 15) {
-        column = forms.map(function(form) { return  form[idx];});
+        column = values.map(function(form) { return form[idx];});
         var uniq = _.uniq(column);
         if (uniq.length > 1) break;
         syms.push(uniq[0]);
@@ -206,11 +220,17 @@ function parseJSON(stem, forms) {
     var reStem = new RegExp('^' + stem);
     var tinArr = [];
     var json;
-    forms.forEach(function(form, idx) {
-        // var tip = idx.toString();
-        var stin = form.replace(reStem, '');
-        tinArr.push(stin);
-    });
+    for (var tip in forms) {
+        var strs = forms[tip];
+        strs.forEach(function(form, idx) {
+            // var tip = idx.toString();
+            var stin = form.replace(reStem, '');
+            var ostin = {};
+            ostin[tip] = stin;
+            // tinArr.push({tip: tip, tin: stin});
+            tinArr.push(stin); // тут в строке json только сами tin-s. XXX
+        });
+    }
     json = tinArr.toString();
     return json;
 }
@@ -237,7 +257,7 @@ function parseTvar(gana, la, laDoc) {
 
 formsRun();
 
-log(endings);
+p(endings);
 
 // p(canonObj);
 writeTinCache(endings, canonObj);
@@ -268,7 +288,10 @@ function writeTinCache(endings, canonObj) {
             var tip;
             tins.forEach(function(tin, idz) {
                 tip = tips[pada][idz];
-                if (!tip) log('!!!!!!!!', tips[pada]);
+                // if (!tip) log('!!!!!!!!', tips[pada]);
+                // XXXX
+                // блин, tip-ов-то нет при неравной длинне
+
                 tkey = [tin, gana, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
                 if (check[tkey]) return;
                 check[tkey] = true;
