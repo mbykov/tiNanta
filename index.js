@@ -19,11 +19,13 @@ var p = u.p;
 
 var lakaras = ['law', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 // var ctinsPath = path.join(__dirname, './lib/canonical_tins_cache.js');
-var jnuTinsPath = path.join(__dirname, './lib/jnu_tins_cache.js');
-var ctins = require(jnuTinsPath);
-var jnuTinsEx = require(jnuTinsPath);
+var tinsPath = path.join(__dirname, './lib/tins_cache.js');
+var ctins = fs.readFileSync(tinsPath).toString().split('\n');
+
+// var jnuTinsEx = require(jnuTinsPath);
 var jnuDhatuAngaPath = path.join(__dirname, './lib/jnu_dhatu_anga_cache.js');
 var jnuDhatuAnga = require(jnuDhatuAngaPath);
+
 var dhatuListPath = path.join(__dirname, './lib/dhatu_list_cache.txt');
 var dhatulist = fs.readFileSync(dhatuListPath).toString().split('\n');
 // 48-भ्वादि-ह्लादीँ॒-ह्लाद्-अव्यक्ते_शब्दे-सेट्-आ.प
@@ -31,6 +33,7 @@ var cdhatus = dhatulist.map(function(str) {
     var d = str.split('-');
     return {gana: d[1], dhatu: d[3], pada: d[6]};
 });
+
 
 
 exports = module.exports = stemmer();
@@ -54,10 +57,15 @@ stemmer.prototype.tiNanta = function(query) {
     // 1. выбираю подходящие tins:
     var fits = [];
     var fit;
+    var obj = {};
+    var tip, tin, size, gana, la, pada, tvar, tcan;
+    // त-ते-2-01-लट्-आ-0-1
     ctins.forEach(function(ctin) {
-        fit = (ctin.size == 0) ? '' : query.slice(-ctin.size);
-        if (fit == ctin.tin) fits.push(ctin);
+        [tip, tin, size, gana, la, pada, tvar, tcan] = ctin.split('-');
+        fit = (size == 0) ? '' : query.slice(-size);
+        if (fit == tin) fits.push(ctin);
     });
+    // здесь я препвал переход на строку ctin - пока parse
 
     // поск готового dhatu:
     var results = [];
@@ -106,26 +114,42 @@ stemmer.prototype.parse = function(query) {
     this.results = [];
     var fits = [];
     var fit;
-    if (_.keys(ctins).length == 0) return [];
+    // if (_.keys(ctins).length == 0) return [];
+    // ctins.forEach(function(ctin) {
+    //     // if (ctin.la != 'लङ्') return;
+    //     if (!ctin.canon) return;
+    //     // if (ctin.canon) log('CAN:', ctin);
+    //     fit = (ctin.size == 0) ? '' : query.slice(-ctin.size);
+    //     if (fit == ctin.tin) fits.push(ctin);
+    // });
+    var that = this;
+    // त-ते-2-01-लट्-आ-0-1
+    var tip, tin, size, gana, la, pada, tvar, can;
+    var otin = {};
+
+    // var stem;
     ctins.forEach(function(ctin) {
-        // if (ctin.la != 'लङ्') return;
-        if (!ctin.canon) return;
-        // if (ctin.canon) log('CAN:', ctin);
-        fit = (ctin.size == 0) ? '' : query.slice(-ctin.size);
-        if (fit == ctin.tin) fits.push(ctin);
+        // log('O', ctin);
+        [tip, tin, size, gana, la, pada, tvar, can] = ctin.split('-');
+        otin = {tip: tip, tin: tin, size: size, la: la, pada: pada, tvar: tvar, can: can};
+        fit = (size == 0) ? '' : query.slice(-size);
+        // if (fit == tin) fits.push(ctin);
+        if (fit != tin) return [];
+        // log('O', ctins);
+        otin.stem = (size == 0) ? query : query.slice(0, -size);
+        if (!dhatuMethods[la]) return []; // FIXME: это временно, до заполнения DMs ===================
+        dhatuMethods[la].call(that, otin, query);
     });
 
     // stems:
-    fits.forEach(function(tin) {tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size) });
-    // log('parse - stems FITS:', fits);
+    // fits.forEach(function(tin) {tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size) });
 
     // конструирую простейший dhatu:
     // все циклы в parse можно убрать в один
-    var that = this;
-    fits.forEach(function(tin) {
-        if (!dhatuMethods[tin.la]) return;
-        dhatuMethods[tin.la].call(that, tin, query);
-    });
+    // fits.forEach(function(tin) {
+        // if (!dhatuMethods[tin.la]) return;
+        // dhatuMethods[tin.la].call(that, tin, query);
+    // });
 
     // log('RR', this.results);
     return this.results;
@@ -242,6 +266,7 @@ dhatuMethods['लट्'] = function(tin, query) {
     var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
     // if (!found) return;
+    // HERE - согласование DHATU PATHA
 
     this.results.push(tin);
 }

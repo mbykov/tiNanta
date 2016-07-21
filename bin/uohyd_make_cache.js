@@ -189,8 +189,8 @@ function parseLakara(la, nest) {
         stem = parseStem(forms);
         // if (stem == '') return;
         pada = (idx == 0) ? 'प' : 'आ'; // FIXME: это не верно, могут быть две или неск. p подряд
-        // json = parseJSON(stem, forms);
-        json = 'json';
+        json = parseJSON(stem, forms);
+        // json = 'json';
         doc = {stem: stem, pada: pada, json: json};
         docs.push(doc);
         // log('D', doc);
@@ -199,12 +199,36 @@ function parseLakara(la, nest) {
     return docs;
 }
 
+function parseJSON(stem, forms) {
+    var reStem = new RegExp('^' + stem);
+    var tinArr = [];
+    var json;
+    // { 'तिप्': [ 'ज्योतति' ],
+    var ostin = {};
+    for (var tip in forms) {
+        var strs = forms[tip];
+        ostin[tip] = [];
+        strs.forEach(function(form, idx) {
+            // var tip = idx.toString();
+            var stin = form.replace(reStem, '');
+            // tinArr.push({tip: tip, tin: stin});
+            ostin[tip].push(stin);
+        });
+        // tinArr.push(ostin);
+    }
+    // json = tinArr.toString();
+    json = JSON.stringify(ostin);
+    return json;
+}
+
 function parseStem(forms) {
     var column;
     var syms = [];
     var stem;
     var idx = 0;
+    // { 'तिप्': [ 'ज्योतति' ],
     var values = _.values(forms); // тут м.б. засада, если разные стемы? => 36 ?
+    values = _.flatten(values);
     while(idx < 15) {
         column = values.map(function(form) { return form[idx];});
         var uniq = _.uniq(column);
@@ -214,25 +238,6 @@ function parseStem(forms) {
     };
     stem = syms.join('');
     return stem;
-}
-
-function parseJSON(stem, forms) {
-    var reStem = new RegExp('^' + stem);
-    var tinArr = [];
-    var json;
-    for (var tip in forms) {
-        var strs = forms[tip];
-        strs.forEach(function(form, idx) {
-            // var tip = idx.toString();
-            var stin = form.replace(reStem, '');
-            var ostin = {};
-            ostin[tip] = stin;
-            // tinArr.push({tip: tip, tin: stin});
-            tinArr.push(stin); // тут в строке json только сами tin-s. XXX
-        });
-    }
-    json = tinArr.toString();
-    return json;
 }
 
 function parseTvar(gana, la, laDoc) {
@@ -283,27 +288,41 @@ function writeTinCache(endings, canonObj) {
         jsons.forEach(function(json, tvar) {
             var canon = false;
             if (inc(canons, json)) canon = true;
-            var tins = json.split(',');
+            // var tins = json.split(',');
+            var otins = JSON.parse(json);
             var oTin, tinData;
-            var tip;
-            tins.forEach(function(tin, idz) {
-                tip = tips[pada][idz];
-                // if (!tip) log('!!!!!!!!', tips[pada]);
-                // XXXX
-                // блин, tip-ов-то нет при неравной длинне
+            var tcan, tinstr;
+            for (var tip in otins) {
+                var tins = otins[tip];
+                tins.forEach(function(tin, idz) {
+                    tkey = [tip, tin, gana, la, pada].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе там дубли. А здесь?
+                    if (check[tkey]) return;
+                    check[tkey] = true;
+                    tcan = (canon) ? 1 : 0;
+                    tinstr = [tip, tin, tin.length, gana, la, pada, tvar, tcan].join('-');
+                    tin_logger.write(tinstr);
+                    tin_logger.write('\n');
+                    tincount +=1;
+                });
+            }
+            // tins.forEach(function(tin, idz) {
+            //     tip = tips[pada][idz];
+            //     // if (!tip) log('!!!!!!!!', tips[pada]);
+            //     // XXXX
+            //     // блин, tip-ов-то нет при неравной длинне
 
-                tkey = [tin, gana, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
-                if (check[tkey]) return;
-                check[tkey] = true;
-                var tcan = (canon) ? 1 : 0;
-                var tinstr = [tin, tip, tin.length, gana, la, pada, tvar, tcan].join('-');
-                // oTin = {tin: tin, tip: tip, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
-                // if (canon) oTin.canon = true;
-                // tinData = util.inspect(oTin,  {depth: null});
-                tin_logger.write(tinstr);
-                tin_logger.write('\n');
-                tincount +=1;
-            });
+            //     tkey = [tin, gana, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
+            //     if (check[tkey]) return;
+            //     check[tkey] = true;
+            //     var tcan = (canon) ? 1 : 0;
+            //     var tinstr = [tin, tip, tin.length, gana, la, pada, tvar, tcan].join('-');
+            //     // oTin = {tin: tin, tip: tip, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
+            //     // if (canon) oTin.canon = true;
+            //     // tinData = util.inspect(oTin,  {depth: null});
+            //     tin_logger.write(tinstr);
+            //     tin_logger.write('\n');
+            //     tincount +=1;
+            // });
         });
     }
     tin_logger.end();
