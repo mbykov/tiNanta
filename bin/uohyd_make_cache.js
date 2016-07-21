@@ -28,9 +28,9 @@ var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
 var la_to_test = 'लट्'; // लृङ्
+var debug = true;
 
 // fs.unlinkSync(dhatuPathaCachePath);
-
 // var list_logger = fs.createWriteStream(dhatuPathaCachePath, {
 //     flags: 'a', // 'a' means appending (old data will be preserved)
 //     defaultEncoding: 'utf8'
@@ -42,9 +42,10 @@ function formsRun(rows) {
     var key;
     var form, dhatu, la, tip, nums;
     var check = {};
-    // var nests = [];
+    var heads = {};
+    var nests = {};
     var nest, line;
-    var gana;
+    var gana, num;
     var docs = [];
     var doc, laDocs, laDoc;
     // आंसयत्,अंस,लङ्,तिप्,10.0460
@@ -53,34 +54,48 @@ function formsRun(rows) {
         if (row == '') return;
         [form, dhatu, la, tip, nums] = row.split(',');
         key = [dhatu, nums].join('-');
-        line = {form: form, la: la, tip: tip};
         gana = nums.split('.')[0];
-        if (gana != '01') return; // ============================================ GANA ============
-        // if (dhatu != 'अक!') return; // ============================================ GANA ============
-        // अक
+        num = nums.split('.')[1];
+        if (gana != '01') return; // =============================== GANA ==============
+        var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana}; // , num: num, key: key
         // dhatu = dhatu.replace('!', ''); // FIXME: верно-ли убирать "!" ? или м.б. совпадающие после этого? Или c.virama ?
         if (!check[key]) {
             check[key] = true;
-            doc = {dhatu: dhatu, gana: gana, la: la}; // key: key,
-            // log('D', dhatu, 'NUM', nums, gana);
-            // HERE НЕ ВЕРНО dhatu - nest !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-            if (nest) {
-                laDocs = parseNest(nest, gana, dhatu);
-                // return;
-                laDocs.forEach(function(ladoc) {
-                    doc.stem = ladoc.stem;
-                    doc.pada = ladoc.pada;
-                    doc.tvar = ladoc.tvar;
-                });
-                docs.push(doc);
-                // FIXME: или здесь сделать коррекцию stem по gana? где ее делать?
-            }
-            nest = [line];
+            heads[key] = {dhatu: dhatu, gana: gana, num: num}; // , key: key
+            nests[key] = [line];
         } else {
-            nest.push(line);
+            nests[key].push(line);
         }
     });
-    log('d:', docs.length, docs.slice(0,5));
+    // nests.push(nest);
+    // nests.shift();
+
+    // log('N', nests['अंस-10.0460']);
+    // इक्,लट्,तिप्,02.0042
+    log('N', _.keys(heads).length, _.keys(nests).length);
+    // log('N', heads[0], nests[0][0]);
+    // return;
+    for (var vkey in heads) {
+        var vhead = heads[vkey];
+        var vnest = nests[vkey];
+        var ndhatus = vnest.map(function(n) { return n.dhatu});
+        ndhatus = _.uniq(ndhatus);
+        if (ndhatus.length > 1) {
+            log(vhead, ndhatus, nest.length);
+            log(vnest.slice(-2));
+            throw new Error();
+        }
+        doc = {dhatu: vhead.dhatu, gana: vhead.gana, num: vhead.num};
+        laDocs = parseNest(vnest, vhead.gana, vhead.dhatu);
+        laDocs.forEach(function(ladoc) {
+            doc.stem = ladoc.stem;
+            doc.pada = ladoc.pada;
+            doc.tvar = ladoc.tvar;
+            });
+        docs.push(doc);
+    }
+
+    log('d:', docs.length, docs[100]);
     // writeDhatuAnga(docs);
 }
 
@@ -88,9 +103,9 @@ function formsRun(rows) {
 // test: {"form":"दोग्धि","dhatu":"दुह्","gana":"अदादि","la":"लट्","pada":"प.प","tip":"तिप्","dslp.... pa","excep":true}
 
 function parseNest(nest, gana, dhatu) {
-    if (dhatu != 'अक!') return [];
-    // log('D', dhatu, nest);
-    // return;
+    // if (dhatu != 'अक!') return [];
+    // log('D', dhatu, JSON.stringify(nest));
+    // return [];
     var check = {};
     var lakaras = [];
     var la, prev;
@@ -114,28 +129,8 @@ function parseNest(nest, gana, dhatu) {
             laDoc.tvar = tvar;
         });
     });
-    log('==>>', laDocs);
+    // log('==>>', laDocs);
     return laDocs;
-}
-
-function parseTvar(gana, la, laDoc) {
-    var pada = laDoc.pada;
-    var json = laDoc.json;
-    var tvar;
-    var glpkey = [gana, la, pada].join('-');
-    if (!endings[glpkey]) endings[glpkey] = {arr: [], freq: []};
-    var index = endings[glpkey].arr.indexOf(json);
-    if (index > -1) {
-        tvar = index;
-        if (!endings[glpkey].freq[index]) endings[glpkey].freq[index] = 0;
-        endings[glpkey].freq[index] +=1;
-    } else {
-        endings[glpkey].arr.push(json);
-        tvar = endings[glpkey].arr.indexOf(json);
-        if (!endings[glpkey].freq[tvar]) endings[glpkey].freq[tvar] = 0;
-        endings[glpkey].freq[tvar] +=1;
-    }
-    return tvar;
 }
 
 /*
@@ -147,8 +142,12 @@ function parseTvar(gana, la, laDoc) {
 
 function parseLakara(la, nest) {
     // log('la size:', la, nest.length);
-    if (nest.length > 18) {
-        log('ERR', la, nest.length);
+    if (nest.length == 21) {
+        // log('ERR', la, nest.length, nest);
+        if (debug) {
+            // log('ERR', la, nest.length, JSON.stringify(nest));
+            debug = false;
+        }
         // throw new Error(nest[0]);
         // FIXME: похоже, если четко кратно 9, то разбить на 9 и в цикле FIXME:
         nest = nest.slice(0, 9);
@@ -205,9 +204,29 @@ function parseJSON(stem, forms) {
     return json;
 }
 
+function parseTvar(gana, la, laDoc) {
+    var pada = laDoc.pada;
+    var json = laDoc.json;
+    var tvar;
+    var glpkey = [gana, la, pada].join('-');
+    if (!endings[glpkey]) endings[glpkey] = {arr: [], freq: []};
+    var index = endings[glpkey].arr.indexOf(json);
+    if (index > -1) {
+        tvar = index;
+        if (!endings[glpkey].freq[index]) endings[glpkey].freq[index] = 0;
+        endings[glpkey].freq[index] +=1;
+    } else {
+        endings[glpkey].arr.push(json);
+        tvar = endings[glpkey].arr.indexOf(json);
+        if (!endings[glpkey].freq[tvar]) endings[glpkey].freq[tvar] = 0;
+        endings[glpkey].freq[tvar] +=1;
+    }
+    return tvar;
+}
+
 formsRun();
 
-// log('E:', endings);
+log(endings);
 
 // этот файл - только для поиска исключений:
 function writeDhatuAnga(docs) {
@@ -217,7 +236,7 @@ function writeDhatuAnga(docs) {
         defaultEncoding: 'utf8'
     });
     docs.forEach(function(doc) {
-        var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar].join('-');
+        var shamsg = [doc.stem, doc.gana, doc.pada, doc.tvar].join('-');
         var shakey = sha1(shamsg);
         var row = [doc.dhatu, shamsg, shakey].join('-');
         da_logger.write(row);
@@ -225,10 +244,3 @@ function writeDhatuAnga(docs) {
     });
     da_logger.end();
 }
-
-// [ { dhatu: 'अक!',
-//     gana: '01',
-//     la: 'लट्',
-//     stem: 'अंह',
-//     pada: 'आ',
-//     tvar: 0 },
