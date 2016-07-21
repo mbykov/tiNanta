@@ -26,15 +26,20 @@ var ctins = fs.readFileSync(tinsPath).toString().split('\n');
 var jnuDhatuAngaPath = path.join(__dirname, './lib/jnu_dhatu_anga_cache.js');
 var jnuDhatuAnga = require(jnuDhatuAngaPath);
 
-var dhatuListPath = path.join(__dirname, './lib/dhatu_list_cache.txt');
-var dhatulist = fs.readFileSync(dhatuListPath).toString().split('\n');
-// 48-भ्वादि-ह्लादीँ॒-ह्लाद्-अव्यक्ते_शब्दे-सेट्-आ.प
-var cdhatus = dhatulist.map(function(str) {
+var dhatupathaPath = path.join(__dirname, './lib/dhatupatha_cache.txt');
+var dhatupatha = fs.readFileSync(dhatupathaPath).toString().split('\n');
+// अं॑सँ॑-अंस-अंस्-चु-उ-सेट्-10-0460
+// अ॑हिँ॒-अहि-अंह्-भ्वा-आ-सेट्-01-0722
+var dps = dhatupatha.map(function(str) {
     var d = str.split('-');
-    return {gana: d[1], dhatu: d[3], pada: d[6]};
+    var pada = d[4];
+    var padas = (pada == 'उ') ? ['प', 'आ'] : [pada];
+    var res = padas.map(function(pada) {
+        return {dp: d[0], dhatu: d[2], gana: d[6], pada: pada};
+    });
+    return res;
 });
-
-
+dps = _.flatten(dps);
 
 exports = module.exports = stemmer();
 
@@ -141,16 +146,6 @@ stemmer.prototype.parse = function(query) {
         dhatuMethods[la].call(that, otin, query);
     });
 
-    // stems:
-    // fits.forEach(function(tin) {tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size) });
-
-    // конструирую простейший dhatu:
-    // все циклы в parse можно убрать в один
-    // fits.forEach(function(tin) {
-        // if (!dhatuMethods[tin.la]) return;
-        // dhatuMethods[tin.la].call(that, tin, query);
-    // });
-
     // log('RR', this.results);
     return this.results;
 }
@@ -217,11 +212,6 @@ dhatuMethods['लट्_'] = function(tin, query) {
     this.results.push(tin);
 }
 
-// अं॑सँ॑     ०४६०
-// धातुः गणः इट् परस्मैपदी/आत्मनेपदी उपदेशः रूपान्तरम् अर्थः गणः सङ्ख्या इत् इत् (इर् ञि टु ष्) इत् (म् ओ)
-// अंस (अंस्) चुरादिः सेट् उभयपदी अं॑सँ॑ समाघाते १० ०४६० ॥
-// http://sanskritdocuments.org/doc_z_misc_major_works // ,विद्,
-
 // gana one Bvadi ======================= ::::
 
 dhatuMethods['लट्'] = function(tin, query) {
@@ -262,12 +252,23 @@ dhatuMethods['लट्'] = function(tin, query) {
         };
     }
 
-    // if (!inc(cdhatus, tin.dhatu)) return;
-    var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
-    // log(111, tin, found);
-    // if (!found) return;
-    // HERE - согласование DHATU PATHA
+    // { tip: 'इट्',
+    //   tin: 'े',
+    //   size: '1',
+    //   la: 'लट्',
+    //   pada: 'आ',
+    //   tvar: '0',
+    //   can: '1',
+    //   stem: 'अंहत',
+    //   dhatu: 'अंहत्' }
 
+    //  { dhatu: 'इल', dict: 'इल्', gana: '10', pada: 'आ' }
+    // DP: अ॑हिँ॒-अहि-अंह्-भ्वा-आ-सेट्-1-0722
+    // XXX
+
+    var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
     this.results.push(tin);
 }
 
@@ -383,8 +384,6 @@ function gana_one(tin, query) {
             // if (weak) log('WEAK', query, tin, weak);
         };
     }
-
-    // if (!inc(cdhatus, tin.dhatu)) return;
     var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
     // if (!found) return;

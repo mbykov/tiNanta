@@ -33,19 +33,11 @@ var tips = {
     'आ': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ'] // 'महिङ्' ? что правильно?
 }
 
-
-
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
 var la_to_test = 'लट्'; // लृङ्
 var debug = true;
-
-// fs.unlinkSync(dhatuPathaCachePath);
-// var list_logger = fs.createWriteStream(dhatuPathaCachePath, {
-//     flags: 'a', // 'a' means appending (old data will be preserved)
-//     defaultEncoding: 'utf8'
-// });
 
 
 function formsRun(rows) {
@@ -106,8 +98,8 @@ function formsRun(rows) {
         docs.push(doc);
     }
 
-    log('d:', docs.length, docs[100]);
-    // writeDhatuAnga(docs);
+    log('d:', docs.length, docs[0]);
+    writeDhatuAnga(docs);
 }
 
 // { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
