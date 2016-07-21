@@ -18,12 +18,23 @@ var sha1 = require('sha1');
 var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva20062016.csv');
 var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatu_list_cache.txt');
 
-var tinsPath = path.join(__dirname, '../lib/uohyd_tins_cache.js');
+var tinsCachePath = path.join(__dirname, '../lib/tins_cache.js');
 var dhatuAngaCachePath = path.join(__dirname, '../lib/dhatu_anga_cache.txt');
 var testsCachePath = path.join(__dirname, '../test/uohyd_tests_cache.txt');
 
+var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
+var canonObj = require(canonicalTinsPath);
+
+
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
-var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+// var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+var tips = {
+    'प': ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'],
+    'आ': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ'] // 'महिङ्' ? что правильно?
+}
+
+
+
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
@@ -227,6 +238,55 @@ function parseTvar(gana, la, laDoc) {
 formsRun();
 
 log(endings);
+
+// p(canonObj);
+writeTinCache(endings, canonObj);
+
+function writeTinCache(endings, canonObj) {
+    fs.unlinkSync(tinsCachePath);
+    var tin_logger = fs.createWriteStream(tinsCachePath, {
+        flags: 'a', // 'a' means appending (old data will be preserved)
+        defaultEncoding: 'utf8'
+    });
+
+    var check = {};
+    var tkey;
+    var tincount = 0;
+    for (var glpkey in endings) {
+        var gana, la, pada;
+        [gana, la, pada] = glpkey.split('-');
+        if (la != 'लट्') continue; // ========================== LAKARA
+        var jsons = endings[glpkey].arr;
+        var canons = canonObj[gana][la][pada];
+        // log('=====', glpkey, gana, la, pada, jsons);
+        // continue;
+        jsons.forEach(function(json, tvar) {
+            var canon = false;
+            if (inc(canons, json)) canon = true;
+            var tins = json.split(',');
+            var oTin, tinData;
+            var tip;
+            tins.forEach(function(tin, idz) {
+                tip = tips[pada][idz];
+                if (!tip) log('!!!!!!!!', tips[pada]);
+                tkey = [tin, gana, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
+                if (check[tkey]) return;
+                check[tkey] = true;
+                var tcan = (canon) ? 1 : 0;
+                var tinstr = [tin, tip, tin.length, gana, la, pada, tvar, tcan].join('-');
+                // oTin = {tin: tin, tip: tip, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
+                // if (canon) oTin.canon = true;
+                // tinData = util.inspect(oTin,  {depth: null});
+                tin_logger.write(tinstr);
+                tin_logger.write('\n');
+                tincount +=1;
+            });
+        });
+    }
+    tin_logger.end();
+    log('tins:', tincount);
+}
+
 
 // этот файл - только для поиска исключений:
 function writeDhatuAnga(docs) {

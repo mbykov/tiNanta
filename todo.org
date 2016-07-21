@@ -30,12 +30,10 @@
   - [ ]
   - [ ] For SLP1, use ! for anunAsika. e.g. bADf! for बाधृँ. - salita //   -ँ-
   - [ ]
-  - [ ] 36 и больше
+  - [ ] 36 и больше - в непонятках
   - [ ] canonical - процесс
-  - [ ] вывод dhatu_anga - sha1 ?
-  - [ ] что должно быть в sha1 ?
-  - [ ] сформировать tins_cache
-  - [ ] write caches
+  - [X] вывод dhatu_anga - sha1
+  - [ ] tins_cache
   - [ ] index - это процесс
   - [ ] tests
   - [X] посчитать freqs окончаний, максимизировать процент parse
