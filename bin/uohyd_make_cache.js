@@ -206,6 +206,7 @@ function parseJSON(stem, forms) {
             // tinArr.push({tip: tip, tin: stin});
             ostin[tip].push(stin);
         });
+        ostin[tip] = _.uniq(ostin[tip]);
         // tinArr.push(ostin);
     }
     // json = tinArr.toString();
