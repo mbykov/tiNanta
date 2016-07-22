@@ -24,6 +24,7 @@ var testsCachePath = path.join(__dirname, '../test/uohyd_tests_cache.txt');
 
 var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
 var canonObj = require(canonicalTinsPath);
+// p(canonObj);
 
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
@@ -99,7 +100,9 @@ function formsRun(rows) {
     }
 
     log('d:', docs.length, docs[0]);
-    writeDhatuAnga(docs);
+    // writeDhatuAnga(docs);
+    // writeTinCache(endings, canonObj);
+    writeTestsCache(docs, nests);
 }
 
 // { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
@@ -255,13 +258,11 @@ function parseTvar(gana, la, laDoc) {
 
 formsRun();
 
-p(endings);
+// p(endings);
 
-// p(canonObj);
-writeTinCache(endings, canonObj);
 
 function writeTinCache(endings, canonObj) {
-    fs.unlinkSync(tinsCachePath);
+    // fs.unlinkSync(tinsCachePath);
     var tin_logger = fs.createWriteStream(tinsCachePath, {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
@@ -302,7 +303,7 @@ function writeTinCache(endings, canonObj) {
             //     tip = tips[pada][idz];
             //     // if (!tip) log('!!!!!!!!', tips[pada]);
             //     // XXXX
-            //     // блин, tip-ов-то нет при неравной длинне
+            //     // блин, tip-ов-то нет при неравной длине
 
             //     tkey = [tin, gana, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
             //     if (check[tkey]) return;
@@ -323,7 +324,7 @@ function writeTinCache(endings, canonObj) {
 }
 
 
-// этот файл - только для поиска исключений:
+// этот cache - только для поиска исключений:
 function writeDhatuAnga(docs) {
     fs.unlinkSync(dhatuAngaCachePath);
     var da_logger = fs.createWriteStream(dhatuAngaCachePath, {
@@ -338,4 +339,29 @@ function writeDhatuAnga(docs) {
         da_logger.write('\n');
     });
     da_logger.end();
+}
+
+// {"form":"दोग्धि","dhatu":"दुह्","gana":"अदादि","la":"लट्","pada":"प.प","tip":"तिप्","dslp":"duh","lslp":"law","aslp":"prapUraRe","gslp":"adAd
+// test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
+
+
+function writeTestsCache(docs, nests) {
+    // log('T', _.keys(heads).length, _.keys(nests).length);
+    var tests = [];
+    var test;
+    var key, doc, keynum, nest, n;
+    docs.forEach(function(doc, idx) {
+        if (idx > 0) return;
+        log('D', doc);
+        keynum = [doc.gana, doc.num].join('.');
+        key = [doc.dhatu, keynum].join('-');
+        var nest = nests[key];
+        log('N', nest[0]);
+        nest.forEach(function(n) {
+            test = [n.form, doc.dhatu, doc.gana, n.la, doc.pada, n.tip].join('-');
+            tests.push(test);
+        });
+    });
+
+    log('T', tests);
 }
