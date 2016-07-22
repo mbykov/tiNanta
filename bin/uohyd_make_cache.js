@@ -73,7 +73,10 @@ function formsRun(rows) {
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
         if (gana != '01') return; // =============================== GANA ==============
-        var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana}; // , num: num, key: key
+        var pada;
+        if (inc(pars, tip)) pada = 'प';
+        if (inc(atms, tip)) pada = 'आ';
+        var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
         // dhatu = dhatu.replace('!', '');
         // FIXME: верно-ли убирать "!" ? или м.б. совпадающие после этого? Или c.virama ?
 
@@ -105,9 +108,10 @@ function formsRun(rows) {
             throw new Error();
         }
         cleandhatu = dict.dhatu;
+        vnest.forEach(function(n) { n.dhatu = cleandhatu});
 
         doc = {dhatu: cleandhatu, gana: vhead.gana, num: vhead.num};
-        laDocs = parseNest(vnest, vhead.gana, vhead.dhatu);
+        laDocs = parseNest(vnest, vhead.gana, cleandhatu);
         laDocs.forEach(function(ladoc) {
             doc.stem = ladoc.stem;
             doc.pada = ladoc.pada;
@@ -119,9 +123,10 @@ function formsRun(rows) {
     }
 
     log('d:', docs.length, docs[0]);
-    writeDhatuAnga(docs);
-    writeTinCache(endings, canonObj);
-    writeTestsCache(docs, nests);
+    log('n:', nests['अहि!-01.0722'][0]);
+    // writeDhatuAnga(docs);
+    // writeTinCache(endings, canonObj);
+    // writeTestsCache(docs, nests);
 }
 
 // { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
@@ -347,36 +352,56 @@ function writeDhatuAnga(docs) {
 
 
 function writeTestsCache(docs, nests) {
-    log('Ts:', docs.length, _.keys(nests).length);
+    // log('Ts:', docs.length, _.keys(nests).length);
 
-    fs.unlinkSync(testsCachePath);
-    var test_logger = fs.createWriteStream(testsCachePath, {
-        flags: 'a', // 'a' means appending (old data will be preserved)
-        defaultEncoding: 'utf8'
-    });
+    // fs.unlinkSync(testsCachePath);
+    // var test_logger = fs.createWriteStream(testsCachePath, {
+    //     flags: 'a', // 'a' means appending (old data will be preserved)
+    //     defaultEncoding: 'utf8'
+    // });
 
     // var tests = [];
     var row;
-    var key, doc, keynum, nest, n;
+    var doc, keynum, nest, n;
     var size = 0;
-    docs.forEach(function(doc, idx) {
-        // if (idx > 0) return;
-        // log('D', doc);
-        // keynum = [doc.gana, doc.num].join('.');
-        // key = [doc.dhatu, keynum].join('-');
-        var nest = nests[doc.key];
-        if (doc.dhatu == 'अच्') log('DD', doc, nest[0], nest.length);
-        // log('N', nest[0]);
-        // if (!nest) log('NO Test', doc, 'key', key);
+    // docs.forEach(function(doc, idx) {
+    //     // if (idx > 0) return;
+    //     // log('D', doc);
+    //     // keynum = [doc.gana, doc.num].join('.');
+    //     // key = [doc.dhatu, keynum].join('-');
+    //     var nest = nests[doc.key];
+    //     if (doc.dhatu == 'अच्') log('DD', doc, nest[0], nest.length);
+    //     // log('N', nest[0]);
+    //     // if (!nest) log('NO Test', doc, 'key', key);
+    //     nest.forEach(function(n) {
+    //         if (la_to_test && n.la != la_to_test) return; // ================================== LA TO TEST ============
+    //         row = [n.form, doc.dhatu, doc.gana, n.la, doc.pada, n.tip].join('-');
+    //         // test_logger.write(row);
+    //         // test_logger.write('\n');
+    //         // tests.push(test);
+    //         size += 1;
+    //     });
+    // });
+
+    var keyarr, dhatu, nums, gana, pada;
+    for (var key in nests) {
+        nest = nests[key];
         nest.forEach(function(n) {
             if (la_to_test && n.la != la_to_test) return; // ================================== LA TO TEST ============
-            row = [n.form, doc.dhatu, doc.gana, n.la, doc.pada, n.tip].join('-');
-            test_logger.write(row);
-            test_logger.write('\n');
+            // n = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada};
+            keyarr = key.split('-');
+            dhatu = keyarr[0];
+            gana = keyarr[1].split('.')[0];
+            docs = _.select(docs, function(doc) { return doc.dhatu == dhatu, doc.gana == gana, doc.pada == n.pada});
+            if (docs.length != 1) log('NNNN', key, dhatu, docs, n);
+            if (docs.length != 1) return;
+            // row = [n.form, doc.dhatu, doc.gana, n.la, n.pada, n.tip].join('-');
+            // test_logger.write(row);
+            // test_logger.write('\n');
             // tests.push(test);
             size += 1;
         });
-    });
+    }
 
     log('Ts:', size);
 }
