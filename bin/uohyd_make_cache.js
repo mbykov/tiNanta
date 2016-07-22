@@ -74,8 +74,9 @@ function formsRun(rows) {
         num = nums.split('.')[1];
         if (gana != '01') return; // =============================== GANA ==============
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana}; // , num: num, key: key
-        dhatu = dhatu.replace('!', '');
+        // dhatu = dhatu.replace('!', '');
         // FIXME: верно-ли убирать "!" ? или м.б. совпадающие после этого? Или c.virama ?
+
         if (!check[key]) {
             check[key] = true;
             heads[key] = {dhatu: dhatu, gana: gana, num: num}; // , key: key
@@ -104,11 +105,13 @@ function formsRun(rows) {
             log(vnest.slice(-2));
             throw new Error();
         }
-        dict = _.find(dps, function(dp) { return dp.raw == vhead.dhatu});
+        dict = _.find(dps, function(dp) { return dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '') });
         if (!dict) {
-            log('doc head:', vhead);
+            log('doc head:', vhead, vkey);
             throw new Error();
-            //  dhatu: 'अहि!', gana: '01', num: '0722'
+            // ओ!प्यायी!-01.0561
+            // ओँ॑प्या॑यीँ॒-ओप्यायी-प्याय्-भ्वा-आ-सेट्-01-0561
+            // { dhatu: 'ओ!प्यायी!', gana: '01', num: '0561' } ओ!प्यायी!-01.0561
         }
         cleandhatu = dict.dhatu;
 

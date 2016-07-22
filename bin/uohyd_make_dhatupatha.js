@@ -34,6 +34,7 @@ var gnum = {'भ्वा': '01', 'अ': '02', 'जु': '03', 'दि': '04', '
 //  क्र्या॰
 
 // अं॑सँ॑ * समाघाते * अंस (अंस्) * । चु॰ * ०४६० ॥ * उ॰ । * सेट्
+// ओँ॑प्या॑यीँ॒  * वृद्धौ    * प्याय्    *  । भ्वा॰ *  ०५६१ ॥  *   आ॰ ।   *  सेट्
 dhatuList.forEach(function(row, idx) {
     // if (idx > 100) return;
     if (row[0] == '#') return;
@@ -54,7 +55,10 @@ dhatuList.forEach(function(row, idx) {
     else if (darr.length == 1) dhatu = wosvara = darr[0].trim();
     else {
         wosvara = darr[0].trim();
-        dhatu = darr[1].trim().replace(')', '').replace('!', '');
+        dhatu = darr[1].trim().replace(')', ''); //.replace('!', '');
+        // ओ!प्यायी! -> प्यायी
+        // ओँ॑प्या॑यीँ॒-ओप्यायी-प्याय्-भ्वा-आ-सेट्-01-0561
+
     }
     num = salita.sa2slp(num);
     // сейчас сам лишаю ударений, но можно все же читать из dhatus?
