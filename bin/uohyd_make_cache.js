@@ -85,14 +85,8 @@ function formsRun(rows) {
             nests[key].push(line);
         }
     });
-    // nests.push(nest);
-    // nests.shift();
 
-    // log('N', nests['अंस-10.0460']);
-    // इक्,लट्,तिप्,02.0042
-    log('N', _.keys(heads).length, _.keys(nests).length);
-    // log('N', heads[0], nests[0][0]);
-    // return;
+    log('N-heads', _.keys(heads).length, 'N-nests', _.keys(nests).length);
 
     var dict, cleandhatu;
     for (var vkey in heads) {
@@ -121,14 +115,15 @@ function formsRun(rows) {
             doc.stem = ladoc.stem;
             doc.pada = ladoc.pada;
             doc.tvar = ladoc.tvar;
+            doc.key = vkey;
             });
         docs.push(doc);
     }
 
     log('d:', docs.length, docs[0]);
     writeDhatuAnga(docs);
-    // writeTinCache(endings, canonObj);
-    // writeTestsCache(docs, nests);
+    writeTinCache(endings, canonObj);
+    writeTestsCache(docs, nests);
 }
 
 // { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
@@ -288,7 +283,7 @@ formsRun();
 
 
 function writeTinCache(endings, canonObj) {
-    // fs.unlinkSync(tinsCachePath);
+    fs.unlinkSync(tinsCachePath);
     var tin_logger = fs.createWriteStream(tinsCachePath, {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
@@ -372,23 +367,26 @@ function writeDhatuAnga(docs) {
 
 
 function writeTestsCache(docs, nests) {
-    // log('T', _.keys(heads).length, _.keys(nests).length);
+    log('Ts:', docs.length, _.keys(nests).length);
+
     fs.unlinkSync(testsCachePath);
     var test_logger = fs.createWriteStream(testsCachePath, {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
     });
+
     // var tests = [];
     var row;
     var key, doc, keynum, nest, n;
     var size = 0;
     docs.forEach(function(doc, idx) {
         if (idx > 0) return;
-        log('D', doc);
-        keynum = [doc.gana, doc.num].join('.');
-        key = [doc.dhatu, keynum].join('-');
-        var nest = nests[key];
-        log('N', nest[0]);
+        // log('D', doc);
+        // keynum = [doc.gana, doc.num].join('.');
+        // key = [doc.dhatu, keynum].join('-');
+        var nest = nests[doc.key];
+        // log('N', nest[0]);
+        if (!nest) log('NO T', doc, 'key', key);
         nest.forEach(function(n) {
             row = [n.form, doc.dhatu, doc.gana, n.la, doc.pada, n.tip].join('-');
             test_logger.write(row);
@@ -398,5 +396,5 @@ function writeTestsCache(docs, nests) {
         });
     });
 
-    log('Ts', size);
+    log('Ts:', size);
 }
