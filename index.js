@@ -264,7 +264,8 @@ dhatuMethods['लट्'] = function(tin, query) {
 
     //  { dhatu: 'इल', dict: 'इल्', gana: '10', pada: 'आ' }
     // DP: अ॑हिँ॒-अहि-अंह्-भ्वा-आ-सेट्-1-0722
-    // XXX
+
+    // XXXXXXXXXXXXXXXXXXXXXxxx
 
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);

@@ -16,11 +16,23 @@ var salita = require('salita-component');
 var sha1 = require('sha1');
 
 var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva20062016.csv');
-var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatu_list_cache.txt');
+
+var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatupatha_cache.txt');
+var dhpths = fs.readFileSync(dhatuPathaCachePath).toString().split('\n');
+// अहि!-अंह-01-आ-0-sha1
+var dp, adp;
+var dps = dhpths.map(function(row) {
+    adp = row.split('-');
+    dp = {raw: adp[1], dhatu: adp[2]};
+    return dp;
+});
+
+// log('DPS', dps[10]);
+// return;
 
 var tinsCachePath = path.join(__dirname, '../lib/tins_cache.js');
 var dhatuAngaCachePath = path.join(__dirname, '../lib/dhatu_anga_cache.txt');
-var testsCachePath = path.join(__dirname, '../test/uohyd_tests_cache.txt');
+var testsCachePath = path.join(__dirname, '../test/tests_cache.txt');
 
 var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
 var canonObj = require(canonicalTinsPath);
@@ -62,7 +74,8 @@ function formsRun(rows) {
         num = nums.split('.')[1];
         if (gana != '01') return; // =============================== GANA ==============
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana}; // , num: num, key: key
-        // dhatu = dhatu.replace('!', ''); // FIXME: верно-ли убирать "!" ? или м.б. совпадающие после этого? Или c.virama ?
+        dhatu = dhatu.replace('!', '');
+        // FIXME: верно-ли убирать "!" ? или м.б. совпадающие после этого? Или c.virama ?
         if (!check[key]) {
             check[key] = true;
             heads[key] = {dhatu: dhatu, gana: gana, num: num}; // , key: key
@@ -79,6 +92,8 @@ function formsRun(rows) {
     log('N', _.keys(heads).length, _.keys(nests).length);
     // log('N', heads[0], nests[0][0]);
     // return;
+
+    var dict, cleandhatu;
     for (var vkey in heads) {
         var vhead = heads[vkey];
         var vnest = nests[vkey];
@@ -89,7 +104,15 @@ function formsRun(rows) {
             log(vnest.slice(-2));
             throw new Error();
         }
-        doc = {dhatu: vhead.dhatu, gana: vhead.gana, num: vhead.num};
+        dict = _.find(dps, function(dp) { return dp.raw == vhead.dhatu});
+        if (!dict) {
+            log('doc head:', vhead);
+            throw new Error();
+            //  dhatu: 'अहि!', gana: '01', num: '0722'
+        }
+        cleandhatu = dict.dhatu;
+
+        doc = {dhatu: cleandhatu, gana: vhead.gana, num: vhead.num};
         laDocs = parseNest(vnest, vhead.gana, vhead.dhatu);
         laDocs.forEach(function(ladoc) {
             doc.stem = ladoc.stem;
@@ -100,9 +123,9 @@ function formsRun(rows) {
     }
 
     log('d:', docs.length, docs[0]);
-    // writeDhatuAnga(docs);
+    writeDhatuAnga(docs);
     // writeTinCache(endings, canonObj);
-    writeTestsCache(docs, nests);
+    // writeTestsCache(docs, nests);
 }
 
 // { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
@@ -347,9 +370,15 @@ function writeDhatuAnga(docs) {
 
 function writeTestsCache(docs, nests) {
     // log('T', _.keys(heads).length, _.keys(nests).length);
-    var tests = [];
-    var test;
+    fs.unlinkSync(testsCachePath);
+    var test_logger = fs.createWriteStream(testsCachePath, {
+        flags: 'a', // 'a' means appending (old data will be preserved)
+        defaultEncoding: 'utf8'
+    });
+    // var tests = [];
+    var row;
     var key, doc, keynum, nest, n;
+    var size = 0;
     docs.forEach(function(doc, idx) {
         if (idx > 0) return;
         log('D', doc);
@@ -358,10 +387,13 @@ function writeTestsCache(docs, nests) {
         var nest = nests[key];
         log('N', nest[0]);
         nest.forEach(function(n) {
-            test = [n.form, doc.dhatu, doc.gana, n.la, doc.pada, n.tip].join('-');
-            tests.push(test);
+            row = [n.form, doc.dhatu, doc.gana, n.la, doc.pada, n.tip].join('-');
+            test_logger.write(row);
+            test_logger.write('\n');
+            // tests.push(test);
+            size += 1;
         });
     });
 
-    log('T', tests);
+    log('Ts', size);
 }
