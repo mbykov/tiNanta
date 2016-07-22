@@ -28,35 +28,38 @@ var tips = {
 
 var tests = fs.readFileSync(testPath).toString().split('\n');
 log('TS', tests.length);
-p(tests.slice(0,5));
+// p(tests.slice(0,5));
 
 
 // अंहते-अहि!-01-लट्-आ-त
 var test;
 tests.forEach(function(row, idx) {
-    // if (idx > 0) return;
+    // if (idx > 10) return;
     if (row == '') return;
     var form, dhatu, gana, la, pada, tip;
-    // test = JSON.parse(json);
+    [form, dhatu, gana, la, pada, tip] = row.split('-');
+    test = {form: form, dhatu, dhatu, gana: gana, la: la, pada: pada, tip: tip};
+    // log('T', test);
     if (test.excep) return;
-    // _Fn(test);
+    _Fn(test);
 });
 
 
 function _Fn(test) {
-    var descr = [test.dhatu, test.dslp].join('_');
+    var descr = [test.dhatu, test.form].join('_');
     describe(descr, function(){
         var form = test.form;
         var fslp = salita.sa2slp(form);
         var results, result;
-        var title = [fslp, test.lslp, test.pslp, form, test.la, 'tip', test.tip].join('_');
+        // var title = [fslp, test.lslp, test.pslp, form, test.la, 'tip', test.tip].join('_');
+        var title = [test.form, test.gana, test.la, test.pada, 'tip', test.tip].join('_');
         it(title, function() {
             results = stemmer.parse(form);
-            // log('t:', test.dhatu, test.dslp, fslp);
             // results.length.should.equal(1);
             // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
             var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
             var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
+            log('t:', test.dhatu, test.form, 'key', key, rkeys);
             inc(rkeys, key).should.equal(true);
         });
     });

@@ -45,6 +45,7 @@ dhatuList.forEach(function(row, idx) {
     [wsvara, artha, dhatus, gana, num, pada, set] = row.split('*');
     wsvara = wsvara.trim();
     pada = pada.trim().replace('॰', '');
+    var padas = (pada == 'उ') ? ['प', 'आ'] : [pada];
     gana = gana.trim().replace('॰', '');
     set = set.trim();
     dhatus = dhatus.trim();
@@ -65,9 +66,11 @@ dhatuList.forEach(function(row, idx) {
     wosvara = wsvara.replace(/॑/g, '').replace(/ँ/g, '').replace(/॒/g, '');
 
     // log(wsvara, 'a:',artha, 'd:', dhatu, 'g:', gana, 'n:', num, 'p', pada, 's:', set);
-    var line = [wsvara, wosvara, dhatu, gana, pada, set, gnum[gana], num].join('-');
-    line = [line, '\n'].join('');
-    list_logger.write(line);
+    padas.forEach(function(p) {
+        var line = [wsvara, wosvara, dhatu, gana, p, set, gnum[gana], num].join('-');
+        line = [line, '\n'].join('');
+        list_logger.write(line);
+    });
 
 });
 

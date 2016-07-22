@@ -103,9 +103,6 @@ function formsRun(rows) {
         if (!dict) {
             log('doc head:', vhead, vkey);
             throw new Error();
-            // ओ!प्यायी!-01.0561
-            // ओँ॑प्या॑यीँ॒-ओप्यायी-प्याय्-भ्वा-आ-सेट्-01-0561
-            // { dhatu: 'ओ!प्यायी!', gana: '01', num: '0561' } ओ!प्यायी!-01.0561
         }
         cleandhatu = dict.dhatu;
 
@@ -116,8 +113,9 @@ function formsRun(rows) {
             doc.pada = ladoc.pada;
             doc.tvar = ladoc.tvar;
             doc.key = vkey;
-            });
-        docs.push(doc);
+            // if (doc.dhatu == 'अच्') log('=D=', doc);
+            docs.push(doc);
+        });
     }
 
     log('d:', docs.length, docs[0]);
@@ -186,8 +184,8 @@ function parseLakara(la, nest) {
         // if (inc(pars, line.tip)) pforms.push(line.form);
         // else if (inc(atms, line.tip)) aforms.push(line.form);
         // else log('NO TIP', la, line);
-        var tinForm = {};
-        tinForm[line.tip] = line.form;
+        // var tinForm = {};
+        // tinForm[line.tip] = line.form;
         if (inc(pars, line.tip)) {
             if (!pforms[line.tip]) pforms[line.tip] = [];
             pforms[line.tip].push(line.form);
@@ -320,24 +318,6 @@ function writeTinCache(endings, canonObj) {
                     tincount +=1;
                 });
             }
-            // tins.forEach(function(tin, idz) {
-            //     tip = tips[pada][idz];
-            //     // if (!tip) log('!!!!!!!!', tips[pada]);
-            //     // XXXX
-            //     // блин, tip-ов-то нет при неравной длине
-
-            //     tkey = [tin, gana, la, pada, tip].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе дубли. Но нет ли пропуска в find?
-            //     if (check[tkey]) return;
-            //     check[tkey] = true;
-            //     var tcan = (canon) ? 1 : 0;
-            //     var tinstr = [tin, tip, tin.length, gana, la, pada, tvar, tcan].join('-');
-            //     // oTin = {tin: tin, tip: tip, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
-            //     // if (canon) oTin.canon = true;
-            //     // tinData = util.inspect(oTin,  {depth: null});
-            //     tin_logger.write(tinstr);
-            //     tin_logger.write('\n');
-            //     tincount +=1;
-            // });
         });
     }
     tin_logger.end();
@@ -380,14 +360,16 @@ function writeTestsCache(docs, nests) {
     var key, doc, keynum, nest, n;
     var size = 0;
     docs.forEach(function(doc, idx) {
-        if (idx > 0) return;
+        // if (idx > 0) return;
         // log('D', doc);
         // keynum = [doc.gana, doc.num].join('.');
         // key = [doc.dhatu, keynum].join('-');
         var nest = nests[doc.key];
+        if (doc.dhatu == 'अच्') log('DD', doc, nest[0], nest.length);
         // log('N', nest[0]);
-        if (!nest) log('NO T', doc, 'key', key);
+        // if (!nest) log('NO Test', doc, 'key', key);
         nest.forEach(function(n) {
+            if (la_to_test && n.la != la_to_test) return; // ================================== LA TO TEST ============
             row = [n.form, doc.dhatu, doc.gana, n.la, doc.pada, n.tip].join('-');
             test_logger.write(row);
             test_logger.write('\n');

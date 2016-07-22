@@ -34,8 +34,8 @@ var dps = dhatupatha.map(function(str) {
     var d = str.split('-');
     var pada = d[4];
     var padas = (pada == 'उ') ? ['प', 'आ'] : [pada];
-    var res = padas.map(function(pada) {
-        return {dp: d[0], dhatu: d[2], gana: d[6], pada: pada};
+    var res = padas.map(function(p) {
+        return {dp: d[0], dhatu: d[2], gana: d[6], pada: p};
     });
     return res;
 });
