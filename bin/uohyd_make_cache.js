@@ -112,25 +112,25 @@ function formsRun(rows) {
         cleandhatu = dict.dhatu;
         // vnest.forEach(function(n) { n.dhatu = cleandhatu});
 
-        doc = {dhatu: cleandhatu, gana: vhead.gana, num: vhead.num};
+        doc = {dhatu: cleandhatu, gana: vhead.gana, num: vhead.num, las: {}};
         laDocs = parseNest(vnest, vhead.gana, cleandhatu);
         laDocs.forEach(function(ladoc) {
             doc.stem = ladoc.stem;
             doc.pada = ladoc.pada;
             doc.tvar = ladoc.tvar;
-            doc.key = vkey;
-            // if (doc.dhatu == 'अच्') log('=D=', doc);
-            doc.nest = vnest;
+            // doc.key = vkey;
+            doc.las[ladoc.la] = ladoc.nest;
             docs.push(doc);
         });
     }
 
-    // log('doc:', docs.length); , docs[0]
+    log('doc:', docs.length);
+    // log(docs[200]);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
     // writeDhatuAnga(docs);
     // writeTinCache(endings, canonObj);
-    writeTestsCache(docs, nests);
+    writeTestsCache(docs);
 }
 
 // { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
@@ -161,6 +161,8 @@ function parseNest(nest, gana, dhatu) {
             tvar = parseTvar(gana, lakara.la, laDoc);
             // log('==>>', lakara.la, 'tvar:', tvar, laDoc);
             laDoc.tvar = tvar;
+            laDoc.la = lakara.la;
+            laDoc.nest = lakara.nest;
         });
     });
     // log('==>>', laDocs);
@@ -355,8 +357,8 @@ function writeDhatuAnga(docs) {
 // test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
 
 
-function writeTestsCache(docs, nests) {
-    log('Ts:', docs.length, _.keys(nests).length);
+function writeTestsCache(docs) {
+    log('test docs:', docs.length);
 
     fs.unlinkSync(testsCachePath);
     var test_logger = fs.createWriteStream(testsCachePath, {
@@ -371,18 +373,18 @@ function writeTestsCache(docs, nests) {
     docs.forEach(function(doc, idx) {
         // if (idx > 0) return;
         // log('D', doc);
-        var nest = doc.nest;
-        // if (doc.dhatu == 'अच्') log('DD', doc, nest[0], nest.length);
-        // log('N', nest[0]);
-        // if (!nest) log('NO Test', doc, 'key', key);
-        doc.nest.forEach(function(n) {
-            if (la_to_test && n.la != la_to_test) return; // ================================== LA TO TEST ============
-            row = [n.form, doc.dhatu, doc.gana, n.la, doc.pada, n.tip].join('-');
-            // log('R', row);
-            test_logger.write(row);
-            test_logger.write('\n');
-            size += 1;
-        });
+        for (var la in doc.las) {
+            if (la_to_test && la != la_to_test) continue;
+            var nest = doc.las[la];
+            nest.forEach(function(n) {
+                row = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip].join('-');
+                // log('R', row);
+                test_logger.write(row);
+                test_logger.write('\n');
+                size += 1;
+            });
+        }
     });
+    test_logger.end();
     log('Ts:', size);
 }
