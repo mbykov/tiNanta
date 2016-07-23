@@ -69,7 +69,7 @@ stemmer.prototype.parse = function(query) {
         // log('O', ctin);
         otin.stem = (size == 0) ? query : query.slice(0, -size);
         if (!dhatuMethods[la]) return []; // FIXME: это временно, до заполнения DMs ===================
-        dhatuMethods[la].call(that, otin, query);
+        dhatuMethods[la].call(that, otin);
     });
 
     // log('RR', this.results);
@@ -141,7 +141,7 @@ dhatuMethods['लट्_'] = function(tin, query) {
 // gana 01 one Bvadi ======================= ::::
 // START
 
-dhatuMethods['लट्'] = function(tin, query) {
+dhatuMethods['लट्'] = function(tin) {
     if (tin.tin == '') return;
     // log(JSON.stringify(tin));
     var dhatu;
@@ -175,11 +175,8 @@ dhatuMethods['लट्'] = function(tin, query) {
             // но dhatu -ej- сам содержит гуну <<<==============
             wstem = tin.stem.replace(vow, weak);
             tin.dhatu = addVirama(wstem);
-            // if (weak) log('WEAK', query, tin, weak);
         };
     }
-
-    // XXXXXXXXXXXXXXXXXXXXXxxx
 
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
@@ -187,29 +184,61 @@ dhatuMethods['लट्'] = function(tin, query) {
     this.results.push(tin);
 }
 
+// var vows = [];
+// syms.forEach(function(sym) {
+//     if (u.isVowel(sym)) vows.push(sym);
+// });
+
+function vowCount(syms) {
+    // var syms = str.split('');
+    // var vows = (u.c(c.allvowels, syms[0])) ? 1 : 0;
+    var vows = 0;
+    syms.forEach(function(s) {
+        if (u.c(c.hal, s)) vows+=1;
+        else if (c.virama == s) vows-=1;
+    });
+    return vows;
+}
+
 // laN
-dhatuMethods['लङ्'] = function(tin, query) {
+dhatuMethods['लङ्'] = function(tin) {
     if (tin.tin == '') return;
     // log(JSON.stringify(tin));
-    var fin = tin.stem.slice(-1);
+    // var fin = tin.stem.slice(-1);
     var syms = tin.stem.split('');
     var aug = syms.shift();
-    // log('AUG', aug);
+
     if (!inc([c.a, 'आ', 'ऐ', 'औ'], aug)) return; // AI, AU, AR
-    // <<<<<<<<<< ==================== AR осталось
-    // м.б. краткая, долгая, или сам дифтонг
-    if (aug == 'ऐ') syms.unshift('इ'); // опять, или e- // "औयत","dhatu":"ऊयी्", // "ओ
-    else if (aug == 'औ') syms.unshift('उ'); // опять, или e- // "औयत","dhatu":"ऊ यी्", // "ऊह् // "उक्ष्"
-    else if (aug == 'आ') syms.unshift('अ');
-    var vows = [];
-    syms.forEach(function(sym) {
-        if (u.isVowel(sym)) vows.push(sym);
-    });
+    var vows = vowCount(syms);
+    // if (vows.length > 1) log('MORE 1', tin.stem, aug, syms, vows);
     if (vows.length > 1) return;
     // log('S', tin.stem, aug, syms, vows);
-    tin.aug = aug;
+
+    // var csyms = JSON.parse(JSON.stringify(syms)); // आर्घत्-अर्घ्
+    // csyms.unshift(aug);
+    // var ctin = JSON.parse(JSON.stringify(tin));
+    // pushFound.call(this, ctin, csyms, aug);
+
+    // м.б. краткая, долгая, или сам дифтонг - так и не решено, много вариантов.
+    // например, Ar -> ar; A->A
+
+    if (aug == 'ऐ') syms.unshift('इ'); // опять, или e- // "औयत","dhatu":"ऊयी्", // "ओ // आञ्छम्-आञ्छ्-
+    else if (aug == 'औ') syms.unshift('उ'); // опять, или e- // "औयत","dhatu":"ऊ यी्", // "ऊह् // "उक्ष्"
+    else if (aug == 'आ') {
+        if (syms.slice(0,2).join('') == 'र्') { // आर्जेताम् -ऋज्
+            syms = syms.slice(2);
+            syms.unshift('ऋ');
+        } else {
+            syms.unshift('अ');
+        }
+    }
+    pushFound.call(this, tin, syms, aug);
+}
+
+function pushFound(tin, syms, aug) {
     tin.stem = syms.join('');
-    tin.dhatu = addVirama(tin.stem);
+    if (aug) tin.aug = aug;
+    tin.dhatu = addVirama(tin.stem); // FIXME: TODO: а fin на гласную как ?
     // tin.dhatu = tin.stem;
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
