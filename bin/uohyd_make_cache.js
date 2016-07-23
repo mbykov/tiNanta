@@ -19,15 +19,18 @@ var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva200
 
 var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatupatha_cache.txt');
 var dhpths = fs.readFileSync(dhatuPathaCachePath).toString().split('\n');
-// अहि!-अंह-01-आ-0-sha1
+// अं॑सँ॑-अंस-अंस्-चु-प-सेट्-10-0460
 var dp, adp;
 var dps = dhpths.map(function(row) {
+    if (!row || row == '') return;
     adp = row.split('-');
-    dp = {raw: adp[1], dhatu: adp[2]};
+    dp = {raw: adp[1], dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]};
+    // if (!dp.raw) log('NN', row, dp);
     return dp;
 });
+dps = _.compact(dps);
 
-// log('DPS', dps[10]);
+// log('DPS', dps);
 // return;
 
 var tinsCachePath = path.join(__dirname, '../lib/tins_cache.js');
@@ -83,7 +86,7 @@ function formsRun(rows) {
 
         if (!check[key]) {
             check[key] = true;
-            heads[key] = {dhatu: dhatu, gana: gana, num: num}; // , key: key
+            heads[key] = {dhatu: dhatu, gana: gana, num: num, key: key}; //
             nests[key] = [line];
         } else {
             nests[key].push(line);
@@ -92,7 +95,7 @@ function formsRun(rows) {
 
     log('N-heads', _.keys(heads).length, 'N-nests', _.keys(nests).length);
 
-    var dict, cleandhatu;
+    var dicts;
     for (var vkey in heads) {
         var vhead = heads[vkey];
         var vnest = nests[vkey];
@@ -103,33 +106,38 @@ function formsRun(rows) {
             log(vnest.slice(-2));
             throw new Error();
         }
-        dict = _.find(dps, function(dp) { return dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '') });
-        if (!dict) {
-            log('doc head:', vhead, vkey);
+        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '')) });
+        if (dicts.length == 0) {
+            log('doc head:', vkey, vhead);
+            log('dicts:', dicts);
+            // log(4, dps[4]);
+            // var dd  = dps[4];
+            // log('=', dd.gana == vhead.gana && dd.num == vhead.nem);
             throw new Error();
         }
-
-        cleandhatu = dict.dhatu;
-        // vnest.forEach(function(n) { n.dhatu = cleandhatu});
-
-        doc = {dhatu: cleandhatu, gana: vhead.gana, num: vhead.num, las: {}};
-        laDocs = parseNest(vnest, vhead.gana, cleandhatu);
-        laDocs.forEach(function(ladoc) {
-            doc.stem = ladoc.stem;
-            doc.pada = ladoc.pada;
-            doc.tvar = ladoc.tvar;
-            // doc.key = vkey;
-            doc.las[ladoc.la] = ladoc.nest;
-            docs.push(doc);
+        dicts.forEach(function(dict) {
+            laDocs = parseNest(vnest, vhead.gana, dict.dhatu);
+            laDocs.forEach(function(ladoc) {
+                doc = {dhatu: dict.dhatu, gana: vhead.gana, num: vhead.num, las: {}};
+                doc.stem = ladoc.stem;
+                doc.pada = ladoc.pada;
+                doc.tvar = ladoc.tvar;
+                // doc.key = vkey;
+                doc.las[ladoc.la] = ladoc.nest;
+                docs.push(doc);
+            });
+            if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
         });
+
+        // vnest.forEach(function(n) { n.dhatu = cleandhatu});
     }
 
     log('doc:', docs.length);
     // log(docs[200]);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
-    // writeDhatuAnga(docs);
-    // writeTinCache(endings, canonObj);
+    writeDhatuAnga(docs);
+    writeTinCache(endings, canonObj);
     writeTestsCache(docs);
 }
 
@@ -343,12 +351,16 @@ function writeDhatuAnga(docs) {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
     });
+    var check = {};
     docs.forEach(function(doc) {
         var shamsg = [doc.stem, doc.gana, doc.pada, doc.tvar].join('-');
         var shakey = sha1(shamsg);
         var row = [doc.dhatu, shamsg, shakey].join('-');
-        da_logger.write(row);
-        da_logger.write('\n');
+        if (!check[row]) {
+            check[row] = true;
+            da_logger.write(row);
+            da_logger.write('\n');
+        }
     });
     da_logger.end();
 }

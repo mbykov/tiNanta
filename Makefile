@@ -1,6 +1,6 @@
 TESTS = test/naman/*.js
-# REPORTER = dot
-REPORTER = spec
+REPORTER = dot
+# REPORTER = spec
 g = _
 g = ''
 
@@ -31,9 +31,9 @@ parse:
 		--slow 500 \
 		--grep $(g) \
 		--timeout 3000 \
-		test/parse.js \
+		--bail \
+		test/parse.js
 		2> /dev/null
-#		--bail \
 
 
 ganaXX:
