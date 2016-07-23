@@ -32,7 +32,7 @@ parse:
 		--grep $(g) \
 		--timeout 3000 \
 		--bail \
-		test/parse.js
+		test/parse.js \
 		2> /dev/null
 
 

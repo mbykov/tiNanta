@@ -27,19 +27,30 @@ var jnuDhatuAngaPath = path.join(__dirname, './lib/jnu_dhatu_anga_cache.js');
 var jnuDhatuAnga = require(jnuDhatuAngaPath);
 
 var dhatupathaPath = path.join(__dirname, './lib/dhatupatha_cache.txt');
-var dhatupatha = fs.readFileSync(dhatupathaPath).toString().split('\n');
+var dhpths = fs.readFileSync(dhatupathaPath).toString().split('\n');
 // अं॑सँ॑-अंस-अंस्-चु-उ-सेट्-10-0460
 // अ॑हिँ॒-अहि-अंह्-भ्वा-आ-सेट्-01-0722
-var dps = dhatupatha.map(function(str) {
-    var d = str.split('-');
-    var pada = d[4];
-    var padas = (pada == 'उ') ? ['प', 'आ'] : [pada];
-    var res = padas.map(function(p) {
-        return {dp: d[0], dhatu: d[2], gana: d[6], pada: p};
-    });
-    return res;
+// var dps = dhpths.map(function(str) {
+//     var d = str.split('-');
+//     var pada = d[4];
+//     var padas = (pada == 'उ') ? ['प', 'आ'] : [pada];
+//     var res = padas.map(function(p) {
+//         return {dp: d[0], dhatu: d[2], gana: d[6], pada: p};
+//     });
+//     return res;
+// });
+// dps = _.flatten(dps);
+
+var dp, adp;
+var dps = dhpths.map(function(row) {
+    if (!row || row == '') return;
+    adp = row.split('-');
+    dp = {dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]}; // dp: adp[0], raw: adp[1],
+    // if (!dp.raw) log('NN', row, dp);
+    return dp;
 });
-dps = _.flatten(dps);
+dps = _.compact(dps);
+
 
 exports = module.exports = stemmer();
 
@@ -212,7 +223,7 @@ dhatuMethods['लट्_'] = function(tin, query) {
     this.results.push(tin);
 }
 
-// gana one Bvadi ======================= ::::
+// gana 01 one Bvadi ======================= ::::
 
 dhatuMethods['लट्'] = function(tin, query) {
     if (tin.tin == '') return;
@@ -251,19 +262,6 @@ dhatuMethods['लट्'] = function(tin, query) {
             // if (weak) log('WEAK', query, tin, weak);
         };
     }
-
-    // { tip: 'इट्',
-    //   tin: 'े',
-    //   size: '1',
-    //   la: 'लट्',
-    //   pada: 'आ',
-    //   tvar: '0',
-    //   can: '1',
-    //   stem: 'अंहत',
-    //   dhatu: 'अंहत्' }
-
-    //  { dhatu: 'इल', dict: 'इल्', gana: '10', pada: 'आ' }
-    // DP: अ॑हिँ॒-अहि-अंह्-भ्वा-आ-सेट्-1-0722
 
     // XXXXXXXXXXXXXXXXXXXXXxxx
 

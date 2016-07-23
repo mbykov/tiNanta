@@ -14,6 +14,7 @@ var log = u.log;
 var p = u.p;
 var salita = require('salita-component');
 var sha1 = require('sha1');
+var stemmer = require('../index');
 
 var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva20062016.csv');
 
@@ -136,8 +137,8 @@ function formsRun(rows) {
     // log(docs[200]);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
-    writeDhatuAnga(docs);
-    writeTinCache(endings, canonObj);
+    // writeDhatuAnga(docs);
+    // writeTinCache(endings, canonObj);
     writeTestsCache(docs);
 }
 
@@ -379,9 +380,11 @@ function writeTestsCache(docs) {
     });
 
     // var tests = [];
-    var row;
+    var row, key;
     var doc, keynum, nest, n;
     var size = 0;
+    var sres, sdhatus;
+    var check = {};
     docs.forEach(function(doc, idx) {
         // if (idx > 0) return;
         // log('D', doc);
@@ -389,7 +392,19 @@ function writeTestsCache(docs) {
             if (la_to_test && la != la_to_test) continue;
             var nest = doc.las[la];
             nest.forEach(function(n) {
-                row = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip].join('-');
+                var excep = 0;
+                key = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip].join('-');
+                if (check[key]) return;
+                check[key] = true;
+
+                sres = stemmer.parse(n.form);
+                sdhatus = sres.map(function(r) { return r.dhatu});
+                if (!inc(sdhatus, doc.dhatu)) excep = 1;
+
+                // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
+
+                row = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip, excep].join('-');
+                if (n.form == 'व्ययति') log('R', row);
                 // log('R', row);
                 test_logger.write(row);
                 test_logger.write('\n');

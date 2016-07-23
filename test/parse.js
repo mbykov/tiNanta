@@ -36,11 +36,11 @@ var test;
 tests.forEach(function(row, idx) {
     // if (idx > 10) return;
     if (row == '') return;
-    var form, dhatu, gana, la, pada, tip;
-    [form, dhatu, gana, la, pada, tip] = row.split('-');
+    var form, dhatu, gana, la, pada, tip, excep;
+    [form, dhatu, gana, la, pada, tip, excep] = row.split('-');
+    if (excep == 1) return;
     test = {form: form, dhatu, dhatu, gana: gana, la: la, pada: pada, tip: tip};
     // log('T', test);
-    if (test.excep) return;
     _Fn(test);
 });
 
@@ -59,7 +59,7 @@ function _Fn(test) {
             // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
             var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
             var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
-            log('t:', test.dhatu, test.form, 'key', key, rkeys);
+            // log('t:', test.dhatu, test.form, 'key', key, rkeys);
             inc(rkeys, key).should.equal(true);
         });
     });
