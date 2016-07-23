@@ -34,7 +34,7 @@ log('TS', tests.length);
 // अंहते-अहि!-01-लट्-आ-त
 var test;
 tests.forEach(function(row, idx) {
-    // if (idx > 10) return;
+    if (idx > 9) return; // FIXME: ========================================
     if (row == '') return;
     var form, dhatu, gana, la, pada, tip, excep;
     [form, dhatu, gana, la, pada, tip, excep] = row.split('-');

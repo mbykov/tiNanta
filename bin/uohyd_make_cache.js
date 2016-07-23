@@ -26,13 +26,9 @@ var dps = dhpths.map(function(row) {
     if (!row || row == '') return;
     adp = row.split('-');
     dp = {raw: adp[1], dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]};
-    // if (!dp.raw) log('NN', row, dp);
     return dp;
 });
 dps = _.compact(dps);
-
-// log('DPS', dps);
-// return;
 
 var tinsCachePath = path.join(__dirname, '../lib/tins_cache.js');
 var dhatuAngaCachePath = path.join(__dirname, '../lib/dhatu_anga_cache.txt');
@@ -40,22 +36,21 @@ var testsCachePath = path.join(__dirname, '../test/tests_cache.txt');
 
 var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
 var canonObj = require(canonicalTinsPath);
-// p(canonObj);
 
+// var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+// var tips = {
+//     'प': ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'],
+//     'आ': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ'] // 'महिङ्' ? что правильно?
+// }
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
-// var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-var tips = {
-    'प': ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'],
-    'आ': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ'] // 'महिङ्' ? что правильно?
-}
 
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
-var la_to_test = 'लट्'; // लृङ्
-var debug = true;
-
+var la_to_test = 'लङ्'; // लृङ्
+// p(canonObj['01'][la_to_test]);
+// return;
 
 function formsRun(rows) {
     var listForms = fs.readFileSync(dataPath).toString().split('\n');
@@ -127,7 +122,7 @@ function formsRun(rows) {
                 doc.las[ladoc.la] = ladoc.nest;
                 docs.push(doc);
             });
-            if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
+            // if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
         });
 
         // vnest.forEach(function(n) { n.dhatu = cleandhatu});
@@ -137,8 +132,8 @@ function formsRun(rows) {
     // log(docs[200]);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
-    // writeDhatuAnga(docs);
-    // writeTinCache(endings, canonObj);
+    writeDhatuAnga(docs);
+    writeTinCache(endings, canonObj);
     writeTestsCache(docs);
 }
 
@@ -178,25 +173,14 @@ function parseNest(nest, gana, dhatu) {
     return laDocs;
 }
 
-/*
-  в parseLakara - разбить на пады. Если стемы равны, то stem, else - par, atm.
-  если tips > 1, то через дефис, чтобы было 18=9+9
-  если >= 36=18+18, то вычислять stems по первому каноническому tip - law,
-  если tip не подходит,
-*/
-
 function parseLakara(la, nest) {
     // log('la size:', la, nest.length);
-    if (nest.length == 21) {
-        // log('ERR', la, nest.length, nest);
-        if (debug) {
-            // log('ERR', la, nest.length, JSON.stringify(nest));
-            debug = false;
-        }
-        // throw new Error(nest[0]);
-        // FIXME: похоже, если четко кратно 9, то разбить на 9 и в цикле FIXME:
-        nest = nest.slice(0, 9);
-    }
+    // if (nest.length == 21) {
+    //     // log('ERR', la, nest.length, nest);
+    //     // throw new Error(nest[0]);
+    //     // FIXME: похоже, если четко кратно 9, то разбить на 9 и в цикле FIXME:
+    //     nest = nest.slice(0, 9);
+    // }
     var pforms = {};
     var aforms = {};
     var docs = [];
@@ -297,7 +281,8 @@ function parseTvar(gana, la, laDoc) {
 
 formsRun();
 
-// p(endings);
+// ===================================================================
+p(endings);
 
 
 function writeTinCache(endings, canonObj) {
@@ -313,7 +298,7 @@ function writeTinCache(endings, canonObj) {
     for (var glpkey in endings) {
         var gana, la, pada;
         [gana, la, pada] = glpkey.split('-');
-        if (la != 'लट्') continue; // ========================== LAKARA
+        if (la_to_test && la != la_to_test) continue; // ========================== LAKARA
         var jsons = endings[glpkey].arr;
         var canons = canonObj[gana][la][pada];
         // log('=====', glpkey, gana, la, pada, jsons);
@@ -368,11 +353,7 @@ function writeDhatuAnga(docs) {
 
 // {"form":"दोग्धि","dhatu":"दुह्","gana":"अदादि","la":"लट्","pada":"प.प","tip":"तिप्","dslp":"duh","lslp":"law","aslp":"prapUraRe","gslp":"adAd
 // test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
-
-
 function writeTestsCache(docs) {
-    log('test docs:', docs.length);
-
     fs.unlinkSync(testsCachePath);
     var test_logger = fs.createWriteStream(testsCachePath, {
         flags: 'a', // 'a' means appending (old data will be preserved)
@@ -404,7 +385,7 @@ function writeTestsCache(docs) {
                 // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
 
                 row = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip, excep].join('-');
-                if (n.form == 'व्ययति') log('R', row);
+                // if (n.form == 'व्ययति') log('R', row);
                 // log('R', row);
                 test_logger.write(row);
                 test_logger.write('\n');
@@ -413,5 +394,5 @@ function writeTestsCache(docs) {
         }
     });
     test_logger.end();
-    log('Ts:', size);
+    log('Tsize:', size);
 }

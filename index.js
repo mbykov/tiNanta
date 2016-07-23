@@ -21,6 +21,7 @@ var lakaras = ['law', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
 // var ctinsPath = path.join(__dirname, './lib/canonical_tins_cache.js');
 var tinsPath = path.join(__dirname, './lib/tins_cache.js');
 var ctins = fs.readFileSync(tinsPath).toString().split('\n');
+// log(ctins);
 
 // var jnuTinsEx = require(jnuTinsPath);
 var jnuDhatuAngaPath = path.join(__dirname, './lib/jnu_dhatu_anga_cache.js');
@@ -28,19 +29,7 @@ var jnuDhatuAnga = require(jnuDhatuAngaPath);
 
 var dhatupathaPath = path.join(__dirname, './lib/dhatupatha_cache.txt');
 var dhpths = fs.readFileSync(dhatupathaPath).toString().split('\n');
-// अं॑सँ॑-अंस-अंस्-चु-उ-सेट्-10-0460
 // अ॑हिँ॒-अहि-अंह्-भ्वा-आ-सेट्-01-0722
-// var dps = dhpths.map(function(str) {
-//     var d = str.split('-');
-//     var pada = d[4];
-//     var padas = (pada == 'उ') ? ['प', 'आ'] : [pada];
-//     var res = padas.map(function(p) {
-//         return {dp: d[0], dhatu: d[2], gana: d[6], pada: p};
-//     });
-//     return res;
-// });
-// dps = _.flatten(dps);
-
 var dp, adp;
 var dps = dhpths.map(function(row) {
     if (!row || row == '') return;
@@ -58,71 +47,6 @@ function stemmer() {
     if (!(this instanceof stemmer)) return new stemmer();
 }
 
-// samasa to queries array
-stemmer.prototype.query = function(query) {
-    this.queries = [];
-    // если проходит грубый фильтр, то tiNanta ? Или нет смысла?
-    var res = this.tiNanta(query);
-    return res;
-    // return this.queries;
-}
-
-// переименовать в find, и в run.js тоже
-stemmer.prototype.tiNanta = function(query) {
-    // log('tiNanta', query);
-    // 1. выбираю подходящие tins:
-    var fits = [];
-    var fit;
-    var obj = {};
-    var tip, tin, size, gana, la, pada, tvar, tcan;
-    // त-ते-2-01-लट्-आ-0-1
-    ctins.forEach(function(ctin) {
-        [tip, tin, size, gana, la, pada, tvar, tcan] = ctin.split('-');
-        fit = (size == 0) ? '' : query.slice(-size);
-        if (fit == tin) fits.push(ctin);
-    });
-    // здесь я препвал переход на строку ctin - пока parse
-
-    // поск готового dhatu:
-    var results = [];
-    var res, stem, das;
-    fits.forEach(function(tin) {
-        stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
-        // каждому stem соответствует строго один dhatu?
-        das = _.select(jnuDhatuAnga, function(da) { return da.tvar == tin.tvar && da.stem == stem && da.la == tin.la && da.pada == tin.pada});
-        if (!das) return; // FIXME: select!
-        das.forEach(function(da) {
-            res = {dhatu: da.dhatu, stem: stem, tin: tin.tin, la: tin.la, pada: tin.pada, tip: tin.tip };
-            results.push(res);
-        });
-    });
-    if (debug && results.length == 0) {
-        log('==========>>>> no DA stem:'); // मोदिता
-        log('fits:', fits);
-        var possible_stems = [];
-        var tmp;
-        fits.forEach(function(tin) {
-            stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
-            tmp = _.select(jnuDhatuAnga, function(da) { return da.stem == stem});
-            possible_stems = possible_stems.concat(tmp);
-        });
-        log('==========>>>> possible stems: ');
-        log(possible_stems);
-        // throw new Error('ERR: ==>> no tins - angas');
-    }
-    // log('R', results); // ==>>  बुधिर्_buDir aboDizyAma_XN_parasmE_अबोधिष्याम_ॡङ्_tip_मस्:
-
-    // если dhatu нет, parse
-    // results = [];
-    // if (results.length == 0) {
-    //     // log('parsing...');
-    //     results = this.parse(query);
-    // }
-    return results;
-    // this.queries.push('QQQ');
-    // return this.queries;
-}
-
 stemmer.prototype.parse = function(query) {
     // 1. выбираю подходящие tins:
     // ТОЛЬКО ДЛЯ gana 1 пока
@@ -130,16 +54,7 @@ stemmer.prototype.parse = function(query) {
     this.results = [];
     var fits = [];
     var fit;
-    // if (_.keys(ctins).length == 0) return [];
-    // ctins.forEach(function(ctin) {
-    //     // if (ctin.la != 'लङ्') return;
-    //     if (!ctin.canon) return;
-    //     // if (ctin.canon) log('CAN:', ctin);
-    //     fit = (ctin.size == 0) ? '' : query.slice(-ctin.size);
-    //     if (fit == ctin.tin) fits.push(ctin);
-    // });
     var that = this;
-    // त-ते-2-01-लट्-आ-0-1
     var tip, tin, size, gana, la, pada, tvar, can;
     var otin = {};
 
@@ -151,7 +66,7 @@ stemmer.prototype.parse = function(query) {
         fit = (size == 0) ? '' : query.slice(-size);
         // if (fit == tin) fits.push(ctin);
         if (fit != tin) return [];
-        // log('O', ctins);
+        // log('O', ctin);
         otin.stem = (size == 0) ? query : query.slice(0, -size);
         if (!dhatuMethods[la]) return []; // FIXME: это временно, до заполнения DMs ===================
         dhatuMethods[la].call(that, otin, query);
@@ -274,26 +189,29 @@ dhatuMethods['लट्'] = function(tin, query) {
 // laN
 dhatuMethods['लङ्'] = function(tin, query) {
     if (tin.tin == '') return;
+    log(JSON.stringify(tin));
     var fin = tin.stem.slice(-1);
     var syms = tin.stem.split('');
     var aug = syms.shift();
-    if (!inc([c.a, 'ऐ', 'औ'], aug)) return; // AI, AU, AR
+    // log('AUG', aug);
+    if (!inc([c.a, 'आ', 'ऐ', 'औ'], aug)) return; // AI, AU, AR
     // <<<<<<<<<< ==================== AR осталось
     // м.б. краткая, долгая, или сам дифтонг
     if (aug == 'ऐ') syms.unshift('इ'); // опять, или e- // "औयत","dhatu":"ऊयी्", // "ओ
     else if (aug == 'औ') syms.unshift('उ'); // опять, или e- // "औयत","dhatu":"ऊ यी्", // "ऊह् // "उक्ष्"
     var vows = [];
-    // log('S', tin.stem, aug, syms);
     syms.forEach(function(sym) {
         if (u.isVowel(sym)) vows.push(sym);
     });
     if (vows.length > 1) return;
+    log('S', tin.stem, aug, syms, vows);
     tin.aug = aug;
     tin.stem = syms.join('');
-    tin.dhatu = addVirama(tin.stem);
-    var found = _.find(cdhatus, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // tin.dhatu = addVirama(tin.stem);
+    tin.dhatu = tin.stem;
+    var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
-    if (!found) return;
+    // if (!found) return;
     this.results.push(tin);
 }
 
@@ -421,4 +339,71 @@ function vowrow(sym) {
     return _.find(Const.vowtable, function(row) {
         return (row.indexOf(sym) > -1);
     }) || '';
+}
+
+// =========================================== QUERY
+
+// samasa to queries array
+stemmer.prototype.query = function(query) {
+    this.queries = [];
+    // если проходит грубый фильтр, то tiNanta ? Или нет смысла?
+    var res = this.tiNanta(query);
+    return res;
+    // return this.queries;
+}
+
+// переименовать в find, и в run.js тоже
+stemmer.prototype.tiNanta = function(query) {
+    // log('tiNanta', query);
+    // 1. выбираю подходящие tins:
+    var fits = [];
+    var fit;
+    var obj = {};
+    var tip, tin, size, gana, la, pada, tvar, tcan;
+    // त-ते-2-01-लट्-आ-0-1
+    ctins.forEach(function(ctin) {
+        [tip, tin, size, gana, la, pada, tvar, tcan] = ctin.split('-');
+        fit = (size == 0) ? '' : query.slice(-size);
+        if (fit == tin) fits.push(ctin);
+    });
+    // здесь я препвал переход на строку ctin - пока parse
+
+    // поск готового dhatu:
+    var results = [];
+    var res, stem, das;
+    fits.forEach(function(tin) {
+        stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
+        // каждому stem соответствует строго один dhatu?
+        das = _.select(jnuDhatuAnga, function(da) { return da.tvar == tin.tvar && da.stem == stem && da.la == tin.la && da.pada == tin.pada});
+        if (!das) return; // FIXME: select!
+        das.forEach(function(da) {
+            res = {dhatu: da.dhatu, stem: stem, tin: tin.tin, la: tin.la, pada: tin.pada, tip: tin.tip };
+            results.push(res);
+        });
+    });
+    if (debug && results.length == 0) {
+        log('==========>>>> no DA stem:'); // मोदिता
+        log('fits:', fits);
+        var possible_stems = [];
+        var tmp;
+        fits.forEach(function(tin) {
+            stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
+            tmp = _.select(jnuDhatuAnga, function(da) { return da.stem == stem});
+            possible_stems = possible_stems.concat(tmp);
+        });
+        log('==========>>>> possible stems: ');
+        log(possible_stems);
+        // throw new Error('ERR: ==>> no tins - angas');
+    }
+    // log('R', results); // ==>>  बुधिर्_buDir aboDizyAma_XN_parasmE_अबोधिष्याम_ॡङ्_tip_मस्:
+
+    // если dhatu нет, parse
+    // results = [];
+    // if (results.length == 0) {
+    //     // log('parsing...');
+    //     results = this.parse(query);
+    // }
+    return results;
+    // this.queries.push('QQQ');
+    // return this.queries;
 }
