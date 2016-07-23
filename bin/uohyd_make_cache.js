@@ -381,7 +381,6 @@ function writeTestsCache(docs) {
                 sres = stemmer.parse(n.form);
                 sdhatus = sres.map(function(r) { return r.dhatu});
                 if (!inc(sdhatus, doc.dhatu)) excep = 1;
-
                 // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
 
                 row = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip, excep].join('-');

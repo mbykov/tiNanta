@@ -139,6 +139,7 @@ dhatuMethods['लट्_'] = function(tin, query) {
 }
 
 // gana 01 one Bvadi ======================= ::::
+// START
 
 dhatuMethods['लट्'] = function(tin, query) {
     if (tin.tin == '') return;
@@ -189,7 +190,7 @@ dhatuMethods['लट्'] = function(tin, query) {
 // laN
 dhatuMethods['लङ्'] = function(tin, query) {
     if (tin.tin == '') return;
-    log(JSON.stringify(tin));
+    // log(JSON.stringify(tin));
     var fin = tin.stem.slice(-1);
     var syms = tin.stem.split('');
     var aug = syms.shift();
@@ -199,19 +200,20 @@ dhatuMethods['लङ्'] = function(tin, query) {
     // м.б. краткая, долгая, или сам дифтонг
     if (aug == 'ऐ') syms.unshift('इ'); // опять, или e- // "औयत","dhatu":"ऊयी्", // "ओ
     else if (aug == 'औ') syms.unshift('उ'); // опять, или e- // "औयत","dhatu":"ऊ यी्", // "ऊह् // "उक्ष्"
+    else if (aug == 'आ') syms.unshift('अ');
     var vows = [];
     syms.forEach(function(sym) {
         if (u.isVowel(sym)) vows.push(sym);
     });
     if (vows.length > 1) return;
-    log('S', tin.stem, aug, syms, vows);
+    // log('S', tin.stem, aug, syms, vows);
     tin.aug = aug;
     tin.stem = syms.join('');
-    // tin.dhatu = addVirama(tin.stem);
-    tin.dhatu = tin.stem;
+    tin.dhatu = addVirama(tin.stem);
+    // tin.dhatu = tin.stem;
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
-    // if (!found) return;
+    if (!found) return;
     this.results.push(tin);
 }
 

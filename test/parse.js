@@ -34,7 +34,7 @@ log('TS', tests.length);
 // अंहते-अहि!-01-लट्-आ-त
 var test;
 tests.forEach(function(row, idx) {
-    if (idx > 9) return; // FIXME: ========================================
+    // if (idx > 9) return; // FIXME: ========================================
     if (row == '') return;
     var form, dhatu, gana, la, pada, tip, excep;
     [form, dhatu, gana, la, pada, tip, excep] = row.split('-');
@@ -59,7 +59,7 @@ function _Fn(test) {
             // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
             var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
             var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
-            // log('t:', test.dhatu, test.form, 'key', key, rkeys);
+            if (!inc(rkeys, key)) log('err-test:', test.dhatu, test.form, 'key', key, rkeys);
             inc(rkeys, key).should.equal(true);
         });
     });
