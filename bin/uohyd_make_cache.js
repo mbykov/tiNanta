@@ -35,7 +35,7 @@ var dhatuAngaCachePath = path.join(__dirname, '../lib/dhatu_anga_cache.txt');
 var testsCachePath = path.join(__dirname, '../test/tests_cache.txt');
 
 var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
-var canonObj = require(canonicalTinsPath);
+var canonicals = require(canonicalTinsPath);
 
 // var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 // var tips = {
@@ -48,8 +48,8 @@ var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्'
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
-var la_to_test = 'लङ्'; // लृङ्
-// p(canonObj['01'][la_to_test]);
+var la_to_test = 'लोट्'; // लृङ्
+// p(canonicals['01'][la_to_test]);
 // return;
 
 function formsRun(rows) {
@@ -133,7 +133,7 @@ function formsRun(rows) {
     // log('nest:', nests['अहि!-01.0722'][0]);
 
     writeDhatuAnga(docs);
-    writeTinCache(endings, canonObj);
+    writeTinCache(endings, canonicals);
     writeTestsCache(docs);
 }
 
@@ -285,7 +285,7 @@ formsRun();
 p(endings);
 
 
-function writeTinCache(endings, canonObj) {
+function writeTinCache(endings, canonicals) {
     fs.unlinkSync(tinsCachePath);
     var tin_logger = fs.createWriteStream(tinsCachePath, {
         flags: 'a', // 'a' means appending (old data will be preserved)
@@ -300,7 +300,7 @@ function writeTinCache(endings, canonObj) {
         [gana, la, pada] = glpkey.split('-');
         if (la_to_test && la != la_to_test) continue; // ========================== LAKARA
         var jsons = endings[glpkey].arr;
-        var canons = canonObj[gana][la][pada];
+        var canons = canonicals[gana][la][pada];
         // log('=====', glpkey, gana, la, pada, jsons);
         // continue;
         jsons.forEach(function(json, tvar) {
@@ -309,7 +309,7 @@ function writeTinCache(endings, canonObj) {
             // var tins = json.split(',');
             var otins = JSON.parse(json);
             var oTin, tinData;
-            var tcan, tinstr;
+            var tcan, tinrow;
             for (var tip in otins) {
                 var tins = otins[tip];
                 tins.forEach(function(tin, idz) {
@@ -317,8 +317,8 @@ function writeTinCache(endings, canonObj) {
                     if (check[tkey]) return;
                     check[tkey] = true;
                     tcan = (canon) ? 1 : 0;
-                    tinstr = [tip, tin, tin.length, gana, la, pada, tvar, tcan].join('-');
-                    tin_logger.write(tinstr);
+                    tinrow = [tip, tin, tin.length, gana, la, pada, tvar, tcan].join('-');
+                    tin_logger.write(tinrow);
                     tin_logger.write('\n');
                     tincount +=1;
                 });
