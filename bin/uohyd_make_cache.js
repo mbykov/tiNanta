@@ -142,9 +142,9 @@ function formsRun(rows) {
     // log(docs[200]);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
-    // writeDhatuAnga(docs);
-    // writeTinCache(endings, canonicals);
-    // writeTestsCache(docs);
+    writeDhatuAnga(docs);
+    writeTinCache(endings, canonicals);
+    writeTestsCache(docs);
 }
 
 // { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
@@ -205,12 +205,18 @@ function parseStemLiw(nest) {
     var stem;
     if (stems.length == 1) stem = stems[0];
     // else throw new Error('periphrastic stem: ' + stems);
-    else return; // TODO:   'non periph stem'
-
+    else stem = parseRedup(nest);
+    if (!stem) return;
+    // FIXME: нужно также где-то проверить признаки periphrastic - долгота гласной, моносиллабик, etc
     var reA = new RegExp(c.A+ '$');
-    stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A?
+    stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
     return stem;
 
+}
+
+function parseRedup(nest) {
+    // log('LIT REDUP', nest);
+    return;
 }
 
 function parseLakara(la, nest) {

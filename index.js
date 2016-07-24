@@ -200,6 +200,16 @@ dhatuMethods['01']['विधिलिङ्'] = function(tin, query) {
     if (gana_one_guna(tin, query)) this.results.push(tin);
 }
 
+// liw - perfect
+dhatuMethods['01']['लिट्'] = function(tin, query) {
+    // log(JSON.stringify(tin));
+    tin.dhatu = addVirama(tin.stem);
+    var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+    this.results.push(tin);
+}
+
 // ======================== SECOND GANA ===========================
 // adAdi !!!
 dhatuMethods['02']['लट्_'] = function(tin, query) {
