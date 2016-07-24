@@ -30,6 +30,14 @@ var dps = dhpths.map(function(row) {
 });
 dps = _.compact(dps);
 
+// non-monosyllabic:
+// dps.forEach(function(d) {
+//     var vc = vowCount(d.dhatu);
+//     if (vc != 1) log(vc, salita.sa2slp(d.dhatu), d.dhatu, d.gana, d.pada);
+// });
+// return;
+
+
 var tinsCachePath = path.join(__dirname, '../lib/tins_cache.js');
 var dhatuAngaCachePath = path.join(__dirname, '../lib/dhatu_anga_cache.txt');
 var testsCachePath = path.join(__dirname, '../test/tests_cache.txt');
@@ -43,12 +51,13 @@ var canonicals = require(canonicalTinsPath);
 //     'आ': ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ'] // 'महिङ्' ? что правильно?
 // }
 
-var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
 
 var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
-var la_to_test = 'विधिलिङ्'; // लट् ; लङ् ; लोट् ;
+
+var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
+var la_to_test = 'लिट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ;
 // p(canonicals['01'][la_to_test]);
 // return;
 
@@ -394,4 +403,14 @@ function writeTestsCache(docs) {
     });
     test_logger.end();
     log('Tsize:', size);
+}
+
+function vowCount(str) {
+    var syms = str.split('');
+    var vows = (u.c(c.allvowels, syms[0])) ? 1 : 0;
+    syms.forEach(function(s) {
+        if (u.c(c.hal, s)) vows+=1;
+        else if (c.virama == s) vows-=1;
+    });
+    return vows;
 }
