@@ -105,19 +105,22 @@ function gana_one_guna(tin, query) {
         if (inc(c.dirgha_ligas, vow)) tin.dhatu = addVirama(tin.stem); // FIXME: но не последняя в корне - это не про первую гану ?
         else if (syms.length - vidx > 3) tin.dhatu = addVirama(tin.stem); // vowel followed by a double consonant // <<====== COMM
         else {
-            weak = aguna(vow); // FIXME: u.aguna()
-            if (!weak) return;
-            if (vow == beg) weak = u.vowel(weak); // first - full form //    'एजृ्-एज्',
-            // но dhatu -ej- сам содержит гуну <<<==============
-            wstem = tin.stem.replace(vow, weak);
-            tin.dhatu = addVirama(wstem);
-            // if (weak) log('WEAK', query, tin, weak);
+            // log('WEAK');
+            if (vow == c.a) tin.dhatu = addVirama(tin.stem);
+            else {
+                weak = aguna(vow); // FIXME: u.aguna()
+                if (!weak) return;
+                if (vow == beg) weak = u.vowel(weak); // first - full form //    'एजृ्-एज्',
+                // но dhatu -ej- сам содержит гуну <<<==============
+                wstem = tin.stem.replace(vow, weak);
+                tin.dhatu = addVirama(wstem);
+                // if (weak) log('WEAK', query, tin, weak);
+            }
         };
     }
-
     // if (!inc(cdhatus, tin.dhatu)) return;
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.gana == d.gana && tin.pada == d.pada});
-    // log(111, tin, found);
+    // log('FOUND', found);
     return found;
 } // gana_one_guna
 
@@ -138,7 +141,10 @@ dhatuMethods['01']['लङ्'] = function(tin) {
     var aug = syms.shift();
 
     if (!inc([c.a, 'आ', 'ऐ', 'औ'], aug)) return; // AI, AU, AR
-    var vows = vowCount(syms);
+    var vows = [];
+    syms.forEach(function(sym) {
+        if (u.isVowel(sym)) vows.push(sym);
+    });
     // if (vows.length > 1) log('MORE 1', tin.stem, aug, syms, vows);
     if (vows.length > 1) return;
     // log('S', tin.stem, aug, syms, vows);
@@ -184,7 +190,12 @@ dhatuMethods['01']['लोट्'] = function(tin, query) {
     if (gana_one_guna(tin, query)) this.results.push(tin);
 }
 
+// v-liN
 dhatuMethods['01']['विधिलिङ्'] = function(tin, query) {
+    var fin = tin.stem.slice(-1);
+    if (fin == c.e) tin.stem = tin.stem.slice(0, -1);
+    // log('HERE', tin)
+
     // var found = gana_one_guna(tin, query);
     if (gana_one_guna(tin, query)) this.results.push(tin);
 }
