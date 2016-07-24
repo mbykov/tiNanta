@@ -189,6 +189,7 @@ function parseLakaraLiw(nest) {
     // log('=LIT=', nest);
     var periph_tin = {'तिप्': 'ञ्चकार', 'तस्': 'ञ्चक्रतुः', 'झि': 'ञ्चक्रुः', 'सिप्': 'ञ्चकर्थ', 'थस्': 'ञ्चक्रथुः', 'थ': 'ञ्चक्र', 'मिप्': 'ञ्चकर-ञ्चकार', 'वस्': 'ञ्चकृव', 'मस्': 'ञ्चकृम', 'त': 'ञ्चक्रे', 'आताम्': 'ञ्चक्राते', 'झ': 'ञ्चक्रिरे', 'थास्': 'ञ्चकृषे', 'आथाम्': 'ञ्चक्राथे', 'ध्वम्': 'ञ्चकृढ्वे', 'इट्': 'ञ्चक्रे', 'वहि': 'ञ्चकृवहे', 'महिङ्': 'ञ्चकृमहे'};
     var stems = [];
+    var docs = [];
     nest.forEach(function(line) {
         var rawstem = line.form;
         var tip = line.tip;
@@ -201,15 +202,21 @@ function parseLakaraLiw(nest) {
     stems = _.uniq(stems);
     log('LIT periph stems', stems.length);
     var stem;
-    if (stems.length == 1) stem = stems[0];
-    // else throw new Error('periphrastic stem: ' + stems);
-    else stem = parseRedup(nest);
-    // if (!stem) return;
-    // else return; // то есть не periphrastic, идем обычныи путем
-    // FIXME: нужно также где-то проверить признаки periphrastic - долгота гласной, моносиллабик, etc
-    var reA = new RegExp(c.A+ '$');
-    stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
-    return stem;
+    if (stems.length == 1) {
+        stem = stems[0];
+        var reA = new RegExp(c.A+ '$');
+        stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
+        // создать docs = [doc] - он один
+
+
+        // HERE
+
+        doc.periph = true;
+        docs = [doc];
+        return docs; // periphrastic docs
+    }
+    docs = parseRedup(nest);
+    return docs;
 
 }
 
@@ -236,11 +243,15 @@ function parseRedup(nest) {
     var pada, doc, stem, json;
     [strongs, weaks].forEach(function(forms, idx) {
         if (_.keys(forms).length == 0) return;
-        // log('FORMS', forms);
+        log('FORMS', forms);
         stem = parseStem(forms); // if (!stem)
         if (!stem) return;
         json = parseJSON(stem, forms);
         pada =  (forms['तिप्']) ? 'प' : 'आ';
+
+        // HERE: pada бессмысленна, или нужно по новой разбить
+        // HERE weak не считается <<<<<<<<<< ============================
+
         doc = {stem: stem, pada: pada, json: json};
         docs.push(doc);
         log('D', doc);
