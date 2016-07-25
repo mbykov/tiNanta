@@ -201,9 +201,22 @@ dhatuMethods['01']['विधिलिङ्'] = function(tin, query) {
 }
 
 // liw - perfect
+/*
+
+  я вот чего не понимаю. Если здесь нужно искать в dhatu_anga, то какой смысл в parse-find ?
+
+*/
 dhatuMethods['01']['लिट्'] = function(tin, query) {
-    // log(JSON.stringify(tin));
-    tin.dhatu = addVirama(tin.stem);
+    /*
+      - разобраться с начальной гласной
+      - иначе - только две гласных в корне
+
+    */
+    var stem = addVirama(tin.stem);
+    if (vowCount(stem) != 2) return;
+    stem = stem.slice(1);
+    tin.dhatu = stem;
+    log(JSON.stringify(tin));
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
     if (!found) return;
@@ -332,9 +345,9 @@ stemmer.prototype.tiNanta = function(query) {
         fit = (size == 0) ? '' : query.slice(-size);
         if (fit == tin) fits.push(ctin);
     });
-    // здесь я препвал переход на строку ctin - пока parse
+    // здесь я прервал переход на строку ctin - пока parse
 
-    // поск готового dhatu:
+    // поиск готового dhatu:
     var results = [];
     var res, stem, das;
     fits.forEach(function(tin) {
@@ -347,6 +360,7 @@ stemmer.prototype.tiNanta = function(query) {
             results.push(res);
         });
     });
+
     if (debug && results.length == 0) {
         log('==========>>>> no DA stem:'); // मोदिता
         log('fits:', fits);
@@ -374,13 +388,12 @@ stemmer.prototype.tiNanta = function(query) {
     // return this.queries;
 }
 
-// function vowCount(syms) {
-//     // var syms = str.split('');
-//     // var vows = (u.c(c.allvowels, syms[0])) ? 1 : 0;
-//     var vows = 0;
-//     syms.forEach(function(s) {
-//         if (u.c(c.hal, s)) vows+=1;
-//         else if (c.virama == s) vows-=1;
-//     });
-//     return vows;
-// }
+function vowCount(str) {
+    var syms = str.split('');
+    var vows = (u.c(c.allvowels, syms[0])) ? 1 : 0;
+    syms.forEach(function(s) {
+        if (u.c(c.hal, s)) vows+=1;
+        else if (c.virama == s) vows-=1;
+    });
+    return vows;
+}

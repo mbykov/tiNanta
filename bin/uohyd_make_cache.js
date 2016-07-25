@@ -81,8 +81,10 @@ function formsRun(rows) {
         key = [dhatu, nums].join('-');
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
+
         if (gana != '01') return; // ============================ GANA ==============
         // if (dhatu != 'ह्वेञ्') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
@@ -177,13 +179,16 @@ function parseNest(nest, gana) {
             } else {
                 // XXX sdocs = parseStem(forms);
             }
+            // log('SDocs', sdocs);
             json = parseJSON(sdocs, forms);
-            doc = {stem: stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
-            // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}') log('ERR', doc);
-            var glpkey = [gana, lakara.la, pada].join('-');
-            doc.tvar = parseTvar(glpkey, json);
-            // log('D', doc);
-            docs.push(doc);
+            sdocs.forEach(function(sdoc) {
+                doc = {stem: sdoc.stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
+                // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}') log('ERR', doc);
+                var glpkey = [gana, lakara.la, pada].join('-');
+                doc.tvar = parseTvar(glpkey, json);
+                // log('DOC:', doc);
+                docs.push(doc);
+            });
         }
 
     });
@@ -473,6 +478,7 @@ function writeDhatuAnga(docs) {
     });
     var check = {};
     docs.forEach(function(doc) {
+        // log('DOC', doc);
         var shamsg = [doc.stem, doc.gana, doc.pada, doc.tvar].join('-');
         var shakey = sha1(shamsg);
         var row = [doc.dhatu, shamsg, shakey].join('-');
