@@ -57,7 +57,7 @@ var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 
 var endings = {};
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
-var la_to_test = 'लिट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ;
+var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ;
 // p(canonicals['01'][la_to_test]);
 // return;
 
@@ -82,7 +82,7 @@ function formsRun(rows) {
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
         if (gana != '01') return; // =============================== GANA ==============
-        if (dhatu != 'ध्रज!') return; // =============================== DHATU =========== ध्मा        var pada;
+        if (dhatu != 'अक!') return; // =============================== DHATU =========== liw-?-ध्मा       // - liw-redup = ध्रज!
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
@@ -121,7 +121,7 @@ function formsRun(rows) {
             throw new Error();
         }
         dicts.forEach(function(dict) {
-            laDocs = parseNest(vnest, vhead.gana, dict.dhatu);
+            laDocs = parseNest(vnest, vhead.gana);
             laDocs.forEach(function(ladoc) {
                 doc = {dhatu: dict.dhatu, gana: vhead.gana, num: vhead.num, las: {}};
                 doc.stem = ladoc.stem;
@@ -129,6 +129,7 @@ function formsRun(rows) {
                 doc.tvar = ladoc.tvar;
                 // doc.key = vkey;
                 doc.las[ladoc.la] = ladoc.nest;
+                log('nest Doc', doc);
                 docs.push(doc);
             });
             // if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
@@ -141,24 +142,18 @@ function formsRun(rows) {
     // log(docs[200]);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
-    writeDhatuAnga(docs);
-    writeTinCache(endings, canonicals);
-    writeTestsCache(docs);
+    // writeDhatuAnga(docs);
+    // writeTinCache(endings, canonicals);
+    // writeTestsCache(docs);
 }
 
-// { stem: 'ब्र',  dhatu: 'ब्रूञ्',  gana: 'अदादि',  la: 'लट्',  pada: 'आ.प',  tvar: 1 },
-// test: {"form":"दोग्धि","dhatu":"दुह्","gana":"अदादि","la":"लट्","pada":"प.प","tip":"तिप्","dslp.... pa","excep":true}
-
-function parseNest(nest, gana, dhatu) {
-    // if (dhatu != 'अक!') return [];
-    // log('D', dhatu, JSON.stringify(nest));
-    // return [];
-    var check = {};
+function parseNest(nest, gana) {
+    // log('D', JSON.stringify(nest));
+    // var check = {};
     var lakaras = [];
-    var la, prev;
+    var la;
     var lanest;
-    var laDocs;
-    var tvar;
+    var laForms;
     var re;
     _.keys(laks).forEach(function(la) {
         lanest = _.select(nest, function(line) { return line.la == la});
@@ -166,131 +161,46 @@ function parseNest(nest, gana, dhatu) {
     });
     // p(lakaras);
     var docs = [];
-    var doc;
+    var doc, stem, json;
     lakaras.forEach(function(lakara) {
-        if (la_to_test && lakara.la != la_to_test) return; // ================================== LA TO TEST ============
+        if (la_to_test && lakara.la != la_to_test) return; // ================= LA TO TEST ============ <<<
 
-        if (lakara.la == 'लिट्') laDocs = parseLakaraLiw(lakara.nest);
-        laDocs = parseLakara(lakara.la, lakara.nest);
-
-        laDocs.forEach(function(laDoc) {
-            tvar = parseTvar(gana, lakara.la, laDoc);
-            // log('==>>', lakara.la, 'tvar:', tvar, laDoc);
-            laDoc.tvar = tvar;
-            laDoc.la = lakara.la;
-            laDoc.nest = lakara.nest;
-        });
-    });
-    // log('==>>', laDocs);
-    return laDocs;
-}
-
-function parseLakaraLiw(nest) {
-    // log('=LIT=', nest);
-    var periph_tin = {'तिप्': 'ञ्चकार', 'तस्': 'ञ्चक्रतुः', 'झि': 'ञ्चक्रुः', 'सिप्': 'ञ्चकर्थ', 'थस्': 'ञ्चक्रथुः', 'थ': 'ञ्चक्र', 'मिप्': 'ञ्चकर-ञ्चकार', 'वस्': 'ञ्चकृव', 'मस्': 'ञ्चकृम', 'त': 'ञ्चक्रे', 'आताम्': 'ञ्चक्राते', 'झ': 'ञ्चक्रिरे', 'थास्': 'ञ्चकृषे', 'आथाम्': 'ञ्चक्राथे', 'ध्वम्': 'ञ्चकृढ्वे', 'इट्': 'ञ्चक्रे', 'वहि': 'ञ्चकृवहे', 'महिङ्': 'ञ्चकृमहे'};
-    var stems = [];
-    var docs = [];
-    nest.forEach(function(line) {
-        var rawstem = line.form;
-        var tip = line.tip;
-        var ends = periph_tin[tip];
-        ends.split('-').forEach(function(e) {
-            rawstem = rawstem.replace(e, '');
-        });
-        stems.push(rawstem);
-    });
-    stems = _.uniq(stems);
-    log('LIT periph stems', stems.length);
-    var stem;
-    if (stems.length == 1) {
-        stem = stems[0];
-        var reA = new RegExp(c.A+ '$');
-        stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
-        // создать docs = [doc] - он один
-
-
-        // HERE
-
-        doc.periph = true;
-        docs = [doc];
-        return docs; // periphrastic docs
-    }
-    docs = parseRedup(nest);
-    return docs;
-
-}
-
-
-function parseRedup(nest) {
-    log('LIT REDUP:');
-    var docs = [];
-    var strongs = {};
-    var weaks = {};
-    // var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-    // var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
-    // var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-    nest.forEach(function(line) {
-        if (line.tip == 'तिप्') {
-            if (!strongs[line.tip]) strongs[line.tip] = [];
-            strongs[line.tip].push(line.form);
-        } else {
-            if (!weaks[line.tip]) weaks[line.tip] = [];
-            weaks[line.tip].push(line.form);
+        // if (lakara.la == 'लिट्') laForms = parseLakaraLiw(lakara.nest);
+        laForms = parseLakara(lakara.nest);
+        // log('laForms', laForms);
+        for (var pada in laForms) {
+            var forms = laForms[pada];
+            stem = parseStem(forms);
+            if (!stem) return;
+            json = parseJSON(stem, forms);
+            doc = {stem: stem, gana: gana, la: lakara.la, pada: pada};
+            var glpkey = [gana, lakara.la, pada].join('-');
+            doc.tvar = parseTvar(glpkey, json);
+            // log('D', doc);
+            docs.push(doc);
         }
 
     });
-
-    var pada, doc, stem, json;
-    [strongs, weaks].forEach(function(forms, idx) {
-        if (_.keys(forms).length == 0) return;
-        log('FORMS', forms);
-        stem = parseStem(forms); // if (!stem)
-        if (!stem) return;
-        json = parseJSON(stem, forms);
-        pada =  (forms['तिप्']) ? 'प' : 'आ';
-
-        // HERE: pada бессмысленна, или нужно по новой разбить
-        // HERE weak не считается <<<<<<<<<< ============================
-
-        doc = {stem: stem, pada: pada, json: json};
-        docs.push(doc);
-        log('D', doc);
-    });
-    return 'docs';
+    // log('==>>', laDocs);
+    return docs;
 }
 
-function parseLakara(la, nest) {
-    // log('la size:', la, nest.length);
-    var pforms = {};
-    var aforms = {};
+function parseLakara(nest) {
+    // log('la nest size:', nest.length);
+    var forms = {};
     var docs = [];
     nest.forEach(function(line) {
         if (inc(pars, line.tip)) {
-            if (!pforms[line.tip]) pforms[line.tip] = [];
-            pforms[line.tip].push(line.form);
+            if (!forms['प']) forms['प'] = {};
+            if (!forms['प'][line.tip]) forms['प'][line.tip] = [];
+            forms['प'][line.tip].push(line.form);
         } else if (inc(atms, line.tip)) {
-            if (!aforms[line.tip]) aforms[line.tip] = [];
-            aforms[line.tip].push(line.form);
+            if (!forms['आ']) forms['प'] = {};
+            if (!forms['आ'][line.tip]) forms['आ'][line.tip] = [];
+            forms['आ'][line.tip].push(line.form);
         }
-        else log('NO TIP', la, line);
     });
-
-    var pada, doc, stem, json;
-    [pforms, aforms].forEach(function(forms, idx) {
-        if (_.keys(forms).length == 0) return;
-        // log('F', forms);
-        // if (la == 'लिट्') stem = parseStemLiw(forms);
-        // if (la == 'लिट्' && !stem) stem = parseRedup(forms);
-        stem = parseStem(forms); // if (!stem)
-        if (!stem) return;
-        json = parseJSON(stem, forms);
-        pada = (idx == 0) ? 'प' : 'आ';
-        doc = {stem: stem, pada: pada, json: json};
-        docs.push(doc);
-        // log('D', doc);
-    });
-    // [ { stem: 'तप', pada: 'प', json: 'ति,तः,न्ति,सि,थः,थ,ामि,ावः,ामः' } ]
-    return docs;
+    return forms;
 }
 
 function parseStem(forms) {
@@ -335,11 +245,12 @@ function parseJSON(stem, forms) {
     return json;
 }
 
-function parseTvar(gana, la, laDoc) {
-    var pada = laDoc.pada;
-    var json = laDoc.json;
+// function parseTvar(gana, la, laDoc) {
+function parseTvar(glpkey, json) {
+    // var pada = laDoc.pada;
+    // var json = laDoc.json;
+    // var glpkey = [gana, la, pada].join('-');
     var tvar;
-    var glpkey = [gana, la, pada].join('-');
     if (!endings[glpkey]) endings[glpkey] = {arr: [], freq: []};
     var index = endings[glpkey].arr.indexOf(json);
     if (index > -1) {
@@ -354,6 +265,85 @@ function parseTvar(gana, la, laDoc) {
     }
     return tvar;
 }
+
+function parseLakaraLiw(nest) {
+    // log('=LIT=', nest);
+    var periph_tin = {'तिप्': 'ञ्चकार', 'तस्': 'ञ्चक्रतुः', 'झि': 'ञ्चक्रुः', 'सिप्': 'ञ्चकर्थ', 'थस्': 'ञ्चक्रथुः', 'थ': 'ञ्चक्र', 'मिप्': 'ञ्चकर-ञ्चकार', 'वस्': 'ञ्चकृव', 'मस्': 'ञ्चकृम', 'त': 'ञ्चक्रे', 'आताम्': 'ञ्चक्राते', 'झ': 'ञ्चक्रिरे', 'थास्': 'ञ्चकृषे', 'आथाम्': 'ञ्चक्राथे', 'ध्वम्': 'ञ्चकृढ्वे', 'इट्': 'ञ्चक्रे', 'वहि': 'ञ्चकृवहे', 'महिङ्': 'ञ्चकृमहे'};
+    var stems = [];
+    var docs = [];
+    nest.forEach(function(line) {
+        var rawstem = line.form;
+        var tip = line.tip;
+        var ends = periph_tin[tip];
+        ends.split('-').forEach(function(e) {
+            rawstem = rawstem.replace(e, '');
+        });
+        stems.push(rawstem);
+    });
+    stems = _.uniq(stems);
+    log('LIT periph stems', stems.length);
+    var stem;
+    if (stems.length == 1) {
+        stem = stems[0];
+        var reA = new RegExp(c.A+ '$');
+        stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
+        // создать docs = [doc] - он один
+
+        // HERE
+
+        doc.periph = true;
+        docs = [doc];
+        return docs; // periphrastic docs
+    }
+    docs = parseRedup(nest);
+    return docs;
+
+}
+
+function parseRedup(nest) {
+    log('LIT REDUP:');
+    var docs = [];
+    var strongs = {};
+    var weaks = {};
+    // var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+    // var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
+    // var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+    /*
+      - strong - tip-форма
+      - проверить sip и mip (а м.б. еще и vriddhi-guna разница).
+      - сформировать strongs-weaks массивы ? зачем, все stems уже известны и там. Проверить совпадение stems?
+    */
+    // var tstrong = _ XXX
+    nest.forEach(function(line) {
+        if (line.tip == 'तिप्') {
+            if (!strongs[line.tip]) strongs[line.tip] = [];
+            strongs[line.tip].push(line.form);
+        } else {
+            if (!weaks[line.tip]) weaks[line.tip] = [];
+            weaks[line.tip].push(line.form);
+        }
+
+    });
+
+    var pada, doc, stem, json;
+    [strongs, weaks].forEach(function(forms, idx) {
+        if (_.keys(forms).length == 0) return;
+        log('FORMS', forms);
+        stem = parseStem(forms);
+        if (!stem) return;
+        json = parseJSON(stem, forms);
+        pada =  (forms['तिप्']) ? 'प' : 'आ';
+
+        // HERE: pada бессмысленна, или нужно по новой разбить
+        // HERE weak не считается <<<<<<<<<< ============================
+
+        doc = {stem: stem, pada: pada, json: json};
+        docs.push(doc);
+        log('D', doc);
+    });
+    return 'docs';
+}
+
 
 formsRun();
 
