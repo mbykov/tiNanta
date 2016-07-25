@@ -208,15 +208,18 @@ dhatuMethods['01']['विधिलिङ्'] = function(tin, query) {
 */
 dhatuMethods['01']['लिट्'] = function(tin, query) {
     /*
-      - разобраться с начальной гласной
+      - разобраться с начальной и конечной гласной
       - иначе - только две гласных в корне
-
     */
+    if (vowCount(tin.stem) != 3) return;
     var stem = addVirama(tin.stem);
-    if (vowCount(stem) != 2) return;
-    stem = stem.slice(1);
-    tin.dhatu = stem;
-    log(JSON.stringify(tin));
+    var dhatu;
+    if (u.isVowel(stem[1])) dhatu = stem.slice(2);
+    else dhatu = stem.slice(1);
+    // log('DH', dhatu);
+    tin.dhatu = dhatu;
+
+    // log(JSON.stringify(tin));
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
     if (!found) return;
