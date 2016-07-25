@@ -82,7 +82,7 @@ function formsRun(rows) {
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
         if (gana != '01') return; // ============================ GANA ==============
-        if (dhatu != 'गज!') return; // ============== DHATU ====law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय!
+        // if (dhatu != 'ध्मा') return; // ============== DHATU ====law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज!
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
@@ -172,8 +172,8 @@ function parseNest(nest, gana) {
             var forms = laForms[pada];
             // log('F', forms);
             if (lakara.la == 'लिट्') {
-                stem = parseStemLiwPeriph(lakara.nest);
-                if (!stem) sdocs = parseRedup(forms, pada);
+                sdocs = parseStemLiwPeriph(forms);
+                if (!sdocs) sdocs = parseRedup(forms, pada);
             } else {
                 stem = parseStem(forms);
             }
@@ -228,12 +228,13 @@ function parseStem(forms) {
 }
 
 function parseJSON(sdocs, forms) {
-    log('F', forms);
+    // log('SD', sdocs);
+    // log('F', forms);
     var json;
     var ostin = {};
     for (var tip in forms) {
         sdocs.forEach(function(sdoc) {
-            if (!inc(sdoc.tips, tip)) return;
+            if (sdoc.tips && !inc(sdoc.tips, tip)) return;
             var form2 = forms[tip];
             ostin[tip] = [];
             form2.forEach(function(form, idx) {
@@ -246,7 +247,7 @@ function parseJSON(sdocs, forms) {
         });
     }
     json = JSON.stringify(ostin);
-    log('JSON', json);
+    // log('JSON', json);
     return json;
 }
 
@@ -295,19 +296,22 @@ function parseTvar(glpkey, json) {
     return tvar;
 }
 
-function parseStemLiwPeriph(nest) {
-    // log('=LIT=', nest.length);
+function parseStemLiwPeriph(forms) {
+    // log('=LIT Periph=', nest.length);
     var periph_tin = {'तिप्': 'ञ्चकार', 'तस्': 'ञ्चक्रतुः', 'झि': 'ञ्चक्रुः', 'सिप्': 'ञ्चकर्थ', 'थस्': 'ञ्चक्रथुः', 'थ': 'ञ्चक्र', 'मिप्': 'ञ्चकर-ञ्चकार', 'वस्': 'ञ्चकृव', 'मस्': 'ञ्चकृम', 'त': 'ञ्चक्रे', 'आताम्': 'ञ्चक्राते', 'झ': 'ञ्चक्रिरे', 'थास्': 'ञ्चकृषे', 'आथाम्': 'ञ्चक्राथे', 'ध्वम्': 'ञ्चकृढ्वे', 'इट्': 'ञ्चक्रे', 'वहि': 'ञ्चकृवहे', 'महिङ्': 'ञ्चकृमहे'};
     var stems = [];
-    nest.forEach(function(line) {
-        var rawstem = line.form;
-        var tip = line.tip;
-        var ends = periph_tin[tip];
-        ends.split('-').forEach(function(e) {
-            rawstem = rawstem.replace(e, '');
+    for (var tip in forms) {
+        var form2 = forms[tip];
+        // log('=LIT=', tip, form2);
+        form2.forEach(function(form) {
+            var rawstem = form;
+            var ends = periph_tin[tip];
+            ends.split('-').forEach(function(e) {
+                rawstem = rawstem.replace(e, '');
+            });
+            stems.push(rawstem);
         });
-        stems.push(rawstem);
-    });
+    }
     stems = _.uniq(stems);
     // log('LIT periph stems', stems.length);
     var stem;
@@ -315,7 +319,7 @@ function parseStemLiwPeriph(nest) {
         stem = stems[0];
         var reA = new RegExp(c.A+ '$');
         stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
-        return stem;
+        return [{stem: stem}];
     }
 }
 
@@ -348,7 +352,8 @@ function parseRedup(forms, pada) {
             });
         }
     }
-    weak = forms['तस्'][0];
+
+    weak = (pada == 'प') ? forms['झि'][0] :forms['झ'][0] ;
     re = new RegExp('तुः' + '$');
     weak = weak.replace(re, '');
     var sdoc, wdoc;
@@ -358,7 +363,7 @@ function parseRedup(forms, pada) {
     if (weaks.length != _.keys(forms).length) wdoc.tips = weaks;
     if (sdoc) docs.push(sdoc);
     docs.push(wdoc);
-    log('redup:', docs);
+    // log('redup:', docs);
     return docs;
 }
 
