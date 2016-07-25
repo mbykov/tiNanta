@@ -162,22 +162,22 @@ function parseNest(nest, gana) {
     });
     // p(lakaras);
     var docs = [];
-    var doc, stem, json;
+    var doc, stem, sdocs, json;
     lakaras.forEach(function(lakara) {
         if (la_to_test && lakara.la != la_to_test) return; // ================= LA TO TEST ============ <<<
 
         // if (lakara.la == 'लिट्') laForms = parseLakaraLiw(lakara.nest);
         laForms = parseLakara(lakara.nest);
-        // log('laForms', laForms);
         for (var pada in laForms) {
             var forms = laForms[pada];
+            // log('F', forms);
             if (lakara.la == 'लिट्') {
                 stem = parseStemLiwPeriph(lakara.nest);
-                if (!stem) stem = parseRedup(lakara.nest, pada); // XXX
+                if (!stem) sdocs = parseRedup(forms, pada);
+            } else {
+                stem = parseStem(forms);
             }
-            stem = parseStem(forms);
-            if (!stem) return;
-            json = parseJSON(stem, forms);
+            json = parseJSON(sdocs, forms);
             doc = {stem: stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
             var glpkey = [gana, lakara.la, pada].join('-');
             doc.tvar = parseTvar(glpkey, json);
@@ -227,7 +227,31 @@ function parseStem(forms) {
     return stem;
 }
 
-function parseJSON(stem, forms) {
+function parseJSON(sdocs, forms) {
+    log('F', forms);
+    var json;
+    var ostin = {};
+    for (var tip in forms) {
+        sdocs.forEach(function(sdoc) {
+            if (!inc(sdoc.tips, tip)) return;
+            var form2 = forms[tip];
+            ostin[tip] = [];
+            form2.forEach(function(form, idx) {
+                var reStem = new RegExp('^' + sdoc.stem);
+                var stin = form.replace(reStem, '');
+                if (stin == form) return; // не тот mip-tin
+                ostin[tip].push(stin);
+            });
+            ostin[tip] = _.uniq(ostin[tip]);
+        });
+    }
+    json = JSON.stringify(ostin);
+    log('JSON', json);
+    return json;
+}
+
+
+function parseJSON_(stem, forms) {
     var reStem = new RegExp('^' + stem);
     var tinArr = [];
     var json;
@@ -306,9 +330,40 @@ function parseStemLiwPeriph(nest) {
   - или [{stem: stem, strong: true}, {stem: stem, tips: [tip, sip, mip], {остальные, mip-оба} };
   - не tips, а tins ?
 */
-function parseRedup(nest, pada) {
-    // log('LIT REDUP:', nest.length);
-    // var stems = [];
+function parseRedup(forms, pada) {
+    // log('LIT REDUP:');
+    var strongs = [];
+    var weaks = [];
+    var strong, weak, re;
+    if (pada == 'प') {
+        strong = forms['तिप्'][0];
+        re = new RegExp('ौ' + '$'); // FIXME: всегда au? не всегда.
+        strong = strong.replace(re, '');
+        re = new RegExp('^' + strong);
+        for (var tip in forms) {
+            var form2 = forms[tip];
+            form2.forEach(function(form) {
+                if (re.test(form)) strongs.push(tip);
+                else weaks.push(tip);
+            });
+        }
+    }
+    weak = forms['तस्'][0];
+    re = new RegExp('तुः' + '$');
+    weak = weak.replace(re, '');
+    var sdoc, wdoc;
+    var docs = [];
+    if (strong) sdoc = {stem: strong, tips: strongs};
+    wdoc = {stem: weak};
+    if (weaks.length != _.keys(forms).length) wdoc.tips = weaks;
+    if (sdoc) docs.push(sdoc);
+    docs.push(wdoc);
+    log('redup:', docs);
+    return docs;
+}
+
+function parseRedup_(nest, pada) {
+    // log('LIT REDUP:');
     var strongs = [];
     var weaks = [];
     // log('NN', nest[0], nest[0].tip);
@@ -326,11 +381,15 @@ function parseRedup(nest, pada) {
     weak = nest[1].form;
     re = new RegExp('तुः' + '$');
     weak = weak.replace(re, '');
-    var sdoc = {stem: strong, tips: strongs};
-    var wdoc = {stem: weak, tips: weaks};
-
-    log('redup:', [sdoc, wdoc]);
-    return [sdoc, wdoc];
+    var sdoc, wdoc;
+    var docs = [];
+    if (strong) sdoc = {stem: strong, tips: strongs};
+    wdoc = {stem: weak};
+    if (weaks.length != nest.length) wdoc.tips = weaks;
+    if (sdoc) docs.push(sdoc);
+    docs.push(weaks);
+    log('redup:', docs);
+    return docs;
 }
 
 
