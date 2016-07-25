@@ -57,7 +57,7 @@ var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 
 var endings = {};
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
-var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ;
+var la_to_test = 'लिट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ;
 // p(canonicals['01'][la_to_test]);
 // return;
 
@@ -69,7 +69,7 @@ function formsRun(rows) {
     var heads = {};
     var nests = {};
     var nest, line;
-    var gana, num;
+    var gana, num, pada;
     var docs = [];
     var testdocs = [];
     var doc, laDocs, laDoc;
@@ -81,8 +81,8 @@ function formsRun(rows) {
         key = [dhatu, nums].join('-');
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
-        if (gana != '01') return; // =============================== GANA ==============
-        if (dhatu != 'अक!') return; // =============================== DHATU =========== liw-?-ध्मा       // - liw-redup = ध्रज!
+        if (gana != '01') return; // ============================ GANA ==============
+        if (dhatu != 'गज!') return; // ============== DHATU ====law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय!
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
@@ -125,11 +125,12 @@ function formsRun(rows) {
             laDocs.forEach(function(ladoc) {
                 doc = {dhatu: dict.dhatu, gana: vhead.gana, num: vhead.num, las: {}};
                 doc.stem = ladoc.stem;
+                doc.la = ladoc.la;
                 doc.pada = ladoc.pada;
                 doc.tvar = ladoc.tvar;
                 // doc.key = vkey;
                 doc.las[ladoc.la] = ladoc.nest;
-                log('nest Doc', doc);
+                // log('Doc', doc);
                 docs.push(doc);
             });
             // if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
@@ -142,9 +143,9 @@ function formsRun(rows) {
     // log(docs[200]);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
-    // writeDhatuAnga(docs);
-    // writeTinCache(endings, canonicals);
-    // writeTestsCache(docs);
+    writeDhatuAnga(docs);
+    writeTinCache(endings, canonicals);
+    writeTestsCache(docs);
 }
 
 function parseNest(nest, gana) {
@@ -170,10 +171,14 @@ function parseNest(nest, gana) {
         // log('laForms', laForms);
         for (var pada in laForms) {
             var forms = laForms[pada];
+            if (lakara.la == 'लिट्') {
+                stem = parseStemLiwPeriph(lakara.nest);
+                if (!stem) stem = parseRedup(lakara.nest, pada); // XXX
+            }
             stem = parseStem(forms);
             if (!stem) return;
             json = parseJSON(stem, forms);
-            doc = {stem: stem, gana: gana, la: lakara.la, pada: pada};
+            doc = {stem: stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
             var glpkey = [gana, lakara.la, pada].join('-');
             doc.tvar = parseTvar(glpkey, json);
             // log('D', doc);
@@ -195,7 +200,7 @@ function parseLakara(nest) {
             if (!forms['प'][line.tip]) forms['प'][line.tip] = [];
             forms['प'][line.tip].push(line.form);
         } else if (inc(atms, line.tip)) {
-            if (!forms['आ']) forms['प'] = {};
+            if (!forms['आ']) forms['आ'] = {};
             if (!forms['आ'][line.tip]) forms['आ'][line.tip] = [];
             forms['आ'][line.tip].push(line.form);
         }
@@ -266,11 +271,10 @@ function parseTvar(glpkey, json) {
     return tvar;
 }
 
-function parseLakaraLiw(nest) {
-    // log('=LIT=', nest);
+function parseStemLiwPeriph(nest) {
+    // log('=LIT=', nest.length);
     var periph_tin = {'तिप्': 'ञ्चकार', 'तस्': 'ञ्चक्रतुः', 'झि': 'ञ्चक्रुः', 'सिप्': 'ञ्चकर्थ', 'थस्': 'ञ्चक्रथुः', 'थ': 'ञ्चक्र', 'मिप्': 'ञ्चकर-ञ्चकार', 'वस्': 'ञ्चकृव', 'मस्': 'ञ्चकृम', 'त': 'ञ्चक्रे', 'आताम्': 'ञ्चक्राते', 'झ': 'ञ्चक्रिरे', 'थास्': 'ञ्चकृषे', 'आथाम्': 'ञ्चक्राथे', 'ध्वम्': 'ञ्चकृढ्वे', 'इट्': 'ञ्चक्रे', 'वहि': 'ञ्चकृवहे', 'महिङ्': 'ञ्चकृमहे'};
     var stems = [];
-    var docs = [];
     nest.forEach(function(line) {
         var rawstem = line.form;
         var tip = line.tip;
@@ -281,67 +285,52 @@ function parseLakaraLiw(nest) {
         stems.push(rawstem);
     });
     stems = _.uniq(stems);
-    log('LIT periph stems', stems.length);
+    // log('LIT periph stems', stems.length);
     var stem;
     if (stems.length == 1) {
         stem = stems[0];
         var reA = new RegExp(c.A+ '$');
         stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
-        // создать docs = [doc] - он один
-
-        // HERE
-
-        doc.periph = true;
-        docs = [doc];
-        return docs; // periphrastic docs
+        return stem;
     }
-    docs = parseRedup(nest);
-    return docs;
-
 }
 
-function parseRedup(nest) {
-    log('LIT REDUP:');
-    var docs = [];
-    var strongs = {};
-    var weaks = {};
-    // var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-    // var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
-    // var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-    /*
-      - strong - tip-форма
-      - проверить sip и mip (а м.б. еще и vriddhi-guna разница).
-      - сформировать strongs-weaks массивы ? зачем, все stems уже известны и там. Проверить совпадение stems?
-    */
-    // var tstrong = _ XXX
-    nest.forEach(function(line) {
-        if (line.tip == 'तिप्') {
-            if (!strongs[line.tip]) strongs[line.tip] = [];
-            strongs[line.tip].push(line.form);
-        } else {
-            if (!weaks[line.tip]) weaks[line.tip] = [];
-            weaks[line.tip].push(line.form);
-        }
+// var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+// var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
+// var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
+/*
+  - strong - tip-форма
+  - проверить sip и mip (а м.б. еще и vriddhi-guna разница).
+  - сформировать strongs-weaks массивы ? зачем, все stems уже известны и там. Проверить совпадение stems?
+  - вернуть {strong: strong, weak: weak};
+  - или [{stem: stem, strong: true}, {stem: stem, tips: [tip, sip, mip], {остальные, mip-оба} };
+  - не tips, а tins ?
+*/
+function parseRedup(nest, pada) {
+    log('LIT REDUP:', nest.length);
+    // var stems = [];
+    var strongs = [];
+    var weaks = [];
+    log('NN', nest[0], nest[0].tip);
+    var strong, weak, re;
+    if (pada == 'प') {
+        strong = nest[0].form;
+        re = new RegExp('ौ' + '$'); // FIXME: всегда au? не всегда.
+        strong = strong.replace(re, '');
+        re = new RegExp('^' + strong);
+        nest.forEach(function(line) {
+            if (re.test(line.form)) strongs.push(line.tip);
+            else weaks.push(line.tip);
+        });
+    }
+    weak = nest[1].form;
+    re = new RegExp('तुः' + '$');
+    weak = weak.replace(re, '');
+    var sdoc = {stem: strong, type: 'strong', tips: strongs};
+    var wdoc = {stem: weak, type: 'weak', tips: weaks};
 
-    });
-
-    var pada, doc, stem, json;
-    [strongs, weaks].forEach(function(forms, idx) {
-        if (_.keys(forms).length == 0) return;
-        log('FORMS', forms);
-        stem = parseStem(forms);
-        if (!stem) return;
-        json = parseJSON(stem, forms);
-        pada =  (forms['तिप्']) ? 'प' : 'आ';
-
-        // HERE: pada бессмысленна, или нужно по новой разбить
-        // HERE weak не считается <<<<<<<<<< ============================
-
-        doc = {stem: stem, pada: pada, json: json};
-        docs.push(doc);
-        log('D', doc);
-    });
-    return 'docs';
+    log(111, [sdoc, wdoc]);
+    return [sdoc, wdoc];
 }
 
 
@@ -426,36 +415,57 @@ function writeTestsCache(docs) {
         defaultEncoding: 'utf8'
     });
 
-    // var tests = [];
     var row, key;
     var doc, keynum, nest, n;
-    var size = 0;
     var sres, sdhatus;
     var check = {};
+    var size = 0;
     docs.forEach(function(doc, idx) {
         // if (idx > 0) return;
         // log('D', doc);
         for (var la in doc.las) {
             if (la_to_test && la != la_to_test) continue;
             var nest = doc.las[la];
-            nest.forEach(function(n) {
-                var excep = 0;
-                key = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip].join('-');
-                if (check[key]) return;
-                check[key] = true;
+            // log('N', nest);
+            for (var tip in nest) {
+                var forms = nest[tip];
+                forms.forEach(function(form) {
+                    var excep = 0;
+                    key = [form, doc.dhatu, doc.gana, doc.la, doc.pada, tip].join('-');
+                    if (check[key]) return;
+                    check[key] = true;
 
-                sres = stemmer.parse(n.form);
-                sdhatus = sres.map(function(r) { return r.dhatu});
-                if (!inc(sdhatus, doc.dhatu)) excep = 1;
-                // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
+                    sres = stemmer.parse(form);
+                    sdhatus = sres.map(function(r) { return r.dhatu});
+                    if (!inc(sdhatus, doc.dhatu)) excep = 1;
+                    // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
 
-                row = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip, excep].join('-');
-                // if (n.form == 'व्ययति') log('R', row);
-                // log('R', row);
-                test_logger.write(row);
-                test_logger.write('\n');
-                size += 1;
-            });
+                    row = [form, doc.dhatu, doc.gana, doc.la, doc.pada, tip, excep].join('-');
+                    // if (n.form == 'व्ययति') log('R', row);
+                    // log('ROW', row);
+                    test_logger.write(row);
+                    test_logger.write('\n');
+                    size += 1;
+                });
+            }
+            // nest.forEach(function(n) {
+            //     var excep = 0;
+            //     key = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip].join('-');
+            //     if (check[key]) return;
+            //     check[key] = true;
+
+            //     sres = stemmer.parse(n.form);
+            //     sdhatus = sres.map(function(r) { return r.dhatu});
+            //     if (!inc(sdhatus, doc.dhatu)) excep = 1;
+            //     // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
+
+            //     row = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip, excep].join('-');
+            //     // if (n.form == 'व्ययति') log('R', row);
+            //     // log('R', row);
+            //     test_logger.write(row);
+            //     test_logger.write('\n');
+            //     size += 1;
+            // });
         }
     });
     test_logger.end();
