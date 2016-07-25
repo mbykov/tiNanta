@@ -307,11 +307,11 @@ function parseStemLiwPeriph(nest) {
   - не tips, а tins ?
 */
 function parseRedup(nest, pada) {
-    log('LIT REDUP:', nest.length);
+    // log('LIT REDUP:', nest.length);
     // var stems = [];
     var strongs = [];
     var weaks = [];
-    log('NN', nest[0], nest[0].tip);
+    // log('NN', nest[0], nest[0].tip);
     var strong, weak, re;
     if (pada == 'प') {
         strong = nest[0].form;
@@ -326,10 +326,10 @@ function parseRedup(nest, pada) {
     weak = nest[1].form;
     re = new RegExp('तुः' + '$');
     weak = weak.replace(re, '');
-    var sdoc = {stem: strong, type: 'strong', tips: strongs};
-    var wdoc = {stem: weak, type: 'weak', tips: weaks};
+    var sdoc = {stem: strong, tips: strongs};
+    var wdoc = {stem: weak, tips: weaks};
 
-    log(111, [sdoc, wdoc]);
+    log('redup:', [sdoc, wdoc]);
     return [sdoc, wdoc];
 }
 
