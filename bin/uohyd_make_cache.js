@@ -82,7 +82,7 @@ function formsRun(rows) {
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
         if (gana != '01') return; // ============================ GANA ==============
-        // if (dhatu != 'ध्मा') return; // ============== DHATU ====law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज!
+        // if (dhatu != 'क्षुभ!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
@@ -175,10 +175,11 @@ function parseNest(nest, gana) {
                 sdocs = parseStemLiwPeriph(forms);
                 if (!sdocs) sdocs = parseRedup(forms, pada);
             } else {
-                stem = parseStem(forms);
+                // XXX sdocs = parseStem(forms);
             }
             json = parseJSON(sdocs, forms);
             doc = {stem: stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
+            // if (json == '{}') log('ERR', doc);
             var glpkey = [gana, lakara.la, pada].join('-');
             doc.tvar = parseTvar(glpkey, json);
             // log('D', doc);
@@ -240,8 +241,9 @@ function parseJSON(sdocs, forms) {
             form2.forEach(function(form, idx) {
                 var reStem = new RegExp('^' + sdoc.stem);
                 var stin = form.replace(reStem, '');
-                if (stin == form) return; // не тот mip-tin
-                ostin[tip].push(stin);
+                // log('SSS', tip, 2, stin, form, stin == form);
+                if (stin == form) ostin[tip].push(''); // не тот mip-tin
+                else ostin[tip].push(stin);
             });
             ostin[tip] = _.uniq(ostin[tip]);
         });
@@ -335,27 +337,37 @@ function parseStemLiwPeriph(forms) {
   - не tips, а tins ?
 */
 function parseRedup(forms, pada) {
-    // log('LIT REDUP:');
+    // log('LIT REDUP:'); // 'जह्वरुः',
     var strongs = [];
     var weaks = [];
     var strong, weak, re;
+    var form2;
     if (pada == 'प') {
         strong = forms['तिप्'][0];
         re = new RegExp('ौ' + '$'); // FIXME: всегда au? не всегда.
         strong = strong.replace(re, '');
         re = new RegExp('^' + strong);
         for (var tip in forms) {
-            var form2 = forms[tip];
+            form2 = forms[tip];
             form2.forEach(function(form) {
                 if (re.test(form)) strongs.push(tip);
                 else weaks.push(tip);
             });
         }
+    } else {
+        weak = forms['झ'][0] ;
+        re = new RegExp('िरे' + '$');
+        weak = weak.replace(re, '');
+        re = new RegExp('रे' + '$');
+        weak = weak.replace(re, '');
+        for (var tip in forms) {
+            form2 = forms[tip];
+            form2.forEach(function(form) {
+                weaks.push(tip);
+            });
+        }
     }
 
-    weak = (pada == 'प') ? forms['झि'][0] :forms['झ'][0] ;
-    re = new RegExp('तुः' + '$');
-    weak = weak.replace(re, '');
     var sdoc, wdoc;
     var docs = [];
     if (strong) sdoc = {stem: strong, tips: strongs};
