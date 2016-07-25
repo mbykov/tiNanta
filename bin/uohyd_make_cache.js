@@ -82,7 +82,7 @@ function formsRun(rows) {
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
         if (gana != '01') return; // ============================ GANA ==============
-        // if (dhatu != 'क्षुभ!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+        // if (dhatu != 'ह्वेञ्') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
@@ -179,7 +179,7 @@ function parseNest(nest, gana) {
             }
             json = parseJSON(sdocs, forms);
             doc = {stem: stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
-            // if (json == '{}') log('ERR', doc);
+            // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}') log('ERR', doc);
             var glpkey = [gana, lakara.la, pada].join('-');
             doc.tvar = parseTvar(glpkey, json);
             // log('D', doc);
@@ -337,13 +337,15 @@ function parseStemLiwPeriph(forms) {
   - не tips, а tins ?
 */
 function parseRedup(forms, pada) {
-    // log('LIT REDUP:'); // 'जह्वरुः',
+    // if (pada == 'आ') return [];
+    // log('LIT REDUP:', forms); // 'जह्वरुः',
     var strongs = [];
     var weaks = [];
     var strong, weak, re;
     var form2;
     if (pada == 'प') {
         strong = forms['तिप्'][0];
+        weak = forms['झि'][0] ;
         re = new RegExp('ौ' + '$'); // FIXME: всегда au? не всегда.
         strong = strong.replace(re, '');
         re = new RegExp('^' + strong);
@@ -352,6 +354,7 @@ function parseRedup(forms, pada) {
             form2.forEach(function(form) {
                 if (re.test(form)) strongs.push(tip);
                 else weaks.push(tip);
+                // log('------------------------------------', form, weaks.length);
             });
         }
     } else {
@@ -372,10 +375,10 @@ function parseRedup(forms, pada) {
     var docs = [];
     if (strong) sdoc = {stem: strong, tips: strongs};
     wdoc = {stem: weak};
-    if (weaks.length != _.keys(forms).length) wdoc.tips = weaks;
+    if (strong) wdoc.tips = weaks;
     if (sdoc) docs.push(sdoc);
     docs.push(wdoc);
-    // log('redup:', docs);
+    // log('redup:', pada, docs);
     return docs;
 }
 
