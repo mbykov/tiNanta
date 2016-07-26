@@ -55,8 +55,8 @@ var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
 
-var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
-var la_to_test = 'लुट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लोट् ;
+var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}}; // लृट् -> ऌट्
+var la_to_test = 'लृट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लोट् ; लुट् ; लृट्
 // उव(?+),लिट्
 // p(canonicals['01'][la_to_test]);
 // return;
@@ -75,7 +75,7 @@ function formsRun(rows) {
     var doc, laDocs, laDoc;
     // आंसयत्,अंस,लङ्,तिप्,10.0460
     listForms.forEach(function(row, idz) {
-        // if (idz > 10000) return;
+        // if (idz > 10) return;
         if (row == '') return;
         [form, dhatu, la, tip, nums] = row.split(',');
         key = [dhatu, nums].join('-');
@@ -88,7 +88,7 @@ function formsRun(rows) {
 
 
         if (gana != '01') return; // ============================ GANA ==============
-        // if (dhatu != 'अघि!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+        // if (dhatu != 'अक!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -169,6 +169,7 @@ function parseNest(nest, gana) {
         lakaras.push({la: la, nest: lanest});
     });
     // p(lakaras);
+
     var docs = [];
     var doc, stem, sdocs, json;
     lakaras.forEach(function(lakara) {
@@ -184,6 +185,8 @@ function parseNest(nest, gana) {
             } else {
                 stem = parseStem(forms);
                 if (lakara.la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
+                // else if (lakara.la == 'लृट्') stem = u.replaceEnd(stem, 'स्य', '');
+                // XXX
                 sdocs = [{stem: stem}];
             }
             // log('SDocs', sdocs);
@@ -199,7 +202,7 @@ function parseNest(nest, gana) {
         }
 
     });
-    // log('==>>', laDocs);
+    // log('==>>', docs); // laDocs;
     return docs;
 }
 
