@@ -277,6 +277,26 @@ dhatuMethods['01']['लृट्'] = function(tin, query) {
     this.results.push(tin);
 }
 
+// = ASIrliN
+dhatuMethods['01']['आशीर्लिङ्'] = function(tin, query) {
+    // log(JSON.stringify(tin));
+    var dhatu;
+    if (tin.pada == 'प') {
+        dhatu = u.replaceEnd(tin.stem, 'या', '');
+    } else {
+        dhatu = u.replaceEnd(tin.stem, 'िषी', c.virama);
+
+    }
+    // var fin = dhatu.slice(-1);
+    // tin.dhatu = addVirama(dhatu);
+    tin.dhatu = dhatu;
+    // log('D', tin.dhatu, 'pada:', tin.pada);
+    var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+    this.results.push(tin);
+}
+
 
 
 // ======================== SECOND GANA ===========================

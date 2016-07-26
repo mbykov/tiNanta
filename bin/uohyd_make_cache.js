@@ -190,9 +190,9 @@ function parseNest(nest, gana) {
                     // stem = u.replaceEnd(stem, 'स्य', '');
                 } else if (lakara.la == 'आशीर्लिङ्') {
                     if (pada == 'प') {
-                        stem = u.replaceEnd(stem, 'या', '');
+                        // stem = u.replaceEnd(stem, 'या', '');
                     } else {
-                        stem = u.replaceEnd(stem, 'सी', '');
+                        // stem = u.replaceEnd(stem, 'सी', '');
                     }
                 }
                 // XXX
