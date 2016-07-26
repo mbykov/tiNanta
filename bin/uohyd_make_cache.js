@@ -56,7 +56,7 @@ var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 
 var endings = {};
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}}; // लृट् -> ऌट्
-var la_to_test = 'लृट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लोट् ; लुट् ; लृट्
+var la_to_test = 'आशीर्लिङ्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लोट् ; लुट् ; लृट्
 // उव(?+),लिट्
 // p(canonicals['01'][la_to_test]);
 // return;
@@ -188,6 +188,12 @@ function parseNest(nest, gana) {
                 else if (lakara.la == 'लृट्') {
                     stem = stem.replace('ष्य', '').replace('स्य', '');
                     // stem = u.replaceEnd(stem, 'स्य', '');
+                } else if (lakara.la == 'आशीर्लिङ्') {
+                    if (pada == 'प') {
+                        stem = u.replaceEnd(stem, 'या', '');
+                    } else {
+                        stem = u.replaceEnd(stem, 'सी', '');
+                    }
                 }
                 // XXX
                 sdocs = [{stem: stem}];
