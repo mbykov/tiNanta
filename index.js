@@ -265,6 +265,20 @@ dhatuMethods['01']['लुट्'] = function(tin, query) {
 }
 
 
+// lfw
+dhatuMethods['01']['लृट्'] = function(tin, query) {
+    // Qlog(JSON.stringify(tin));
+    var dhatu = u.replaceEnd(tin.stem, 'ि', '');
+    tin.dhatu = addVirama(dhatu);
+    // log('D', tin.dhatu, 'pada:', tin.pada);
+    var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+    this.results.push(tin);
+}
+
+
+
 // ======================== SECOND GANA ===========================
 // adAdi !!!
 dhatuMethods['02']['लट्_'] = function(tin, query) {

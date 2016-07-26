@@ -185,7 +185,10 @@ function parseNest(nest, gana) {
             } else {
                 stem = parseStem(forms);
                 if (lakara.la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
-                // else if (lakara.la == 'लृट्') stem = u.replaceEnd(stem, 'स्य', '');
+                else if (lakara.la == 'लृट्') {
+                    stem = stem.replace('ष्य', '').replace('स्य', '');
+                    // stem = u.replaceEnd(stem, 'स्य', '');
+                }
                 // XXX
                 sdocs = [{stem: stem}];
             }
