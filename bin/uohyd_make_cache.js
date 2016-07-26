@@ -1,5 +1,4 @@
 //
-
 var fs = require('fs');
 var util = require('util');
 var _ = require('underscore');
@@ -57,7 +56,7 @@ var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 
 var endings = {};
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
-var la_to_test = 'लिट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ;
+var la_to_test = 'लुट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लोट् ;
 // उव(?+),लिट्
 // p(canonicals['01'][la_to_test]);
 // return;
@@ -83,8 +82,13 @@ function formsRun(rows) {
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
 
+
+
+
+
+
         if (gana != '01') return; // ============================ GANA ==============
-        // if (dhatu != 'अय!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+        // if (dhatu != 'अघि!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -178,7 +182,9 @@ function parseNest(nest, gana) {
                 sdocs = parseStemLiwPeriph(forms);
                 if (!sdocs) sdocs = parseRedup(forms, pada);
             } else {
-                // XXX sdocs = parseStem(forms);
+                stem = parseStem(forms);
+                if (lakara.la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
+                sdocs = [{stem: stem}];
             }
             // log('SDocs', sdocs);
             json = parseJSON(sdocs, forms);

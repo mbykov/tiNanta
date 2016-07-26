@@ -208,10 +208,10 @@ dhatuMethods['01']['विधिलिङ्'] = function(tin, query) {
 */
 dhatuMethods['01']['लिट्'] = function(tin, query) {
     /*
-      - разобраться с начальной и конечной гласной
-      - иначе - только три гласных в корне
-      - и первый слог - убрать
-      - отдельно - перифрастик
+      - грязно
+      - гласная в конце корня
+      - из-за "" - как быть?
+      -
     */
     // if (tin.tin == '' && tin.pada == 'प' &! (tin.tip == 'तात्' || tin.tip == 'थ')) return; // дает ошибку в тесте - अक्-लिट्-प-तिप् [ 'अक्-लिट्-प-थ' ]
     // хотя это верное ограничение
@@ -250,6 +250,20 @@ dhatuMethods['01']['लिट्'] = function(tin, query) {
     if (!found) return;
     this.results.push(tin);
 }
+
+
+// luw
+dhatuMethods['01']['लुट्'] = function(tin, query) {
+    // log(JSON.stringify(tin));
+    var dhatu = u.replaceEnd(tin.stem, 'ि', '');
+    tin.dhatu = addVirama(dhatu);
+    // log('D', tin.dhatu, 'pada:', tin.pada);
+    var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+    this.results.push(tin);
+}
+
 
 // ======================== SECOND GANA ===========================
 // adAdi !!!
