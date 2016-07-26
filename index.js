@@ -56,19 +56,19 @@ stemmer.prototype.parse = function(query) {
     var fits = [];
     var fit;
     var that = this;
-    var tip, tin, size, gana, la, pada, tvar, can;
+    var tip, tin, size, gana, la, pada, tvar, can, periph;
     var otin = {};
 
     // var stem;
     ctins.forEach(function(ctin) {
         // log('O', ctin);
-        [tip, tin, size, gana, la, pada, tvar, can] = ctin.split('-');
+        [tip, tin, size, gana, la, pada, tvar, can, periph] = ctin.split('-');
         if (can == 0) return; // либо читать canonical
-        otin = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, can: can};
+        otin = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, can: can, periph: periph};
         fit = (size == 0) ? '' : query.slice(-size);
         // if (fit == tin) fits.push(ctin);
         if (fit != tin) return;
-        // log('O', ctin);
+        // log('O', otin);
         otin.stem = (size == 0) ? query : query.slice(0, -size);
         if (!dhatuMethods[gana][la]) return; // FIXME: это временно, до заполнения DMs ===================
         dhatuMethods[gana][la].call(that, otin);
@@ -209,17 +209,42 @@ dhatuMethods['01']['विधिलिङ्'] = function(tin, query) {
 dhatuMethods['01']['लिट्'] = function(tin, query) {
     /*
       - разобраться с начальной и конечной гласной
-      - иначе - только две гласных в корне
+      - иначе - только три гласных в корне
+      - и первый слог - убрать
+      - отдельно - перифрастик
     */
-    if (vowCount(tin.stem) != 3) return;
-    var stem = addVirama(tin.stem);
-    var dhatu;
-    if (u.isVowel(stem[1])) dhatu = stem.slice(2);
-    else dhatu = stem.slice(1);
-    // log('DH', dhatu);
-    tin.dhatu = dhatu;
+    // if (tin.tin == '' && tin.pada == 'प' &! (tin.tip == 'तात्' || tin.tip == 'थ')) return; // дает ошибку в тесте - अक्-लिट्-प-तिप् [ 'अक्-लिट्-प-थ' ]
+    // хотя это верное ограничение
+    if (tin.tin == '' && tin.pada == 'प' && tin.tip != 'तात्') return;
+    if (tin.tin == '' && tin.pada == 'आ') return;
+    // log(JSON.stringify(tin));
+    var dhatu, hrasva;
+    var beg = tin.stem[0];
+    // log('VOW', tin.stem, vowCount(tin.stem));
+    var vc = vowCount(tin.stem);
+    var rePeriph = new RegExp('ाञ्चक्');
+    if (tin.periph == '1') {
+        // log('PERIPH');
+        // log(tin);
+        tin.dhatu = addVirama(tin.stem);
+
+    } else if (vc == 2 && u.isDirgha(beg)) {
+        // log(JSON.stringify(tin));
+        // log('STEM', tin.stem, 'pada:', tin.pada);
+        // log(1, u.hrasva(beg));
+        hrasva = u.hrasva(beg);
+        dhatu = tin.stem.replace(beg, hrasva);
+        tin.dhatu = addVirama(dhatu);
+    } else if (vc == 3) {
+        var stem = addVirama(tin.stem);
+        if (u.isVowel(stem[1])) dhatu = stem.slice(2);
+        else dhatu = stem.slice(1);
+        // log('DH', dhatu);
+        tin.dhatu = dhatu;
+    } else return;
 
     // log(JSON.stringify(tin));
+    // log('D', dhatu, 'pada:', tin.pada); // ध्राघ्  = ध्राघृ-घ्राघ्-
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
     // log(111, tin, found);
     if (!found) return;

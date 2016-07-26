@@ -58,6 +58,7 @@ var endings = {};
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'ऌट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'ॡङ्': {}};
 var la_to_test = 'लिट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ;
+// उव(?+),लिट्
 // p(canonicals['01'][la_to_test]);
 // return;
 
@@ -83,7 +84,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana != '01') return; // ============================ GANA ==============
-        // if (dhatu != 'ह्वेञ्') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+        // if (dhatu != 'अय!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -133,6 +134,7 @@ function formsRun(rows) {
                 // doc.key = vkey;
                 doc.las[ladoc.la] = ladoc.nest;
                 // log('Doc', doc);
+                if (ladoc.periph) doc.periph = true;
                 docs.push(doc);
             });
             // if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
@@ -168,7 +170,6 @@ function parseNest(nest, gana) {
     lakaras.forEach(function(lakara) {
         if (la_to_test && lakara.la != la_to_test) return; // ================= LA TO TEST ============ <<<
 
-        // if (lakara.la == 'लिट्') laForms = parseLakaraLiw(lakara.nest);
         laForms = parseLakara(lakara.nest);
         for (var pada in laForms) {
             var forms = laForms[pada];
@@ -326,7 +327,7 @@ function parseStemLiwPeriph(forms) {
         stem = stems[0];
         var reA = new RegExp(c.A+ '$');
         stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
-        return [{stem: stem}];
+        return [{stem: stem, periph: true}];
     }
 }
 
@@ -449,6 +450,8 @@ function writeTinCache(endings, canonicals) {
             var otins = JSON.parse(json);
             var oTin, tinData;
             var tcan, tinrow;
+            var periph;
+            var rePeriph = new RegExp('ाञ्चक');
             for (var tip in otins) {
                 var tins = otins[tip];
                 tins.forEach(function(tin, idz) {
@@ -456,7 +459,8 @@ function writeTinCache(endings, canonicals) {
                     if (check[tkey]) return;
                     check[tkey] = true;
                     tcan = (canon) ? 1 : 0;
-                    tinrow = [tip, tin, tin.length, gana, la, pada, tvar, tcan].join('-');
+                    periph = (rePeriph.test(tin)) ? 1 : 0;
+                    tinrow = [tip, tin, tin.length, gana, la, pada, tvar, tcan, periph].join('-');
                     tin_logger.write(tinrow);
                     tin_logger.write('\n');
                     tincount +=1;
