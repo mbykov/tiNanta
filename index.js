@@ -307,19 +307,49 @@ dhatuMethods['01']['लृङ्'] = function(tin, query) {
     } else {
         dhatu = u.replaceEnd(tin.stem, 'िष्य', c.virama);
     }
-    /*
-      здесь кроме того гласная - краткая слабая
-     */
     var beg = tin.stem[0];
     if (beg == c.a) dhatu = dhatu.slice(1);
     else if (beg == 'आ') {
         dhatu = dhatu.slice(1);
         dhatu = ['अ', dhatu].join('');
     }
+    /*
+      FIXME: здесь кроме того гласная-не-начальная - краткая слабая
+    */
 
     // var fin = dhatu.slice(-1);
     // tin.dhatu = addVirama(dhatu);
     tin.dhatu = dhatu;
+    // log('D', tin.dhatu, 'pada:', tin.pada, 'S', tin.stem);
+
+    var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+    this.results.push(tin);
+}
+
+// = luN =
+dhatuMethods['01']['लुङ्'] = function(tin, query) {
+    // log(JSON.stringify(tin)); // आंहिष्यत - आकिष्य
+    var dhatu = u.replaceEnd(tin.stem, 'ि', '');
+    if (tin.pada == 'प') {
+        // dhatu = u.replaceEnd(tin.stem, 'िष्य', c.virama);
+    } else {
+        // dhatu = u.replaceEnd(tin.stem, 'िष्य', c.virama);
+    }
+    var beg = tin.stem[0];
+    if (beg == c.a) dhatu = dhatu.slice(1);
+    else if (beg == 'आ') {
+        dhatu = dhatu.slice(1);
+        dhatu = ['अ', dhatu].join('');
+    }
+    /*
+      FIXME: слабая гласная
+     */
+
+
+    // var fin = dhatu.slice(-1);
+    tin.dhatu = addVirama(dhatu);
     // log('D', tin.dhatu, 'pada:', tin.pada, 'S', tin.stem);
 
     var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
