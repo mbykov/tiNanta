@@ -298,6 +298,37 @@ dhatuMethods['01']['आशीर्लिङ्'] = function(tin, query) {
 }
 
 
+// = lfN = benedictive mood
+dhatuMethods['01']['लृङ्'] = function(tin, query) {
+    // log(JSON.stringify(tin)); // आंहिष्यत - आकिष्य
+    var dhatu;
+    if (tin.pada == 'प') {
+        dhatu = u.replaceEnd(tin.stem, 'िष्य', c.virama);
+    } else {
+        dhatu = u.replaceEnd(tin.stem, 'िष्य', c.virama);
+    }
+    /*
+      здесь кроме того гласная - краткая слабая
+     */
+    var beg = tin.stem[0];
+    if (beg == c.a) dhatu = dhatu.slice(1);
+    else if (beg == 'आ') {
+        dhatu = dhatu.slice(1);
+        dhatu = ['अ', dhatu].join('');
+    }
+
+    // var fin = dhatu.slice(-1);
+    // tin.dhatu = addVirama(dhatu);
+    tin.dhatu = dhatu;
+    // log('D', tin.dhatu, 'pada:', tin.pada, 'S', tin.stem);
+
+    var found = _.find(dps, function(d) { return tin.dhatu == d.dhatu && tin.pada == d.pada});
+    // log(111, tin, found);
+    if (!found) return;
+    this.results.push(tin);
+}
+
+
 
 // ======================== SECOND GANA ===========================
 // adAdi !!!
