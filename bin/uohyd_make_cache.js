@@ -55,9 +55,27 @@ var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
 
+
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
-var la_to_test = 'लुङ्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लोट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
-// उव(?+),लिट्
+var gana_to_test = '06';
+var la_to_test = 'आशीर्लिङ्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+
+
+// для 02, 03 нужно писать свой json. Звонкие-глухие, etc
+// law - 04, 05, 06, 08, 09, 10 - годится
+// laN - 04, 05, 06, 09, 10
+// low - 04, 05, 06, 08?, 09, 10
+// vidh - 02, 03, 04, 05, 06, 07, 08, 09, 10
+// liw - 02, 03, 04, 05, 06, 07, 08, 09, 10
+// luw - 02, 03, etc
+// lft - 02, etc
+// a-lin - etc
+
+/*
+  и, наконец.
+  кроме dp и dhatu_anga
+ */
+
 // p(canonicals['01'][la_to_test]);
 // return;
 
@@ -82,12 +100,7 @@ function formsRun(rows) {
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
 
-
-
-
-
-
-        if (gana != '01') return; // ============================ GANA ==============
+        if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
         // if (dhatu != 'अक!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
 
         if (inc(pars, tip)) pada = 'प';
@@ -109,6 +122,9 @@ function formsRun(rows) {
 
     var dicts;
     for (var vkey in heads) {
+        // dhatus do not exist in dtatupatha_cache && rawcomplete. So, I dont know how to correct:
+        if (inc(['इण्-02.0040', 'राधो!-04.0077', 'दृ-05.0037', 'कृप!-10.0278', 'गद-10.0399', 'श्लिष!-10.0059', 'पिश!-10.0105', 'घृ-10.0152', 'पुण!-10.0133', 'ञिमिदा!-10.0012'], vkey)) continue;
+        // можно поправить  राधो!-04.0077 =  राध
         var vhead = heads[vkey];
         var vnest = nests[vkey];
         var ndhatus = vnest.map(function(n) { return n.dhatu});
@@ -122,6 +138,7 @@ function formsRun(rows) {
         if (dicts.length == 0) {
             log('doc head:', vkey, vhead);
             log('dicts:', dicts);
+            // इ॒ण्-इण्-इ-अ-प-अनिट्-02-0041
             // log(4, dps[4]);
             // var dd  = dps[4];
             // log('=', dd.gana == vhead.gana && dd.num == vhead.nem);
@@ -202,7 +219,7 @@ function parseNest(nest, gana) {
             json = parseJSON(sdocs, forms);
             sdocs.forEach(function(sdoc) {
                 doc = {stem: sdoc.stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
-                // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}') log('ERR', doc);
+                // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}' ) log('ERR', doc);
                 var glpkey = [gana, lakara.la, pada].join('-');
                 doc.tvar = parseTvar(glpkey, json);
                 // log('DOC:', doc);
@@ -288,7 +305,6 @@ function parseJSON_(stem, forms) {
         var strs = forms[tip];
         ostin[tip] = [];
         strs.forEach(function(form, idx) {
-            // var tip = idx.toString();
             var stin = form.replace(reStem, '');
             // tinArr.push({tip: tip, tin: stin});
             ostin[tip].push(stin);
@@ -296,7 +312,6 @@ function parseJSON_(stem, forms) {
         ostin[tip] = _.uniq(ostin[tip]);
         // tinArr.push(ostin);
     }
-    // json = tinArr.toString();
     json = JSON.stringify(ostin);
     return json;
 }
@@ -458,7 +473,10 @@ function writeTinCache(endings, canonicals) {
         [gana, la, pada] = glpkey.split('-');
         if (la_to_test && la != la_to_test) continue; // ========================== LAKARA
         var jsons = endings[glpkey].arr;
-        var canons = canonicals[gana][la][pada];
+        // log('>>>>>>>>>>>>', gana, gana == '02', canonicals[gana])
+        var canons; // это - от заполнения таблицы canonicals
+        if (canonicals[gana] && canonicals[gana][la]) canons = canonicals[gana][la][pada];
+        else canons = [];
         // log('=====', glpkey, gana, la, pada, jsons);
         // continue;
         jsons.forEach(function(json, tvar) {
