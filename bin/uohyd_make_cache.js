@@ -436,6 +436,7 @@ function writeTinCache(endings, canonicals) {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
     });
+    tin_logger.write('tip, tin, size, gana, la, pada, tvar, canon, periph \n');
 
     var check = {};
     var tkey;

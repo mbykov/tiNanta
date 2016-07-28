@@ -31,7 +31,7 @@ if (find) log('stemmer find:', lat, form); // लोकृ्-लोक् // �
 else log('stemmer parse:', lat, form);
 
 var queries;
-if (find) queries = stemmer.query(form);
+if (!find) queries = stemmer.query(form);
 else queries = stemmer.parse(form);
 
 // log('============= RESULT-STEMS: ============');
