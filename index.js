@@ -204,7 +204,7 @@ dhatuMethods['01']['विधिलिङ्'] = function(tin, query) {
 /*
 
   я вот чего не понимаю. Если здесь нужно искать в dhatu_anga, то какой смысл в parse-find ?
-  в exception-find - лежат все. В том числе исключения по non-canonical
+  в exception-find - я ищу все. В том числе исключения по non-canonical
   а в dhatu_anga лежат более-менее регулярные stems
   если в d_a anga короче d, (или нет к-л характерного признака) то строку нужно отбросить
   в d_a - характерные стемы, по характерным окончаниям
@@ -213,9 +213,11 @@ dhatuMethods['01']['विधिलिङ्'] = function(tin, query) {
 
   1. беру canon - tins. Смотрю canonical d-a. Но без gana
   2. если нет, беру все tins, смотрю все d-a - это exceptions, по всем параметрам, включая tvar
-  3. если форма образована по правилам, но dhatu-gana нет в DP, она будет обнаружена
+  3. если форма образована по правилам, но dhatu-gana-pada нет в DP, она будет обнаружена
   4. если неизвестная Panini форма - исключение, она не будет обнаружена
 
+  tins: tip, tin, tin.length, gana, la, pada, tvar, tcan, periph, tins (для liw)
+  da: dhatu, stem, gana, pada, tvar, tins
 
   == HERE ==
   записать отдельно tins_cache и canonical_tins_cache ?

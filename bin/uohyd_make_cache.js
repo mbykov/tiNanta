@@ -57,8 +57,8 @@ var endings = {};
 
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
-var gana_to_test = '06';
-var la_to_test = 'आशीर्लिङ्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var gana_to_test = '01';
+var la_to_test = 'लिट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 
 // для 02, 03 нужно писать свой json. Звонкие-глухие, etc
@@ -101,7 +101,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'अक!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+        if (dhatu != 'ध्मा') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -154,8 +154,9 @@ function formsRun(rows) {
                 doc.tvar = ladoc.tvar;
                 // doc.key = vkey;
                 doc.las[ladoc.la] = ladoc.nest;
-                // log('Doc', doc);
                 if (ladoc.periph) doc.periph = true;
+                if (ladoc.tips) doc.tips = ladoc.tips; // strong, weak tips
+                p('Doc', doc);
                 docs.push(doc);
             });
             // if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
@@ -222,7 +223,8 @@ function parseNest(nest, gana) {
                 // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}' ) log('ERR', doc);
                 var glpkey = [gana, lakara.la, pada].join('-');
                 doc.tvar = parseTvar(glpkey, json);
-                // log('DOC:', doc);
+                if (sdoc.tips) doc.tips = sdoc.tips;
+                // log('parse nest DOC:', doc);
                 docs.push(doc);
             });
         }
@@ -417,40 +419,9 @@ function parseRedup(forms, pada) {
     if (strong) wdoc.tips = weaks;
     if (sdoc) docs.push(sdoc);
     docs.push(wdoc);
-    // log('redup:', pada, docs);
+    // log('redup: docs', pada, docs);
     return docs;
 }
-
-function parseRedup_(nest, pada) {
-    // log('LIT REDUP:');
-    var strongs = [];
-    var weaks = [];
-    // log('NN', nest[0], nest[0].tip);
-    var strong, weak, re;
-    if (pada == 'प') {
-        strong = nest[0].form;
-        re = new RegExp('ौ' + '$'); // FIXME: всегда au? не всегда.
-        strong = strong.replace(re, '');
-        re = new RegExp('^' + strong);
-        nest.forEach(function(line) {
-            if (re.test(line.form)) strongs.push(line.tip);
-            else weaks.push(line.tip);
-        });
-    }
-    weak = nest[1].form;
-    re = new RegExp('तुः' + '$');
-    weak = weak.replace(re, '');
-    var sdoc, wdoc;
-    var docs = [];
-    if (strong) sdoc = {stem: strong, tips: strongs};
-    wdoc = {stem: weak};
-    if (weaks.length != nest.length) wdoc.tips = weaks;
-    if (sdoc) docs.push(sdoc);
-    docs.push(weaks);
-    log('redup:', docs);
-    return docs;
-}
-
 
 formsRun();
 
@@ -496,6 +467,7 @@ function writeTinCache(endings, canonicals) {
                     check[tkey] = true;
                     tcan = (canon) ? 1 : 0;
                     periph = (rePeriph.test(tin)) ? 1 : 0;
+                    // ================================= ROW: =====================
                     tinrow = [tip, tin, tin.length, gana, la, pada, tvar, tcan, periph].join('-');
                     tin_logger.write(tinrow);
                     tin_logger.write('\n');
@@ -509,17 +481,18 @@ function writeTinCache(endings, canonicals) {
 }
 
 
-// этот cache - только для поиска исключений:
+//
 function writeDhatuAnga(docs) {
     fs.unlinkSync(dhatuAngaCachePath);
     var da_logger = fs.createWriteStream(dhatuAngaCachePath, {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
     });
+    da_logger.write('dhatu, stem, gana, la, pada, tvar, tins, sha1\n');
     var check = {};
     docs.forEach(function(doc) {
-        // log('DOC', doc);
-        var shamsg = [doc.stem, doc.gana, doc.pada, doc.tvar].join('-');
+        // log('DA', doc);
+        var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
         var shakey = sha1(shamsg);
         var row = [doc.dhatu, shamsg, shakey].join('-');
         if (!check[row]) {
