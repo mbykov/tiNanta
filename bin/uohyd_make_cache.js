@@ -156,7 +156,7 @@ function formsRun(rows) {
                 doc.las[ladoc.la] = ladoc.nest;
                 if (ladoc.periph) doc.periph = true;
                 if (ladoc.tips) doc.tips = ladoc.tips; // strong, weak tips
-                p('NEST Doc', doc);
+                // p('NEST Doc', doc);
                 docs.push(doc);
             });
             // if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
@@ -535,7 +535,7 @@ function writeTestsCache(docs) {
                     if (check[key]) return;
                     check[key] = true;
 
-                    sres = stemmer.parse(form);
+                    sres = stemmer.query(form);
                     sdhatus = sres.map(function(r) { return r.dhatu});
                     if (!inc(sdhatus, doc.dhatu)) excep = 1;
                     // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);

@@ -90,11 +90,9 @@ stemmer.prototype.query = function(query) {
         fit = (size == 0) ? '' : query.slice(-size);
         if (fit == tin) {
             oFit = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, canon: canon, periph: periph};
-            // log(1, JSON.stringify(oFit));
             fits.push(oFit);
         }
     });
-    // return [];
 
     var results = [];
     var das = [];
@@ -112,9 +110,8 @@ stemmer.prototype.query = function(query) {
                 if (tips && !inc(tips.split(','), tin.tip)) return;
                 tin.dhatu = dhatu;
                 das.push(tin);
-            } // ; // && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar;
+            }
         });
-        return;
     });
     // log('DAS', das);
 
@@ -147,44 +144,44 @@ function noDaErr(stem, tins) {
 
 
 
-function vowCount(str) {
-    var syms = str.split('');
-    var vows = (u.c(c.allvowels, syms[0])) ? 1 : 0;
-    syms.forEach(function(s) {
-        if (u.c(c.hal, s)) vows+=1;
-        else if (c.virama == s) vows-=1;
-    });
-    return vows;
-}
+// function vowCount(str) {
+//     var syms = str.split('');
+//     var vows = (u.c(c.allvowels, syms[0])) ? 1 : 0;
+//     syms.forEach(function(s) {
+//         if (u.c(c.hal, s)) vows+=1;
+//         else if (c.virama == s) vows-=1;
+//     });
+//     return vows;
+// }
 
-function addVirama(str) {
-    return [str, c.virama].join('');
-}
+// function addVirama(str) {
+//     return [str, c.virama].join('');
+// }
 
-// FIXME: FIXME: это в sandhi.utils, сделать симлинк <<<<<<<<<<< ===========================================
-// semivow, vow, liga, dirgha, dl, guna, gl, vriddhi, vl
-var Const = {};
-Const.vowtable = [
-    '-अ-आा',
-    'यइिईीएेऐै',
-    'वउुऊूओोऔौ',
-    'रऋृॠॄ',
-    'लऌॢ--', // dirgha-F? dliga?
-];
+// // FIXME: FIXME: это в sandhi.utils, сделать симлинк <<<<<<<<<<< ===========================================
+// // semivow, vow, liga, dirgha, dl, guna, gl, vriddhi, vl
+// var Const = {};
+// Const.vowtable = [
+//     '-अ-आा',
+//     'यइिईीएेऐै',
+//     'वउुऊूओोऔौ',
+//     'रऋृॠॄ',
+//     'लऌॢ--', // dirgha-F? dliga?
+// ];
 
-function aguna(sym) {
-    var row = vowrow(sym);
-    var idx = row.indexOf(sym);
-    if (idx == 5) return row[2];
-}
+// function aguna(sym) {
+//     var row = vowrow(sym);
+//     var idx = row.indexOf(sym);
+//     if (idx == 5) return row[2];
+// }
 
-function vowrow(sym) {
-    return _.find(Const.vowtable, function(row) {
-        return (row.indexOf(sym) > -1);
-    }) || '';
-}
+// function vowrow(sym) {
+//     return _.find(Const.vowtable, function(row) {
+//         return (row.indexOf(sym) > -1);
+//     }) || '';
+// }
 
-// FIXME: тут u.isViga
-function isLiga(sym) {
-    return inc(c.allligas, sym);
-}
+// // FIXME: тут u.isViga
+// function isLiga(sym) {
+//     return inc(c.allligas, sym);
+// }

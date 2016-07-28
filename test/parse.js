@@ -54,7 +54,7 @@ function _Fn(test) {
         // var title = [fslp, test.lslp, test.pslp, form, test.la, 'tip', test.tip].join('_');
         var title = [test.form, test.gana, test.la, test.pada, 'tip', test.tip].join('_');
         it(title, function() {
-            results = stemmer.parse(form);
+            results = stemmer.query(form);
             // results.length.should.equal(1);
             // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
             var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
