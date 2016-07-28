@@ -324,7 +324,6 @@ function parseJSON_(stem, forms) {
     return json;
 }
 
-// function parseTvar(gana, la, laDoc) {
 function parseTvar(glpkey, json) {
     // var pada = laDoc.pada;
     // var json = laDoc.json;

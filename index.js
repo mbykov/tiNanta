@@ -125,6 +125,7 @@ stemmer.prototype.query = function(query) {
             }
         });
     });
+    if (das.length == 0) noDaErr(query, fits);
     // log('DAS', das);
     // return [];
 
