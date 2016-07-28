@@ -94,7 +94,10 @@ stemmer.prototype.query = function(query) {
         }
     });
 
-    var results = [];
+    // log(fits);
+    // return [];
+
+    // var results = [];
     var das = [];
     // log('DAS', dhatuAnga);
     var dhatu, stem, gana, la, pada, tvar, tips, sha1;
@@ -104,17 +107,26 @@ stemmer.prototype.query = function(query) {
         // log('tip', tin.tip, tin.tin == '', 2, stem);
         dhatuAnga.forEach(function(da) {
             if (da == '') return;
+
+            // ईष्-ऐष-01-लङ्-प-0--1330d3b410c0d98133878fab9ab00ad9c094158f
+            // ईष्-ऐष-01-लङ्-आ-0--ff24b9526c0aa1def334c473e4471aaa91e4badb
+
+            // err-test: ईष् ऐषत key ईष्-लङ्-आ-त [ 'एष्-लङ्-आ-त', 'एष्-लङ्-आ-त', 'ईष्-लङ्-प-थ' ]
+
             [dhatu, stem, gana, la, pada, tvar, tips, sha1] = da.split('-');
-            if (stem == tin.stem && la == tin.la && pada == tin.pada && tvar == tvar) {
+            if (stem == tin.stem && la == tin.la && pada == tin.pada && tvar == tin.tvar) {
+
                 // log('TIPS', tips, tips.split(','), !inc(tips.split(','), tin.tip), 3, tin.tip);
                 if (tips && !inc(tips.split(','), tin.tip)) return;
                 tin.dhatu = dhatu;
-                das.push(tin);
+                // log('DA', da);
+                var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: tin.dhatu};
+                das.push(res);
             }
         });
     });
     // log('DAS', das);
-
+    // return [];
 
     return das;
 }

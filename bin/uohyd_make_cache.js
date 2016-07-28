@@ -58,7 +58,7 @@ var endings = {};
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
 var gana_to_test = '01';
-var la_to_test = 'लिट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var la_to_test = 'लङ्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 
 // для 02, 03 нужно писать свой json. Звонкие-глухие, etc
@@ -101,7 +101,14 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        if (dhatu != 'ध्रज!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+        // if (dhatu != 'ईष!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+
+        // ईष्-ऐष-01-लङ्-प-0--1330d3b410c0d98133878fab9ab00ad9c094158f
+        // ईष्-ऐष-01-लङ्-आ-0--ff24b9526c0aa1def334c473e4471aaa91e4badb
+        // test - ऐषत-ईष्-01-लङ्-आ-त-0
+        // tins - त-त-1-01-लङ्-आ-0-1-0 ;; थ-त-1-01-लङ्-प-0-1-0
+
+
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -123,7 +130,7 @@ function formsRun(rows) {
     var dicts;
     for (var vkey in heads) {
         // dhatus do not exist in dtatupatha_cache && rawcomplete. So, I dont know how to correct:
-        if (inc(['इण्-02.0040', 'राधो!-04.0077', 'दृ-05.0037', 'कृप!-10.0278', 'गद-10.0399', 'श्लिष!-10.0059', 'पिश!-10.0105', 'घृ-10.0152', 'पुण!-10.0133', 'ञिमिदा!-10.0012'], vkey)) continue;
+        // if (inc(['इण्-02.0040', 'राधो!-04.0077', 'दृ-05.0037', 'कृप!-10.0278', 'गद-10.0399', 'श्लिष!-10.0059', 'पिश!-10.0105', 'घृ-10.0152', 'पुण!-10.0133', 'ञिमिदा!-10.0012'], vkey)) continue;
         // можно поправить  राधो!-04.0077 =  राध
         var vhead = heads[vkey];
         var vnest = nests[vkey];
