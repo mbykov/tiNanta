@@ -90,44 +90,49 @@ stemmer.prototype.query = function(query) {
         fit = (size == 0) ? '' : query.slice(-size);
         if (fit == tin) {
             oFit = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, canon: canon, periph: periph};
-            log(1, JSON.stringify(oFit));
+            // log(1, JSON.stringify(oFit));
             fits.push(oFit);
         }
     });
-    return [];
+    // return [];
 
     var results = [];
-    var res, stem, das;
-    log('DAS', dhatuAnga);
-    fits.forEach(function(fit) {
-        // log('FIT', fit);
-        stem = (fit.size == 0) ? query : query.slice(0, -fit.size);
-        log('tip', tip, 2, stem);
-        return;
-        das = _.select(dhatuAnga, function(da) { return da.stem == stem && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar});
-        // if (das.length == 0) noDaErr(stem, fits);
-        das.forEach(function(da) {
-            res = {dhatu: da.dhatu, stem: stem, tip: tin.tip, tin: tin.tin, la: tin.la, pada: tin.pada };
-            results.push(res);
+    var das = [];
+    // log('DAS', dhatuAnga);
+    var dhatu, stem, gana, la, pada, tvar, tips, sha1;
+    fits.forEach(function(tin) {
+        // log('FIT', tin);
+        tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
+        // log('tip', tin.tip, tin.tin == '', 2, stem);
+        dhatuAnga.forEach(function(da) {
+            if (da == '') return;
+            [dhatu, stem, gana, la, pada, tvar, tips, sha1] = da.split('-');
+            if (stem == tin.stem && la == tin.la && pada == tin.pada && tvar == tvar) {
+                // log('TIPS', tips, tips.split(','), !inc(tips.split(','), tin.tip), 3, tin.tip);
+                if (tips && !inc(tips.split(','), tin.tip)) return;
+                tin.dhatu = dhatu;
+                das.push(tin);
+            } // ; // && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar;
         });
+        return;
     });
+    // log('DAS', das);
 
-    // log('R', results); // ==>>  बुधिर्_buDir aboDizyAma_XN_parasmE_अबोधिष्याम_ॡङ्_tip_मस्:
 
-    return results;
+    return das;
 }
 
 // ====================================
 
-function noDaErr(stem, fits) {
+function noDaErr(stem, tins) {
     log('ERR', stem);
-    log('ERR', fits);
+    log('ERR', tins);
 }
 
 
 // if (debug && results.length == 0) {
 //     log('==========>>>> no DA stem:'); // मोदिता
-//     log('fits:', fits);
+//     log('tins:', tins);
 //     var possible_stems = [];
 //     var tmp;
 //     fits.forEach(function(tin) {
