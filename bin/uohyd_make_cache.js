@@ -101,13 +101,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        if (dhatu != 'डुधाञ्') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
-
-        // ईष्-ऐष-01-लङ्-प-0--1330d3b410c0d98133878fab9ab00ad9c094158f
-        // ईष्-ऐष-01-लङ्-आ-0--ff24b9526c0aa1def334c473e4471aaa91e4badb
-        // test - ऐषत-ईष्-01-लङ्-आ-त-0
-        // tins - त-त-1-01-लङ्-आ-0-1-0 ;; थ-त-1-01-लङ्-प-0-1-0
-
+        // if (dhatu != 'ऋ') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
 
 
         if (inc(pars, tip)) pada = 'प';
@@ -206,19 +200,20 @@ function parseNest(nest, gana) {
     lakaras.forEach(function(lakara) {
         if (la_to_test && lakara.la != la_to_test) return; // ================= LA TO TEST ============ <<<
 
-        // log('F==================', lakara.la); // lakara.nest
+        // log('FF==================', lakara.la); // lakara.nest
         laForms = parseLakara(lakara.nest);
         // log('F', laForms); // lakara.nest
         for (var pada in laForms) {
             var forms = laForms[pada];
             // log('F', forms);
-            if (gana == '03') {
+            stem = parseStem(forms);
+            if (gana == '03' && stem != '') {
                 sdocs = parseRedup(forms, pada);
             } else if (lakara.la == 'लिट्') {
                 sdocs = parseStemLiwPeriph(forms);
-                if (!sdocs) sdocs = parseRedup(forms, pada);
+                if (!sdocs && stem != '') sdocs = parseRedup(forms, pada);
             } else {
-                stem = parseStem(forms);
+                // stem = parseStem(forms);
                 if (lakara.la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
                 else if (lakara.la == 'लृट्') {
                     stem = stem.replace('ष्य', '').replace('स्य', '');
@@ -317,26 +312,26 @@ function parseJSON(sdocs, forms) {
 }
 
 
-function parseJSON_(stem, forms) {
-    var reStem = new RegExp('^' + stem);
-    var tinArr = [];
-    var json;
-    // { 'तिप्': [ 'ज्योतति' ],
-    var ostin = {};
-    for (var tip in forms) {
-        var strs = forms[tip];
-        ostin[tip] = [];
-        strs.forEach(function(form, idx) {
-            var stin = form.replace(reStem, '');
-            // tinArr.push({tip: tip, tin: stin});
-            ostin[tip].push(stin);
-        });
-        ostin[tip] = _.uniq(ostin[tip]);
-        // tinArr.push(ostin);
-    }
-    json = JSON.stringify(ostin);
-    return json;
-}
+// function parseJSON_(stem, forms) {
+//     var reStem = new RegExp('^' + stem);
+//     var tinArr = [];
+//     var json;
+//     // { 'तिप्': [ 'ज्योतति' ],
+//     var ostin = {};
+//     for (var tip in forms) {
+//         var strs = forms[tip];
+//         ostin[tip] = [];
+//         strs.forEach(function(form, idx) {
+//             var stin = form.replace(reStem, '');
+//             // tinArr.push({tip: tip, tin: stin});
+//             ostin[tip].push(stin);
+//         });
+//         ostin[tip] = _.uniq(ostin[tip]);
+//         // tinArr.push(ostin);
+//     }
+//     json = JSON.stringify(ostin);
+//     return json;
+// }
 
 function parseTvar(glpkey, json) {
     // var pada = laDoc.pada;
@@ -395,36 +390,64 @@ function parseStemLiwPeriph(forms) {
   - сформировать strongs-weaks массивы ? зачем, все stems уже известны и там. Проверить совпадение stems?
   - вернуть {strong: strong, weak: weak};
   - или [{stem: stem, strong: true}, {stem: stem, tips: [tip, sip, mip], {остальные, mip-оба} };
-  - не tips, а tins ?
+  -
 */
 function parseRedup(forms, pada) {
-    // if (pada == 'आ') return [];
-    // log('LIT REDUP:', forms); // 'जह्वरुः',
+    // log('LIT REDUP:', forms);
+    // here stem != ''; i.e. not exception
     var strongs = [];
     var weaks = [];
     var strong, weak, re, rew;
     var form2;
+    var sdoc, wdoc, zero;
+    var docs = [];
     if (pada == 'प') {
         strong = forms['तिप्'][0];
         weak = forms['झि'][0] ;
         re = new RegExp('ौ' + '$'); // FIXME: всегда au? не всегда.
         strong = strong.replace(re, '');
-        rew = new RegExp('ुः' + '$'); // FIXME: всегда au? не всегда.
+        re = new RegExp('ति' + '$'); // gana 03
+        strong = strong.replace(re, '');
+        // log('STRONG', strong);
+
+        rew = new RegExp('ुः' + '$'); // weak
         weak = weak.replace(rew, '');
+        rew = new RegExp('ति' + '$'); // gana 03
+        weak = weak.replace(rew, '');
+        // log('WEAK', weak);
+
         re = new RegExp('^' + strong);
+        rew = new RegExp('^' + weak);
         for (var tip in forms) {
             form2 = forms[tip];
             form2.forEach(function(form) {
                 if (re.test(form)) strongs.push(tip);
-                else weaks.push(tip);
+                if (rew.test(form)) weaks.push(tip);
+                else zero = true;
                 // log('------------------------------------', tip, form, weaks.length);
             });
         }
+
+        if (zero) docs.push({stem: ''}); // exception
+        else {
+            // FIXME: очень коряво, поправить
+            // хотя работае правильно
+            if (strong) sdoc = {stem: strong, tips: strongs};
+            wdoc = {stem: weak};
+            if (strong) wdoc.tips = weaks;
+            if (strong) docs.push(sdoc);
+            if (strong != weak) docs.push(wdoc);
+        }
+
     } else {
+        // log('======================= AAA');
         weak = forms['झ'][0] ;
         re = new RegExp('िरे' + '$');
         weak = weak.replace(re, '');
         re = new RegExp('रे' + '$');
+        weak = weak.replace(re, '');
+
+        re = new RegExp('ते' + '$'); // gana 03
         weak = weak.replace(re, '');
         for (var tip in forms) {
             form2 = forms[tip];
@@ -432,16 +455,10 @@ function parseRedup(forms, pada) {
                 weaks.push(tip);
             });
         }
+        wdoc = {stem: weak};
+        docs.push(wdoc);
     }
-
-    var sdoc, wdoc;
-    var docs = [];
-    if (strong) sdoc = {stem: strong, tips: strongs};
-    wdoc = {stem: weak};
-    if (strong) wdoc.tips = weaks;
-    if (sdoc) docs.push(sdoc);
-    if (strong != weak) docs.push(wdoc);
-    // log('Redup docs:', pada, docs);
+    // log('DDD', docs);
     return docs;
 }
 

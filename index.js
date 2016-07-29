@@ -104,14 +104,9 @@ stemmer.prototype.query = function(query) {
     fits.forEach(function(tin) {
         tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
         // log('FIT, stem:', tin.stem, JSON.stringify(tin));
+
         dhatuAnga.forEach(function(da) {
             if (da == '') return;
-
-            // ईष्-ऐष-01-लङ्-प-0--1330d3b410c0d98133878fab9ab00ad9c094158f
-            // ईष्-ऐष-01-लङ्-आ-0--ff24b9526c0aa1def334c473e4471aaa91e4badb
-
-            // err-test: ईष् ऐषत key ईष्-लङ्-आ-त [ 'एष्-लङ्-आ-त', 'एष्-लङ्-आ-त', 'ईष्-लङ्-प-थ' ]
-
             [dhatu, stem, gana, la, pada, tvar, tips, sha1] = da.split('-');
             if (stem == tin.stem && la == tin.la && pada == tin.pada) { //  && tvar == tin.tvar
 
