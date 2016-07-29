@@ -57,8 +57,8 @@ var endings = {};
 
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
-var gana_to_test = '01';
-var la_to_test = 'लङ्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var gana_to_test = '03';
+var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 
 // для 02, 03 нужно писать свой json. Звонкие-глухие, etc
@@ -101,7 +101,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        if (dhatu != 'अक्षू!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+        if (dhatu != 'डुधाञ्') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
 
         // ईष्-ऐष-01-लङ्-प-0--1330d3b410c0d98133878fab9ab00ad9c094158f
         // ईष्-ऐष-01-लङ्-आ-0--ff24b9526c0aa1def334c473e4471aaa91e4badb
@@ -151,9 +151,12 @@ function formsRun(rows) {
             // log('=', dd.gana == vhead.gana && dd.num == vhead.nem);
             throw new Error();
         }
-        dicts.forEach(function(dict) {
-            laDocs = parseNest(vnest, vhead.gana);
-            laDocs.forEach(function(ladoc) {
+        // log('DPS', dicts);
+
+        // dicts.forEach(function(dict) {
+        laDocs = parseNest(vnest, vhead.gana);
+        laDocs.forEach(function(ladoc) {
+            dicts.forEach(function(dict) {
                 doc = {dhatu: dict.dhatu, gana: vhead.gana, num: vhead.num, las: {}};
                 doc.stem = ladoc.stem;
                 doc.la = ladoc.la;
@@ -165,11 +168,9 @@ function formsRun(rows) {
                 if (ladoc.tips) doc.tips = ladoc.tips; // strong, weak tips
                 // p('NEST Doc', doc);
                 docs.push(doc);
-            });
-            // if (dict.dhatu == 'व्यय्') log('DHATU:', vkey, 'vh', vhead, 'dict', dict, 'doc');
+                });
         });
-
-        // vnest.forEach(function(n) { n.dhatu = cleandhatu});
+        // });
     }
 
     log('doc:', docs.length);
@@ -190,21 +191,30 @@ function parseNest(nest, gana) {
     var laForms;
     var re;
     _.keys(laks).forEach(function(la) {
+        if (la_to_test && la != la_to_test) return; // ================= LA TO TEST ============ <<<
+        // log('LA', la);
         lanest = _.select(nest, function(line) { return line.la == la});
         lakaras.push({la: la, nest: lanest});
     });
     // p(lakaras);
+    // log(1, laks);
+    // log(2, _.keys(laks));
+    // return [];
 
     var docs = [];
     var doc, stem, sdocs, json;
     lakaras.forEach(function(lakara) {
         if (la_to_test && lakara.la != la_to_test) return; // ================= LA TO TEST ============ <<<
 
+        // log('F==================', lakara.la); // lakara.nest
         laForms = parseLakara(lakara.nest);
+        // log('F', laForms); // lakara.nest
         for (var pada in laForms) {
             var forms = laForms[pada];
             // log('F', forms);
-            if (lakara.la == 'लिट्') {
+            if (gana == '03') {
+                sdocs = parseRedup(forms, pada);
+            } else if (lakara.la == 'लिट्') {
                 sdocs = parseStemLiwPeriph(forms);
                 if (!sdocs) sdocs = parseRedup(forms, pada);
             } else {
@@ -224,6 +234,7 @@ function parseNest(nest, gana) {
             }
             // log('SDocs', sdocs);
             json = parseJSON(sdocs, forms);
+            // log('JSON', sdocs);
             sdocs.forEach(function(sdoc) {
                 doc = {stem: sdoc.stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
                 // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}' ) log('ERR', doc);
@@ -243,7 +254,7 @@ function parseNest(nest, gana) {
 function parseLakara(nest) {
     // log('la nest size:', nest.length);
     var forms = {};
-    var docs = [];
+    // var docs = [];
     nest.forEach(function(line) {
         if (inc(pars, line.tip)) {
             if (!forms['प']) forms['प'] = {};
@@ -290,15 +301,18 @@ function parseJSON(sdocs, forms) {
             form2.forEach(function(form, idx) {
                 var reStem = new RegExp('^' + sdoc.stem);
                 var stin = form.replace(reStem, '');
+                // var size = sdoc.stem.length;
+                // var stin
                 // log('SSS', tip, 2, stin, form, stin == form);
-                if (stin == form) ostin[tip].push(''); // не тот mip-tin
-                else ostin[tip].push(stin);
+                // if (stin == form) ostin[tip].push(form); // не тот mip-tin
+                // else ostin[tip].push(stin);
+                ostin[tip].push(stin);
             });
             ostin[tip] = _.uniq(ostin[tip]);
         });
     }
     json = JSON.stringify(ostin);
-    // log('JSON', json);
+    // log('JSON=', json);
     return json;
 }
 
@@ -508,7 +522,7 @@ function writeDhatuAnga(docs) {
         var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
         var shakey = sha1(shamsg);
         var row = [doc.dhatu, shamsg, shakey].join('-');
-        log('DA ROW', row);
+        // log('DA ROW', row);
         if (!check[row]) {
             check[row] = true;
             da_logger.write(row);
@@ -518,8 +532,6 @@ function writeDhatuAnga(docs) {
     da_logger.end();
 }
 
-// {"form":"दोग्धि","dhatu":"दुह्","gana":"अदादि","la":"लट्","pada":"प.प","tip":"तिप्","dslp":"duh","lslp":"law","aslp":"prapUraRe","gslp":"adAd
-// test = {form: form, dhatu: dhatu, gana: gana, la: la, pada: pada, tip: tip, dslp: dslp, lslp: lslp, aslp: aslp, gslp: gslp, pslp: pslp};
 function writeTestsCache(docs) {
     fs.unlinkSync(testsCachePath);
     var test_logger = fs.createWriteStream(testsCachePath, {
@@ -547,10 +559,10 @@ function writeTestsCache(docs) {
                     if (check[key]) return;
                     check[key] = true;
 
-                    sres = stemmer.query(form);
-                    sdhatus = sres.map(function(r) { return r.dhatu});
-                    if (!inc(sdhatus, doc.dhatu)) excep = 1;
-                    // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
+                    // sres = stemmer.query(form);
+                    // sdhatus = sres.map(function(r) { return r.dhatu});
+                    // if (!inc(sdhatus, doc.dhatu)) excep = 1;
+                    // // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
 
                     row = [form, doc.dhatu, doc.gana, doc.la, doc.pada, tip, excep].join('-');
                     // if (n.form == 'व्ययति') log('R', row);
@@ -560,28 +572,10 @@ function writeTestsCache(docs) {
                     size += 1;
                 });
             }
-            // nest.forEach(function(n) {
-            //     var excep = 0;
-            //     key = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip].join('-');
-            //     if (check[key]) return;
-            //     check[key] = true;
-
-            //     sres = stemmer.parse(n.form);
-            //     sdhatus = sres.map(function(r) { return r.dhatu});
-            //     if (!inc(sdhatus, doc.dhatu)) excep = 1;
-            //     // if (n.form == 'व्ययति') log('NN', inc(sdhatus, doc.dhatu), 'doc', doc, 'res', sres, 'n:', n);
-
-            //     row = [n.form, doc.dhatu, n.gana, n.la, n.pada, n.tip, excep].join('-');
-            //     // if (n.form == 'व्ययति') log('R', row);
-            //     // log('R', row);
-            //     test_logger.write(row);
-            //     test_logger.write('\n');
-            //     size += 1;
-            // });
         }
     });
     test_logger.end();
-    log('Tsize:', size);
+    log('Tests size:', size);
 }
 
 function vowCount(str) {

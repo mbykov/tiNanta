@@ -1,2 +1,4 @@
-dhatu, stem, gana, la, pada, tvar, tins, sha1
-अक्ष्-आक्ष-01-लङ्-प-0--26b0b5e366b9c8b4db7c1163bffd47bd67d00e10
+dhatu, stem, gana, la, pada, tvar, tips, sha1
+धा-दधाति-03-लट्-प-0-तिप्-774db871d45eebc72dc3c914ff6ecaa747526b38
+धा-दधति-03-लट्-प-0-तस्,झि,सिप्,थस्,थ,मिप्,वस्,मस्-417c9a2b42b543d9667dae66472cb2a55143c612
+धा-दधते-03-लट्-आ-0--54677dc6e02e55d86178ddeda706cefe8c7690f7

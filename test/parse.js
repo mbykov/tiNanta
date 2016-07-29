@@ -59,7 +59,7 @@ function _Fn(test) {
             // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
             var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
             var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
-            if (!inc(rkeys, key)) log('err-test:', test.dhatu, test.form, 'key', key, rkeys);
+            if (!inc(rkeys, key)) log('err-test dhatu:', test.dhatu, 'form:', test.form, 'key', key, rkeys);
             inc(rkeys, key).should.equal(true);
         });
     });
