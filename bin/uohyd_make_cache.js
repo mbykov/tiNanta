@@ -57,7 +57,7 @@ var endings = {};
 
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
-var gana_to_test = '03';
+var gana_to_test = '01';
 var la_to_test;
 // var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
@@ -205,6 +205,7 @@ function parseNest(nest, gana) {
             var forms = laForms[pada];
             var excep = false;
             // log('F', forms);
+            // с ексепом тут швах, переписать
             stem = parseStem(forms);
             if (stem.length < 2) excep = true;
             if (gana == '03' && !excep) {

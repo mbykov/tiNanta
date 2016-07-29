@@ -41,29 +41,28 @@ var p = u.p;
 */
 
 
-var lakaras = ['law', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+// var lakaras = ['law', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 // var ctinsPath = path.join(__dirname, './lib/canonical_tins_cache.js');
-var tinsPath = path.join(__dirname, './lib/tins_cache.js');
-var ctins = fs.readFileSync(tinsPath).toString().split('\n');
-// для parse есть два путя. Либо читать canonical, либо все tins, но отбрасывать can=0
-// log(ctins);
 
-// var jnuTinsEx = require(jnuTinsPath);
-var dhatuAngaPath = path.join(__dirname, './lib/dhatu_anga_cache.txt');
-var dhatuAnga = fs.readFileSync(dhatuAngaPath).toString().split('\n');
+// var tinsPath = path.join(__dirname, './lib/tins_cache.js');
+// var ctins = fs.readFileSync(tinsPath).toString().split('\n');
 
-var dhatupathaPath = path.join(__dirname, './lib/dhatupatha_cache.txt');
-var dhpths = fs.readFileSync(dhatupathaPath).toString().split('\n');
-// अ॑हिँ॒-अहि-अंह्-भ्वा-आ-सेट्-01-0722
-var dp, adp;
-var dps = dhpths.map(function(row) {
-    if (!row || row == '') return;
-    adp = row.split('-');
-    dp = {dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]}; // dp: adp[0], raw: adp[1],
-    // if (!dp.raw) log('NN', row, dp);
-    return dp;
-});
-dps = _.compact(dps);
+// // var jnuTinsEx = require(jnuTinsPath);
+// var dhatuAngaPath = path.join(__dirname, './lib/dhatu_anga_cache.txt');
+// var das = fs.readFileSync(dhatuAngaPath).toString().split('\n');
+
+// var dhatupathaPath = path.join(__dirname, './lib/dhatupatha_cache.txt');
+// var dhpths = fs.readFileSync(dhatupathaPath).toString().split('\n');
+
+// var dp, adp;
+// var dps = dhpths.map(function(row) {
+//     if (!row || row == '') return;
+//     adp = row.split('-');
+//     dp = {dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]}; // dp: adp[0], raw: adp[1],
+//     // if (!dp.raw) log('NN', row, dp);
+//     return dp;
+// });
+// dps = _.compact(dps);
 
 
 exports = module.exports = stemmer();
@@ -77,7 +76,7 @@ function stemmer() {
 // =========================================== QUERY
 
 // переименовать в find, и в run.js тоже
-stemmer.prototype.query = function(query) {
+stemmer.prototype.query = function(query, ctins, das) {
     // log('tiNanta', query);
     // 1. выбираю подходящие tins:
     var fits = [];
@@ -95,13 +94,13 @@ stemmer.prototype.query = function(query) {
     });
 
     // все в один цикл:
-    var das = [];
+    var results = [];
     var dhatu, stem, gana, la, pada, tvar, tips, sha1;
     fits.forEach(function(tin) {
         tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
         // log('FIT, stem:', tin.stem, JSON.stringify(tin));
 
-        dhatuAnga.forEach(function(da) {
+        das.forEach(function(da) {
             if (da == '') return;
             [dhatu, stem, gana, la, pada, tvar, tips, sha1] = da.split('-');
             if (stem == tin.stem && la == tin.la && pada == tin.pada && tvar == tin.tvar) { //  && tvar == tin.tvar
@@ -109,14 +108,14 @@ stemmer.prototype.query = function(query) {
                 // tin.dhatu = dhatu;
                 // log('DA', da);
                 var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tvar, stem: tin.stem, dhatu: dhatu};
-                das.push(res);
+                results.push(res);
             }
         });
     });
-    // if (das.length == 0) noDaErr(query, fits);
-    // log('DAS', das);
+    // if (results.length == 0) noDaErr(query, fits);
+    // log('DAS', results);
 
-    return das;
+    return results;
 }
 
 // ====================================
@@ -125,63 +124,3 @@ function noDaErr(stem, tins) {
     log('ERR', stem);
     log('ERR', tins);
 }
-
-
-// if (debug && results.length == 0) {
-//     log('==========>>>> no DA stem:'); // मोदिता
-//     log('tins:', tins);
-//     var possible_stems = [];
-//     var tmp;
-//     fits.forEach(function(tin) {
-//         stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
-//         tmp = _.select(jnuDhatuAnga, function(da) { return da.stem == stem});
-//         possible_stems = possible_stems.concat(tmp);
-//     });
-//     log('==========>>>> possible stems: ');
-//     log(possible_stems);
-//     // throw new Error('ERR: ==>> no tins - angas');
-// }
-
-
-
-// function vowCount(str) {
-//     var syms = str.split('');
-//     var vows = (u.c(c.allvowels, syms[0])) ? 1 : 0;
-//     syms.forEach(function(s) {
-//         if (u.c(c.hal, s)) vows+=1;
-//         else if (c.virama == s) vows-=1;
-//     });
-//     return vows;
-// }
-
-// function addVirama(str) {
-//     return [str, c.virama].join('');
-// }
-
-// // FIXME: FIXME: это в sandhi.utils, сделать симлинк <<<<<<<<<<< ===========================================
-// // semivow, vow, liga, dirgha, dl, guna, gl, vriddhi, vl
-// var Const = {};
-// Const.vowtable = [
-//     '-अ-आा',
-//     'यइिईीएेऐै',
-//     'वउुऊूओोऔौ',
-//     'रऋृॠॄ',
-//     'लऌॢ--', // dirgha-F? dliga?
-// ];
-
-// function aguna(sym) {
-//     var row = vowrow(sym);
-//     var idx = row.indexOf(sym);
-//     if (idx == 5) return row[2];
-// }
-
-// function vowrow(sym) {
-//     return _.find(Const.vowtable, function(row) {
-//         return (row.indexOf(sym) > -1);
-//     }) || '';
-// }
-
-// // FIXME: тут u.isViga
-// function isLiga(sym) {
-//     return inc(c.allligas, sym);
-// }
