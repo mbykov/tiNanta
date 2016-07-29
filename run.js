@@ -53,11 +53,13 @@ var ctins = fs.readFileSync(tinsPath).toString().split('\n');
 // dps = _.compact(dps);
 
 
-
+console.time("queryTime");
 var queries;
 if (!find) queries = stemmer.query(form, ctins, das);
 else queries = stemmer.parse(form);
 
-// log('============= RESULT-STEMS: ============');
+// ==============
 p(queries);
 log('qs size:', queries.length);
+
+console.timeEnd("queryTime");

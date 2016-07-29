@@ -16,6 +16,8 @@ var log = u.log;
 var p = u.p;
 var stemmer = require('../index');
 
+var das, ctins;
+
 var testPath = path.join(__dirname, './tests_cache.txt');
 // var dataPath = path.join(__dirname, '../lib/jnu-tiNanta-values.txt');
 // var rows = fs.readFileSync(dataPath).toString().split('\n');
@@ -29,6 +31,15 @@ var tips = {
 var tests = fs.readFileSync(testPath).toString().split('\n');
 log('TS', tests.length);
 // p(tests.slice(0,5));
+
+before(function() {
+    var dhatuAngaPath = path.join(__dirname, '../lib/dhatu_anga_cache.txt');
+    das = fs.readFileSync(dhatuAngaPath).toString().split('\n');
+
+    var tinsPath = path.join(__dirname, '../lib/tins_cache.js');
+    ctins = fs.readFileSync(tinsPath).toString().split('\n');
+
+});
 
 
 // अंहते-अहि!-01-लट्-आ-त
@@ -54,7 +65,7 @@ function _Fn(test) {
         // var title = [fslp, test.lslp, test.pslp, form, test.la, 'tip', test.tip].join('_');
         var title = [test.form, test.gana, test.la, test.pada, 'tip', test.tip].join('_');
         it(title, function() {
-            results = stemmer.query(form);
+            results = stemmer.query(form, ctins, das);
             // results.length.should.equal(1);
             // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
             var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
