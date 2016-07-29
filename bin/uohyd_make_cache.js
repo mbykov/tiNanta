@@ -503,14 +503,20 @@ function writeDhatuAnga(docs) {
     var check = {};
     docs.forEach(function(doc) {
         // log('DA', doc);
-        // var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar].join('-'); // , doc.tips
-        var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
+
+        /*
+          может быть, здесь сделать уникальный stem только? а остальное в строку?
+         */
+
+
+        // var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
+        var key = [doc.stem, doc.pada, doc.tvar].join('-'); // , doc.tips
         // var shakey = sha1(shamsg);
         // var row = [doc.dhatu, shamsg, shakey].join('-');
-        var row = [doc.dhatu, shamsg].join('-');
+        var row = [doc.dhatu, doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
         // log('DA ROW', row);
-        if (!check[row]) {
-            check[row] = true;
+        if (!check[key]) {
+            check[key] = true;
             da_logger.write(row);
             da_logger.write('\n');
         }

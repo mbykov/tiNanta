@@ -1,6 +1,6 @@
 TESTS = test/naman/*.js
-# REPORTER = dot
-REPORTER = spec
+REPORTER = dot
+# REPORTER = spec
 g = _
 g = ''
 
