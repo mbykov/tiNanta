@@ -101,14 +101,11 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'ऋ') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
-
+        // if (dhatu != 'डुदाञ्') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
-        // dhatu = dhatu.replace('!', '');
-        // FIXME: верно-ли убирать "!" ? или м.б. совпадающие после этого? Или c.virama ?
 
         if (!check[key]) {
             check[key] = true;
@@ -205,13 +202,15 @@ function parseNest(nest, gana) {
         // log('F', laForms); // lakara.nest
         for (var pada in laForms) {
             var forms = laForms[pada];
+            var excep = false;
             // log('F', forms);
             stem = parseStem(forms);
-            if (gana == '03' && stem != '') {
+            if (stem.length < 2) excep = true;
+            if (gana == '03' && !excep) {
                 sdocs = parseRedup(forms, pada);
             } else if (lakara.la == 'लिट्') {
                 sdocs = parseStemLiwPeriph(forms);
-                if (!sdocs && stem != '') sdocs = parseRedup(forms, pada);
+                if (!sdocs && !excep) sdocs = parseRedup(forms, pada);
             } else {
                 // stem = parseStem(forms);
                 if (lakara.la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
@@ -226,6 +225,7 @@ function parseNest(nest, gana) {
                     }
                 }
                 sdocs = [{stem: stem}];
+                if (excep) sdocs = [{stem: ''}];
             }
             // log('SDocs', sdocs);
             json = parseJSON(sdocs, forms);
@@ -290,7 +290,10 @@ function parseJSON(sdocs, forms) {
     var ostin = {};
     for (var tip in forms) {
         sdocs.forEach(function(sdoc) {
-            if (sdoc.tips && !inc(sdoc.tips, tip)) return;
+            // if (sdoc.tips && !inc(sdoc.tips, tip)) return;
+            if (sdoc.type == 'strong' && !inc(['तिप्', 'सिप्', 'मिप्'], tip)) return;
+            if (sdoc.type == 'weak' && !inc(['तस्', 'झि', 'थस्', 'थ', 'वस्', 'मस्'], tip)) return;
+            // log('======== TYPE', sdoc.type);
             var form2 = forms[tip];
             ostin[tip] = [];
             form2.forEach(function(form, idx) {
@@ -381,17 +384,6 @@ function parseStemLiwPeriph(forms) {
     }
 }
 
-// var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-// var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्'];
-// var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
-/*
-  - strong - tip-форма
-  - проверить sip и mip (а м.б. еще и vriddhi-guna разница).
-  - сформировать strongs-weaks массивы ? зачем, все stems уже известны и там. Проверить совпадение stems?
-  - вернуть {strong: strong, weak: weak};
-  - или [{stem: stem, strong: true}, {stem: stem, tips: [tip, sip, mip], {остальные, mip-оба} };
-  -
-*/
 function parseRedup(forms, pada) {
     // log('LIT REDUP:', forms);
     // here stem != ''; i.e. not exception
@@ -402,63 +394,36 @@ function parseRedup(forms, pada) {
     var sdoc, wdoc, zero;
     var docs = [];
     if (pada == 'प') {
-        strong = forms['तिप्'][0];
-        weak = forms['झि'][0] ;
-        re = new RegExp('ौ' + '$'); // FIXME: всегда au? не всегда.
-        strong = strong.replace(re, '');
-        re = new RegExp('ति' + '$'); // gana 03
-        strong = strong.replace(re, '');
-        // log('STRONG', strong);
-
-        rew = new RegExp('ुः' + '$'); // weak
-        weak = weak.replace(rew, '');
-        rew = new RegExp('ति' + '$'); // gana 03
-        weak = weak.replace(rew, '');
-        // log('WEAK', weak);
-
-        re = new RegExp('^' + strong);
-        rew = new RegExp('^' + weak);
+        var sforms = {};
+        var wforms = {};
         for (var tip in forms) {
             form2 = forms[tip];
             form2.forEach(function(form) {
-                if (re.test(form)) strongs.push(tip);
-                if (rew.test(form)) weaks.push(tip);
-                else zero = true;
-                // log('------------------------------------', tip, form, weaks.length);
+                if (inc(['तिप्', 'सिप्', 'मिप्'], tip)) {
+                    if (!sforms[tip]) sforms[tip] = [];
+                    sforms[tip].push(form);
+                } else {
+                    if (!wforms[tip]) wforms[tip] = [];
+                    wforms[tip].push(form);
+                }
             });
         }
+        // log('S', sforms);
+        // log('W', wforms);
+        strong = parseStem(sforms);
+        weak = parseStem(wforms);
 
-        if (zero) docs.push({stem: ''}); // exception
-        else {
-            // FIXME: очень коряво, поправить
-            // хотя работае правильно
-            if (strong) sdoc = {stem: strong, tips: strongs};
-            wdoc = {stem: weak};
-            if (strong) wdoc.tips = weaks;
-            if (strong) docs.push(sdoc);
-            if (strong != weak) docs.push(wdoc);
-        }
+        sdoc = {stem: strong, type: 'strong'};
+        wdoc = {stem: weak, type: 'weak'};
+        docs = [sdoc, wdoc];
 
     } else {
-        // log('======================= AAA');
-        weak = forms['झ'][0] ;
-        re = new RegExp('िरे' + '$');
-        weak = weak.replace(re, '');
-        re = new RegExp('रे' + '$');
-        weak = weak.replace(re, '');
 
-        re = new RegExp('ते' + '$'); // gana 03
-        weak = weak.replace(re, '');
-        for (var tip in forms) {
-            form2 = forms[tip];
-            form2.forEach(function(form) {
-                weaks.push(tip);
-            });
-        }
-        wdoc = {stem: weak};
+        weak = parseStem(forms);
+        wdoc = {stem: weak, atm: true};
         docs.push(wdoc);
     }
-    // log('DDD', docs);
+    // log('redup Docs:', docs);
     return docs;
 }
 
@@ -502,13 +467,13 @@ function writeTinCache(endings, canonicals) {
             for (var tip in otins) {
                 var tins = otins[tip];
                 tins.forEach(function(tin, idz) {
-                    tkey = [tip, tin, gana, la, pada].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе там дубли. А здесь?
+                    tkey = [tip, tin, gana, la, pada, tvar].join('-');
                     if (check[tkey]) return;
                     check[tkey] = true;
                     // tcan = (canon) ? 1 : 0;
                     // periph = (rePeriph.test(tin)) ? 1 : 0;
                     // ================================= ROW: =====================
-                    tinrow = [tip, tin, tin.length, gana, la, pada].join('-');
+                    tinrow = [tip, tin, tin.length, gana, la, pada, tvar].join('-');
                     // tvar, tcan -  затираются если ключ совпадает. Periph - всегда уникальный
                     // но в tins мне tvar и canon - не нужны, кажется
                     // да и periph нужен только для преобразования stem в dhatu, чего в новом index.js нет
