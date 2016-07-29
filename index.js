@@ -7,6 +7,8 @@ var debug = (process.env.debug == 'true') ? true : false;
 var _ = require('underscore');
 var fs = require('fs');
 var path = require('path');
+var sha1 = require('sha1');
+
 var s = require('sandhi');
 var c = s.const;
 var u = s.u;
@@ -17,53 +19,15 @@ var p = u.p;
 // var tins = require('./lib/tins/laN');
 
 /*
-
-  я вот чего не понимаю. Если здесь нужно искать в dhatu_anga, то какой смысл в parse-find ?
-  в exception-find - я ищу все. В том числе исключения по non-canonical
-  а в dhatu_anga лежат более-менее регулярные stems
-  если в d_a anga короче d, (или нет к-л характерного признака) то строку нужно отбросить
-  в d_a - характерные стемы, по характерным окончаниям
-
-  в d_a - сохранить canonical ? А не tvar ? или и то, и то ?
-
-  1. беру canon - tins. Смотрю canonical d-a. Но без gana
-  2. если нет, беру все tins, смотрю все d-a - это exceptions, по всем параметрам, включая tvar
-  3. если форма образована по правилам, но dhatu-gana-pada нет в DP, она будет обнаружена
-  4. если неизвестная Panini форма - исключение, она не будет обнаружена
-
-  tins: tip, tin, tin.length, gana, la, pada, tvar, tcan, p_eriph, tins (для liw)
-  da: dhatu, stem, gana, pada, tvar, tins
-
-  == HERE ==
-  записать отдельно tins_cache и canonical_tins_cache ?
-  это убыстрит?
-
 */
 
+// это в run.js
 
 // var lakaras = ['law', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
 // var ctinsPath = path.join(__dirname, './lib/canonical_tins_cache.js');
 
 // var tinsPath = path.join(__dirname, './lib/tins_cache.js');
 // var ctins = fs.readFileSync(tinsPath).toString().split('\n');
-
-// // var jnuTinsEx = require(jnuTinsPath);
-// var dhatuAngaPath = path.join(__dirname, './lib/dhatu_anga_cache.txt');
-// var das = fs.readFileSync(dhatuAngaPath).toString().split('\n');
-
-// var dhatupathaPath = path.join(__dirname, './lib/dhatupatha_cache.txt');
-// var dhpths = fs.readFileSync(dhatupathaPath).toString().split('\n');
-
-// var dp, adp;
-// var dps = dhpths.map(function(row) {
-//     if (!row || row == '') return;
-//     adp = row.split('-');
-//     dp = {dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]}; // dp: adp[0], raw: adp[1],
-//     // if (!dp.raw) log('NN', row, dp);
-//     return dp;
-// });
-// dps = _.compact(dps);
-
 
 exports = module.exports = stemmer();
 
@@ -77,6 +41,50 @@ function stemmer() {
 
 // переименовать в find, и в run.js тоже
 stemmer.prototype.query = function(query, ctins, das) {
+    // log('tiNanta', query);
+    // 1. выбираю подходящие tins:
+    var fits = [];
+    var fit, oFit;
+    var obj = {};
+    var stem, tip, tin, size, gana, la, pada, tvar; // , tvar, canon, periph ;
+    // त-ते-2-01-लट्-आ-0-1
+    var results = [];
+    var odhatu, ostem, ogana, ola, opada, otvar, otips, osha1;
+
+    ctins.forEach(function(ctin) {
+        [tip, tin, size, gana, la, pada, tvar] = ctin.split('-');
+        fit = (size == 0) ? '' : query.slice(-size);
+        if (fit != tin) return;
+
+        stem = (size == 0) ? query : query.slice(0, -size);
+
+        das.forEach(function(da) {
+            if (da == '') return;
+            [odhatu, ostem, ogana, ola, opada, otvar, otips, osha1] = da.split('-');
+            // var shamsg = [ostem, ogana, ola, opada, otvar].join('-'); // , doc.tips
+            // var shakey = sha1(shamsg);
+
+            if (ostem == stem && ola == la && opada == pada && otvar == tvar) { // а gana что ?
+            // if (osha1 == shakey) { // а gana что ?
+                if (otips && !inc(otips.split(','), tip)) return;
+                // log('DA', da);
+                var res = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, stem: ostem, dhatu: odhatu};
+                results.push(res);
+            }
+        });
+    });
+
+    return results;
+}
+
+// ====================================
+
+function noDaErr(stem, tins) {
+    log('ERR', stem);
+    log('ERR', tins);
+}
+
+stemmer.prototype.query_ = function(query, ctins, das) {
     // log('tiNanta', query);
     // 1. выбираю подходящие tins:
     var fits = [];
@@ -116,11 +124,4 @@ stemmer.prototype.query = function(query, ctins, das) {
     // log('DAS', results);
 
     return results;
-}
-
-// ====================================
-
-function noDaErr(stem, tins) {
-    log('ERR', stem);
-    log('ERR', tins);
 }

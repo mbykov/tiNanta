@@ -503,9 +503,11 @@ function writeDhatuAnga(docs) {
     var check = {};
     docs.forEach(function(doc) {
         // log('DA', doc);
+        // var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar].join('-'); // , doc.tips
         var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
-        var shakey = sha1(shamsg);
-        var row = [doc.dhatu, shamsg, shakey].join('-');
+        // var shakey = sha1(shamsg);
+        // var row = [doc.dhatu, shamsg, shakey].join('-');
+        var row = [doc.dhatu, shamsg].join('-');
         // log('DA ROW', row);
         if (!check[row]) {
             check[row] = true;
