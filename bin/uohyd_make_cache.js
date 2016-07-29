@@ -101,7 +101,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'ईष!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
+        if (dhatu != 'अक्षू!') return; // == DHATU == law अक! =  liw-redup?-ध्मा  // - liw-redup = ध्रज! periph-अय! // red-गज! ;ह्वृ
 
         // ईष्-ऐष-01-लङ्-प-0--1330d3b410c0d98133878fab9ab00ad9c094158f
         // ईष्-ऐष-01-लङ्-आ-0--ff24b9526c0aa1def334c473e4471aaa91e4badb
@@ -230,7 +230,7 @@ function parseNest(nest, gana) {
                 var glpkey = [gana, lakara.la, pada].join('-');
                 doc.tvar = parseTvar(glpkey, json);
                 if (sdoc.tips) doc.tips = sdoc.tips;
-                // log('parse nest DOC:', doc);
+                // log('parse la DOC:', doc);
                 docs.push(doc);
             });
         }
@@ -328,7 +328,7 @@ function parseTvar(glpkey, json) {
     // var pada = laDoc.pada;
     // var json = laDoc.json;
     // var glpkey = [gana, la, pada].join('-');
-    var tvar;
+    var tvar = '';
     if (!endings[glpkey]) endings[glpkey] = {arr: [], freq: []};
     var index = endings[glpkey].arr.indexOf(json);
     if (index > -1) {
@@ -341,6 +341,7 @@ function parseTvar(glpkey, json) {
         if (!endings[glpkey].freq[tvar]) endings[glpkey].freq[tvar] = 0;
         endings[glpkey].freq[tvar] +=1;
     }
+    // log('TVAR', tvar);
     return tvar;
 }
 
@@ -442,7 +443,7 @@ function writeTinCache(endings, canonicals) {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
     });
-    tin_logger.write('tip, tin, size, gana, la, pada, tvar, canon, periph \n');
+    tin_logger.write('tip, tin, size, gana, la, pada \n');
 
     var check = {};
     var tkey;
@@ -453,32 +454,36 @@ function writeTinCache(endings, canonicals) {
         if (la_to_test && la != la_to_test) continue; // ========================== LAKARA
         var jsons = endings[glpkey].arr;
         // log('>>>>>>>>>>>>', gana, gana == '02', canonicals[gana])
-        var canons; // это - от заполнения таблицы canonicals
-        if (canonicals[gana] && canonicals[gana][la]) canons = canonicals[gana][la][pada];
-        else canons = [];
+        // var canons; // это - от заполнения таблицы canonicals
+        // if (canonicals[gana] && canonicals[gana][la]) canons = canonicals[gana][la][pada];
+        // else canons = [];
         // log('=====', glpkey, gana, la, pada, jsons);
         // continue;
         jsons.forEach(function(json, tvar) {
-            var canon = false;
-            if (inc(canons, json)) canon = true;
+            // var canon = false;
+            // if (inc(canons, json)) canon = true;
             // var tins = json.split(',');
             var otins = JSON.parse(json);
             var oTin, tinData;
-            var tcan, tinrow;
-            var periph;
-            var rePeriph = new RegExp('ाञ्चक');
+            var tinrow;
+            // var tcan, periph;
+            // var rePeriph = new RegExp('ाञ्चक');
             for (var tip in otins) {
                 var tins = otins[tip];
                 tins.forEach(function(tin, idz) {
                     tkey = [tip, tin, gana, la, pada].join('-'); // здесь добавить json не нужно, а нужно в parse - иначе там дубли. А здесь?
                     if (check[tkey]) return;
                     check[tkey] = true;
-                    tcan = (canon) ? 1 : 0;
-                    periph = (rePeriph.test(tin)) ? 1 : 0;
+                    // tcan = (canon) ? 1 : 0;
+                    // periph = (rePeriph.test(tin)) ? 1 : 0;
                     // ================================= ROW: =====================
-                    tinrow = [tip, tin, tin.length, gana, la, pada, tvar, tcan, periph].join('-');
+                    tinrow = [tip, tin, tin.length, gana, la, pada].join('-');
+                    // tvar, tcan -  затираются если ключ совпадает. Periph - всегда уникальный
+                    // но в tins мне tvar и canon - не нужны, кажется
+                    // да и periph нужен только для преобразования stem в dhatu, чего в новом index.js нет
+                    tinrow = [tinrow, '\n'].join('');
                     tin_logger.write(tinrow);
-                    tin_logger.write('\n');
+                    // tin_logger.write('\n');
                     tincount +=1;
                 });
             }
@@ -496,13 +501,14 @@ function writeDhatuAnga(docs) {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
     });
-    da_logger.write('dhatu, stem, gana, la, pada, tvar, tins, sha1\n');
+    da_logger.write('dhatu, stem, gana, la, pada, tvar, tips, sha1\n');
     var check = {};
     docs.forEach(function(doc) {
         // log('DA', doc);
         var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
         var shakey = sha1(shamsg);
         var row = [doc.dhatu, shamsg, shakey].join('-');
+        log('DA ROW', row);
         if (!check[row]) {
             check[row] = true;
             da_logger.write(row);

@@ -31,7 +31,7 @@ var p = u.p;
   3. если форма образована по правилам, но dhatu-gana-pada нет в DP, она будет обнаружена
   4. если неизвестная Panini форма - исключение, она не будет обнаружена
 
-  tins: tip, tin, tin.length, gana, la, pada, tvar, tcan, periph, tins (для liw)
+  tins: tip, tin, tin.length, gana, la, pada, tvar, tcan, p_eriph, tins (для liw)
   da: dhatu, stem, gana, pada, tvar, tins
 
   == HERE ==
@@ -83,13 +83,13 @@ stemmer.prototype.query = function(query) {
     var fits = [];
     var fit, oFit;
     var obj = {};
-    var tip, tin, size, gana, la, pada, tvar, canon, periph ;
+    var tip, tin, size, gana, la, pada; // , tvar, canon, periph ;
     // त-ते-2-01-लट्-आ-0-1
     ctins.forEach(function(ctin) {
-        [tip, tin, size, gana, la, pada, tvar, canon, periph] = ctin.split('-');
+        [tip, tin, size, gana, la, pada] = ctin.split('-');
         fit = (size == 0) ? '' : query.slice(-size);
         if (fit == tin) {
-            oFit = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, canon: canon, periph: periph};
+            oFit = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada}; // , tvar: tvar, canon: canon, periph: periph
             fits.push(oFit);
         }
     });
@@ -102,9 +102,8 @@ stemmer.prototype.query = function(query) {
     // log('DAS', dhatuAnga);
     var dhatu, stem, gana, la, pada, tvar, tips, sha1;
     fits.forEach(function(tin) {
-        // log('FIT', tin);
         tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
-        // log('tip', tin.tip, tin.tin == '', 2, stem);
+        // log('FIT, stem:', tin.stem, JSON.stringify(tin));
         dhatuAnga.forEach(function(da) {
             if (da == '') return;
 
@@ -114,18 +113,18 @@ stemmer.prototype.query = function(query) {
             // err-test: ईष् ऐषत key ईष्-लङ्-आ-त [ 'एष्-लङ्-आ-त', 'एष्-लङ्-आ-त', 'ईष्-लङ्-प-थ' ]
 
             [dhatu, stem, gana, la, pada, tvar, tips, sha1] = da.split('-');
-            if (stem == tin.stem && la == tin.la && pada == tin.pada && tvar == tin.tvar) {
+            if (stem == tin.stem && la == tin.la && pada == tin.pada) { //  && tvar == tin.tvar
 
-                // log('TIPS', tips, tips.split(','), !inc(tips.split(','), tin.tip), 3, tin.tip);
-                if (tips && !inc(tips.split(','), tin.tip)) return;
-                tin.dhatu = dhatu;
                 // log('DA', da);
-                var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: tin.dhatu};
+                if (tips && !inc(tips.split(','), tin.tip)) return;
+                // tin.dhatu = dhatu;
+                // log('DA', da);
+                var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tvar, stem: tin.stem, dhatu: dhatu};
                 das.push(res);
             }
         });
     });
-    if (das.length == 0) noDaErr(query, fits);
+    // if (das.length == 0) noDaErr(query, fits);
     // log('DAS', das);
     // return [];
 
