@@ -94,27 +94,17 @@ stemmer.prototype.query = function(query) {
         }
     });
 
-    // log(fits);
-    // return [];
-
-    // var results = [];
+    // все в один цикл:
     var das = [];
-    // log('DAS', dhatuAnga);
     var dhatu, stem, gana, la, pada, tvar, tips, sha1;
     fits.forEach(function(tin) {
         tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
-        // if (tin.size == query.length) tin.stem = query;
-        // if (tin.size == query.length) log('LONG', tin.stem, JSON.stringify(tin));
         // log('FIT, stem:', tin.stem, JSON.stringify(tin));
 
         dhatuAnga.forEach(function(da) {
             if (da == '') return;
             [dhatu, stem, gana, la, pada, tvar, tips, sha1] = da.split('-');
-            // if (!stem) stem = '';
-            // if (stem == tin.stem) log('ZERO', JSON.stringify(tin), da);
-            // log('STEM', stem);
             if (stem == tin.stem && la == tin.la && pada == tin.pada && tvar == tin.tvar) { //  && tvar == tin.tvar
-                // log('DA', da);
                 if (tips && !inc(tips.split(','), tin.tip)) return;
                 // tin.dhatu = dhatu;
                 // log('DA', da);
@@ -125,7 +115,6 @@ stemmer.prototype.query = function(query) {
     });
     // if (das.length == 0) noDaErr(query, fits);
     // log('DAS', das);
-    // return [];
 
     return das;
 }

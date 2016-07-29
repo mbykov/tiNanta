@@ -58,7 +58,8 @@ var endings = {};
 
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
 var gana_to_test = '03';
-var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var la_to_test;
+// var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 
 // для 02, 03 нужно писать свой json. Звонкие-глухие, etc
@@ -208,7 +209,7 @@ function parseNest(nest, gana) {
             if (stem.length < 2) excep = true;
             if (gana == '03' && !excep) {
                 sdocs = parseRedup(forms, pada);
-            } else if (lakara.la == 'लिट्') {
+            } else if (lakara.la == 'लिट्' && !excep) {
                 sdocs = parseStemLiwPeriph(forms);
                 if (!sdocs && !excep) sdocs = parseRedup(forms, pada);
             } else {
@@ -227,7 +228,7 @@ function parseNest(nest, gana) {
                 sdocs = [{stem: stem}];
                 if (excep) sdocs = [{stem: ''}];
             }
-            // log('SDocs', sdocs);
+            if (!sdocs) log('SDocs', sdocs, gana, lakara.la);
             json = parseJSON(sdocs, forms);
             // log('JSON', sdocs);
             sdocs.forEach(function(sdoc) {
