@@ -56,13 +56,15 @@ stemmer.prototype.query = function(query, ctins, das) {
         if (fit != tin.tin) return;
         tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
 
+        // if (tin.tin == 'वक्तु') log('VAKTU', tin);
+
         das.forEach(function(da) {
             // [odhatu, ostem, ogana, ola, opada, otvar, otips, osha1] = da.split('-');
             // var shamsg = [ostem, ogana, ola, opada, otvar].join('-'); // , doc.tips
             // var shakey = sha1(shamsg);
 
             // if (ostem == stem && ola == la && opada == pada && otvar == tvar) { // а gana что ?
-            if (da.stem == tin.stem && da.pada == tin.pada && da.tvar == tin.tvar) { // а gana что ?
+            if (da.stem == tin.stem && da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
             // if (osha1 == shakey) { // а gana что ?
                 if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
                 // log('DA', da);
@@ -77,43 +79,44 @@ stemmer.prototype.query = function(query, ctins, das) {
 
 // ====================================
 
-stemmer.prototype.query_ = function(query, ctins, das) {
-    // log('tiNanta', query);
-    // 1. выбираю подходящие tins:
-    var fits = [];
-    var fit, oFit;
-    var obj = {};
-    var stem, tip, tin, size, gana, la, pada, tvar; // , tvar, canon, periph ;
-    // त-ते-2-01-लट्-आ-0-1
-    var results = [];
-    var odhatu, ostem, ogana, ola, opada, otvar, otips, osha1;
+// stemmer.prototype.query_ = function(query, ctins, das) {
+//     // log('tiNanta', query);
+//     // 1. выбираю подходящие tins:
+//     var fits = [];
+//     var fit, oFit;
+//     var obj = {};
+//     var stem, tip, tin, size, gana, la, pada, tvar; // , tvar, canon, periph ;
+//     // त-ते-2-01-लट्-आ-0-1
+//     var results = [];
+//     var odhatu, ostem, ogana, ola, opada, otvar, otips, osha1;
 
-    ctins.forEach(function(ctin) {
-        [tip, tin, size, gana, la, pada, tvar] = ctin.split('-');
-        fit = (size == 0) ? '' : query.slice(-size);
-        if (fit != tin) return;
+//     ctins.forEach(function(ctin, idx) {
+//         [tip, tin, size, gana, la, pada, tvar] = ctin.split('-');
+//         fit = (size == 0) ? '' : query.slice(-size);
+//         if (fit != tin) return;
 
-        stem = (size == 0) ? query : query.slice(0, -size);
+//         stem = (size == 0) ? query : query.slice(0, -size);
+//         log('FIT, stem:', stem, JSON.stringify(tin));
 
-        das.forEach(function(da) {
-            if (da == '') return;
-            [odhatu, ostem, ogana, ola, opada, otvar, otips, osha1] = da.split('-');
-            // var shamsg = [ostem, ogana, ola, opada, otvar].join('-'); // , doc.tips
-            // var shakey = sha1(shamsg);
+//         das.forEach(function(da) {
+//             if (da == '') return;
+//             [odhatu, ostem, ogana, ola, opada, otvar, otips, osha1] = da.split('-');
+//             // var shamsg = [ostem, ogana, ola, opada, otvar].join('-'); // , doc.tips
+//             // var shakey = sha1(shamsg);
 
-            // if (ostem == stem && ola == la && opada == pada && otvar == tvar) { // а gana что ?
-            if (ostem == stem && opada == pada && otvar == tvar) { // а gana что ?
-            // if (osha1 == shakey) { // а gana что ?
-                if (otips && !inc(otips.split(','), tip)) return;
-                // log('DA', da);
-                var res = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, stem: ostem, dhatu: odhatu};
-                results.push(res);
-            }
-        });
-    });
+//             // if (ostem == stem && ola == la && opada == pada && otvar == tvar) { // а gana что ?
+//             if (ostem == stem && opada == pada && otvar == tvar) { // а gana что ?
+//             // if (osha1 == shakey) { // а gana что ?
+//                 if (otips && !inc(otips.split(','), tip)) return;
+//                 // log('DA', da);
+//                 var res = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, stem: ostem, dhatu: odhatu};
+//                 results.push(res);
+//             }
+//         });
+//     });
 
-    return results;
-}
+//     return results;
+// }
 
 
 // function noDaErr(stem, tins) {
