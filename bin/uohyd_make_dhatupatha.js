@@ -41,38 +41,36 @@ dhatuList.forEach(function(row, idx) {
     // if (idx > 100) return;
     if (row[0] == '#') return;
     if (row == '') return;
-    // if (/अधी/.test(row)) log(row);
+
     row = row.replace(/	/g, '').replace(/।/g, ' ').replace('॥', '').replace(/\s+/g, ' ');
     var wsvara, artha, dhatus, gana, num, pada, set;
     [wsvara, artha, dhatus, gana, num, pada, set] = row.split('*');
-    // if (!pada) log('ROW', row, 3, row[0], 3, row[0] == '#');
     wsvara = wsvara.trim();
     pada = pada.trim().replace('॰', '');
     var padas = (pada == 'उ') ? ['प', 'आ'] : [pada];
     gana = gana.trim().replace('॰', '');
     set = set.trim();
     dhatus = dhatus.trim();
-   var wosvara, dhatu;
+    var wosvara, dhatu;
     var darr = dhatus.split('(');
-    // if (/ऽ/.test(dhatus)) log('AN', dhatus);
+
     if (/ऽ/.test(dhatus)) dhatu = wosvara = dhatus.split('ऽ')[1];
     else if (darr.length == 1) dhatu = wosvara = darr[0].trim();
     else {
         wosvara = darr[0].trim();
         dhatu = darr[1].trim().replace(')', ''); //.replace('!', '');
-        // ओ!प्यायी! -> प्यायी
-        // ओँ॑प्या॑यीँ॒-ओप्यायी-प्याय्-भ्वा-आ-सेट्-01-0561
-
     }
     num = salita.sa2slp(num);
     // сейчас сам лишаю ударений, но можно все же читать из dhatus?
-    wosvara = wsvara.replace(/॑/g, '').replace(/ँ/g, '').replace(/॒/g, '');
-
+    // wosvara = wsvara.replace(/॑/g, '').replace(/ँ/g, '').replace(/॒/g, '');
     // log(wsvara, 'a:',artha, 'd:', dhatu, 'g:', gana, 'n:', num, 'p', pada, 's:', set);
+    // if (wosvara == 'बल्ह्') log('RRR', row, 333, darr);
+
     padas.forEach(function(p) {
         var line = [wsvara, wosvara, dhatu, gana, p, set, gnum[gana], num].join('-');
         line = [line, '\n'].join('');
         list_logger.write(line);
+        // if (wosvara == 'बल्ह') log('RRR', line);
         size += 1;
     });
 

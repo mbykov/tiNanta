@@ -20,15 +20,15 @@ var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva200
 var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatupatha_cache.txt');
 var dhpths = fs.readFileSync(dhatuPathaCachePath).toString().split('\n');
 // अं॑सँ॑-अंस-अंस्-चु-प-सेट्-10-0460
-var dp, adp;
 var dps = dhpths.map(function(row) {
     if (!row || row == '') return;
-    adp = row.split('-');
-    dp = {raw: adp[1], dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]};
+    var adp = row.split('-');
+    var dp = {raw: adp[1], dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]};
     return dp;
 });
 dps = _.compact(dps);
 
+// ब॑ल्हँ॑-बल्ह-बल्ह्-चु-आ-सेट्-10-0301
 // non-monosyllabic:
 // dps.forEach(function(d) {
 //     var vc = vowCount(d.dhatu);
@@ -59,7 +59,7 @@ var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ�
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
 
 var gana_to_test; // = '04';
-var la_to_test = 'लुट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var la_to_test = 'लृट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; --> लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 // उज्झिता,उज्झ!,लुट्,तिप्,06.0024
 // उज्झिता,उज्झ!,लुट्,तिप्,06.0024
@@ -90,11 +90,12 @@ function formsRun(rows) {
         if (row == '') return;
         [form, dhatu, la, tip, nums] = row.split(',');
         key = [dhatu, nums].join('-');
+        if (inc(['जिवि!-01.0678', 'अहि!-10.0328'], key)) return; // NO KNOWN DHATU
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'अद्ड्') return; // ================ DHATU ====================
+        // if (dhatu != 'बल्ह!') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -110,13 +111,18 @@ function formsRun(rows) {
     });
 
     log('N-heads', _.keys(heads).length, 'N-nests', _.keys(nests).length);
+    // जुञ्च्
+    // dhatu: जुञ्च् form: चाययिता key जुञ्च्-लुट्-प-तिप् [ 'चि-लुट्-प-तिप्', 'चि-लुट्-आ-त' ]
+    // चीव्-लुट्-प-तिप्
+    // चीब्-लुट्-प-तिप्
+    // log('HEADS', heads);
+    // log(JSON.stringify(nests));
+    // return;
 
     var dicts;
     for (var vkey in heads) {
-        // dhatus do not exist in dtatupatha_cache && rawcomplete. So, I dont know how to correct:
-        // if (inc(['इण्-02.0040', 'राधो!-04.0077', 'दृ-05.0037', 'कृप!-10.0278', 'गद-10.0399', 'श्लिष!-10.0059', 'पिश!-10.0105', 'घृ-10.0152', 'पुण!-10.0133', 'ञिमिदा!-10.0012'], vkey)) continue;
-        // можно поправить  राधो!-04.0077 =  राध //   इ   ण  ्
         var vhead = heads[vkey];
+        // log('V HEAD', vhead);
         var vnest = nests[vkey];
         var ndhatus = vnest.map(function(n) { return n.dhatu});
         ndhatus = _.uniq(ndhatus);
@@ -125,37 +131,22 @@ function formsRun(rows) {
             log(vnest.slice(-2));
             throw new Error();
         }
-        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '')) });
-        if (dicts.length == 0) {
-            if (vhead.key == 'इण्-02.0040') {
-                dicts = [{dhatu: 'इ'}];
-            } else if (vhead.key == 'कृप!-10.0278') {
-                dicts = [{dhatu: 'कृप्'}];
-            } else if (vhead.key == 'गद-10.0399') {
-                dicts = [{dhatu: 'गद्'}];
-            } else if (vhead.key == 'दृ-05.0037') {
-                dicts = [{dhatu: 'दॄ'}];
-            } else if (vhead.key == 'श्लिष!-10.0059') {
-                dicts = [{dhatu: 'श्लिष्'}];
-            } else if (vhead.key == 'पिश!-10.0105') {
-                dicts = [{dhatu: 'पिश्'}];
-            } else if (vhead.key == 'राधो!-04.0077') {
-                dicts = [{dhatu: 'राध्'}];
-            } else if (vhead.key == 'घृ-10.0152') {
-                dicts = [{dhatu: 'घृ'}];
-            } else if (vhead.key == 'पुण!-10.0133') {
-                dicts = [{dhatu: 'पुण्'}];
-            } else {
-                log('doc head:', vkey, vhead);
-                throw new Error();
-            }
-        }
-        // log('DPS', dicts);
+        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '') || dp.raw.replace(/्$/, '') == vhead.dhatu.replace(/!/g, '')) });
+
+        if (vhead.dhatu == 'जर्त्स!') dicts = [{dhatu: 'जर्त्स्'}];
+        // log('DICTS', dicts);
+        // return;
 
         // dicts.forEach(function(dict) {
         laDocs = parseNest(vnest, vhead.gana);
+        // log('laDocs', laDocs);
+        // return;
+
         laDocs.forEach(function(ladoc) {
             dicts.forEach(function(dict) {
+                // log('============', ladoc.la, dict.la)
+                if (ladoc.gana != dict.gana || ladoc.pada != dict.pada || vhead.num != dict.num ) return;
+                // if (ladoc.gana != dict.gana || ladoc.la != dict.la || ladoc.pada != dict.pada || vhead.num != dict.num ) return;
                 doc = {dhatu: dict.dhatu, gana: vhead.gana, num: vhead.num, las: {}};
                 doc.stem = ladoc.stem;
                 doc.la = ladoc.la;
@@ -172,8 +163,8 @@ function formsRun(rows) {
         // });
     }
 
-    log('doc:', docs.length);
-    // log(docs[200]);
+    log('_doc_:', docs.length);
+    // log(docs);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
     writeDhatuAnga(docs);
