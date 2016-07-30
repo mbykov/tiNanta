@@ -58,9 +58,11 @@ var endings = {};
 var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
 
-var gana_to_test = '02';
-var la_to_test; // = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var gana_to_test; // = '04';
+var la_to_test = 'लुट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
+// उज्झिता,उज्झ!,लुट्,तिप्,06.0024
+// उज्झिता,उज्झ!,लुट्,तिप्,06.0024
 
 /*
   и, наконец.
@@ -92,7 +94,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'वच!') return; // ================ DHATU ====================
+        // if (dhatu != 'अद्ड्') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -127,8 +129,22 @@ function formsRun(rows) {
         if (dicts.length == 0) {
             if (vhead.key == 'इण्-02.0040') {
                 dicts = [{dhatu: 'इ'}];
-            } if (true) {
-                //
+            } else if (vhead.key == 'कृप!-10.0278') {
+                dicts = [{dhatu: 'कृप्'}];
+            } else if (vhead.key == 'गद-10.0399') {
+                dicts = [{dhatu: 'गद्'}];
+            } else if (vhead.key == 'दृ-05.0037') {
+                dicts = [{dhatu: 'दॄ'}];
+            } else if (vhead.key == 'श्लिष!-10.0059') {
+                dicts = [{dhatu: 'श्लिष्'}];
+            } else if (vhead.key == 'पिश!-10.0105') {
+                dicts = [{dhatu: 'पिश्'}];
+            } else if (vhead.key == 'राधो!-04.0077') {
+                dicts = [{dhatu: 'राध्'}];
+            } else if (vhead.key == 'घृ-10.0152') {
+                dicts = [{dhatu: 'घृ'}];
+            } else if (vhead.key == 'पुण!-10.0133') {
+                dicts = [{dhatu: 'पुण्'}];
             } else {
                 log('doc head:', vkey, vhead);
                 throw new Error();
@@ -202,15 +218,15 @@ function parseNest(nest, gana) {
                 stem = parseStem(forms);
                 // if (!stem) continue;
 
-                // if (la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
-                // else if (la == 'लृट्') stem = stem.replace('ष्य', '').replace('स्य', '');
-                // else if (la == 'आशीर्लिङ्') {
-                //     if (pada == 'प') {
-                //         // stem = u.replaceEnd(stem, 'या', '');
-                //     } else {
-                //         // stem = u.replaceEnd(stem, 'सी', '');
-                //     }
-                // }
+                if (la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
+                else if (la == 'लृट्') stem = stem.replace('ष्य', '').replace('स्य', '');
+                else if (la == 'आशीर्लिङ्') {
+                    if (pada == 'प') {
+                        // stem = u.replaceEnd(stem, 'या', '');
+                    } else {
+                        // stem = u.replaceEnd(stem, 'सी', '');
+                    }
+                }
                 sdocs = [{stem: stem}];
             }
             json = parseJSON(sdocs, forms);
@@ -539,7 +555,7 @@ function writeTestsCache(docs) {
                 var forms = nest[tip];
                 forms.forEach(function(form) {
                     var excep = 0;
-                    key = [form, doc.dhatu, doc.gana, doc.la, doc.pada, tip].join('-');
+                    key = [form, doc.dhatu, doc.gana, doc.la, doc.pada, tip, doc.num].join('-');
                     if (check[key]) return;
                     check[key] = true;
 

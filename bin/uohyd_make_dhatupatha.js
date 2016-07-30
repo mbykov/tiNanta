@@ -35,7 +35,9 @@ var gnum = {'भ्वा': '01', 'अ': '02', 'जु': '03', 'दि': '04', '
 
 // अं॑सँ॑ * समाघाते * अंस (अंस्) * । चु॰ * ०४६० ॥ * उ॰ । * सेट्
 // ओँ॑प्या॑यीँ॒  * वृद्धौ    * प्याय्    *  । भ्वा॰ *  ०५६१ ॥  *   आ॰ ।   *  सेट्
+var size = 0;
 dhatuList.forEach(function(row, idx) {
+    row = row.trim();
     // if (idx > 100) return;
     if (row[0] == '#') return;
     if (row == '') return;
@@ -43,6 +45,7 @@ dhatuList.forEach(function(row, idx) {
     row = row.replace(/	/g, '').replace(/।/g, ' ').replace('॥', '').replace(/\s+/g, ' ');
     var wsvara, artha, dhatus, gana, num, pada, set;
     [wsvara, artha, dhatus, gana, num, pada, set] = row.split('*');
+    // if (!pada) log('ROW', row, 3, row[0], 3, row[0] == '#');
     wsvara = wsvara.trim();
     pada = pada.trim().replace('॰', '');
     var padas = (pada == 'उ') ? ['प', 'आ'] : [pada];
@@ -70,9 +73,10 @@ dhatuList.forEach(function(row, idx) {
         var line = [wsvara, wosvara, dhatu, gana, p, set, gnum[gana], num].join('-');
         line = [line, '\n'].join('');
         list_logger.write(line);
+        size += 1;
     });
 
 });
 
 list_logger.end();
-log('ok');
+log('ok', size);
