@@ -55,22 +55,12 @@ var pars = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 
 var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 var endings = {};
 
-
+var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
-var gana_to_test = '01';
-var la_to_test;
-// var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
+var gana_to_test = '02';
+var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
-// для 02, 03 нужно писать свой json. Звонкие-глухие, etc
-// law - 04, 05, 06, 08, 09, 10 - годится
-// laN - 04, 05, 06, 09, 10
-// low - 04, 05, 06, 08?, 09, 10
-// vidh - 02, 03, 04, 05, 06, 07, 08, 09, 10
-// liw - 02, 03, 04, 05, 06, 07, 08, 09, 10
-// luw - 02, 03, etc
-// lft - 02, etc
-// a-lin - etc
 
 /*
   и, наконец.
@@ -102,7 +92,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'डुदाञ्') return; // ================ DHATU ====================
+        if (dhatu != 'अद!') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -188,38 +178,30 @@ function parseNest(nest, gana) {
         lanest = _.select(nest, function(line) { return line.la == la});
         lakaras.push({la: la, nest: lanest});
     });
-    // p(lakaras);
-    // log(1, laks);
-    // log(2, _.keys(laks));
-    // return [];
 
+    // если conj, то P - parseStrongWeak ?
+    // если нет, то всегда parseStem
+    // [{la, pada, conj, nest}, ...]
+    // а здесь цикл - если conj, то parseSW, нет - parseStem XXX
+    //
     var docs = [];
     var doc, stem, sdocs, json;
     lakaras.forEach(function(lakara) {
         if (la_to_test && lakara.la != la_to_test) return; // ================= LA TO TEST ============ <<<
-
         // log('FF==================', lakara.la); // lakara.nest
         laForms = parseLakara(lakara.nest);
         // log('F', laForms); // lakara.nest
+        var la = lakara.la;
         for (var pada in laForms) {
             var forms = laForms[pada];
-            var excep = false;
-            // log('F', forms);
-            // с ексепом тут швах, переписать
-            stem = parseStem(forms);
-            if (stem.length < 2) excep = true;
-            if (gana == '03' && !excep) {
-                sdocs = parseRedup(forms, pada);
-            } else if (lakara.la == 'लिट्' && !excep) {
-                sdocs = parseStemLiwPeriph(forms);
-                if (!sdocs && !excep) sdocs = parseRedup(forms, pada);
-            } else {
-                // stem = parseStem(forms);
-                if (lakara.la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
-                else if (lakara.la == 'लृट्') {
-                    stem = stem.replace('ष्य', '').replace('स्य', '');
-                    // stem = u.replaceEnd(stem, 'स्य', '');
-                } else if (lakara.la == 'आशीर्लिङ्') {
+            // if Periph
+            if (pada == 'प' && inc(conjugs, la)) sdocs = parseStrongWeak(forms);
+            else {
+                stem = parseStem(forms);
+                if (!stem) continue;
+                if (la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
+                else if (la == 'लृट्') stem = stem.replace('ष्य', '').replace('स्य', '');
+                else if (la == 'आशीर्लिङ्') {
                     if (pada == 'प') {
                         // stem = u.replaceEnd(stem, 'या', '');
                     } else {
@@ -227,11 +209,8 @@ function parseNest(nest, gana) {
                     }
                 }
                 sdocs = [{stem: stem}];
-                if (excep) sdocs = [{stem: ''}];
             }
-            if (!sdocs) log('SDocs', sdocs, gana, lakara.la);
             json = parseJSON(sdocs, forms);
-            // log('JSON', sdocs);
             sdocs.forEach(function(sdoc) {
                 doc = {stem: sdoc.stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
                 // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}' ) log('ERR', doc);
@@ -243,10 +222,53 @@ function parseNest(nest, gana) {
             });
         }
 
+        // for (var pada in laForms) {
+        //     var forms = laForms[pada];
+        //     var excep = false;
+        //     // log('F', forms);
+        //     // с ексепом тут швах, переписать
+        //     stem = parseStem(forms);
+        //     if (stem.length < 2) excep = true;
+        //     if (gana == '03' && !excep) {
+        //         sdocs = parseRedup(forms, pada);
+        //     } else if (lakara.la == 'लिट्' && !excep) {
+        //         if (/ञ्चक/.test(forms[0])) sdocs = parseStemLiwPeriph(forms);
+        //         // sdocs = parseStemLiwPeriph(forms);
+        //         else if (!sdocs && !excep) sdocs = parseRedup(forms, pada);
+        //     } else {
+        //         // stem = parseStem(forms);
+        //         if (lakara.la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
+        //         else if (lakara.la == 'लृट्') {
+        //             stem = stem.replace('ष्य', '').replace('स्य', '');
+        //             // stem = u.replaceEnd(stem, 'स्य', '');
+        //         } else if (lakara.la == 'आशीर्लिङ्') {
+        //             if (pada == 'प') {
+        //                 // stem = u.replaceEnd(stem, 'या', '');
+        //             } else {
+        //                 // stem = u.replaceEnd(stem, 'सी', '');
+        //             }
+        //         }
+        //         sdocs = [{stem: stem}];
+        //         if (excep) sdocs = [{stem: ''}];
+        //     }
+        //     if (!sdocs) log('SDocs', sdocs, gana, lakara.la);
+        //     json = parseJSON(sdocs, forms);
+        //     sdocs.forEach(function(sdoc) {
+        //         doc = {stem: sdoc.stem, gana: gana, la: lakara.la, pada: pada, nest: forms};
+        //         // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}' ) log('ERR', doc);
+        //         var glpkey = [gana, lakara.la, pada].join('-');
+        //         doc.tvar = parseTvar(glpkey, json);
+        //         if (sdoc.tips) doc.tips = sdoc.tips;
+        //         // log('parse la DOC:', doc);
+        //         docs.push(doc);
+        //     });
+        // }
+
     });
     // log('==>>', docs); // laDocs;
     return docs;
 }
+
 
 function parseLakara(nest) {
     // log('la nest size:', nest.length);
@@ -317,27 +339,6 @@ function parseJSON(sdocs, forms) {
 }
 
 
-// function parseJSON_(stem, forms) {
-//     var reStem = new RegExp('^' + stem);
-//     var tinArr = [];
-//     var json;
-//     // { 'तिप्': [ 'ज्योतति' ],
-//     var ostin = {};
-//     for (var tip in forms) {
-//         var strs = forms[tip];
-//         ostin[tip] = [];
-//         strs.forEach(function(form, idx) {
-//             var stin = form.replace(reStem, '');
-//             // tinArr.push({tip: tip, tin: stin});
-//             ostin[tip].push(stin);
-//         });
-//         ostin[tip] = _.uniq(ostin[tip]);
-//         // tinArr.push(ostin);
-//     }
-//     json = JSON.stringify(ostin);
-//     return json;
-// }
-
 function parseTvar(glpkey, json) {
     // var pada = laDoc.pada;
     // var json = laDoc.json;
@@ -384,6 +385,37 @@ function parseStemLiwPeriph(forms) {
         stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
         return [{stem: stem, periph: true}];
     }
+}
+
+function parseStrongWeak(forms) {
+    // log('STRONG:', forms);
+    var strong, weak;
+    var form2;
+    var sdoc, wdoc;
+    var sforms = {};
+    var wforms = {};
+    for (var tip in forms) {
+        form2 = forms[tip];
+        form2.forEach(function(form) {
+            if (inc(['तिप्', 'सिप्', 'मिप्'], tip)) {
+                if (!sforms[tip]) sforms[tip] = [];
+                sforms[tip].push(form);
+            } else {
+                if (!wforms[tip]) wforms[tip] = [];
+                wforms[tip].push(form);
+            }
+        });
+    }
+    // log('S', sforms);
+    // log('W', wforms);
+    strong = parseStem(sforms);
+    weak = parseStem(wforms);
+
+    sdoc = {stem: strong, type: 'strong'};
+    wdoc = {stem: weak, type: 'weak'};
+    var docs = [sdoc, wdoc];
+    // log('strong Docs:', docs);
+    return docs;
 }
 
 function parseRedup(forms, pada) {
