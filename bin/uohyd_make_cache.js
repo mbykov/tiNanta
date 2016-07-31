@@ -204,8 +204,8 @@ function parseNest(nest, gana) {
         var la = lakara.la;
         for (var pada in laForms) {
             var forms = laForms[pada];
-            // if Periph
-            if (pada == 'प' && inc(conjugs, la)) sdocs = parseStrongWeak(forms);
+            if (/ञ्चक/.test(forms[0])) parsePeriph(forms);
+            else if (pada == 'प' && inc(conjugs, la)) sdocs = parseStrongWeak(forms);
             else {
                 stem = parseStem(forms);
                 // if (!stem) continue;
@@ -329,7 +329,7 @@ function parseTvar(glpkey, json) {
     return tvar;
 }
 
-function parseStemLiwPeriph(forms) {
+function parsePeriph(forms) {
     // log('=LIT Periph=', nest.length);
     var periph_tin = {'तिप्': 'ञ्चकार', 'तस्': 'ञ्चक्रतुः', 'झि': 'ञ्चक्रुः', 'सिप्': 'ञ्चकर्थ', 'थस्': 'ञ्चक्रथुः', 'थ': 'ञ्चक्र', 'मिप्': 'ञ्चकर-ञ्चकार', 'वस्': 'ञ्चकृव', 'मस्': 'ञ्चकृम', 'त': 'ञ्चक्रे', 'आताम्': 'ञ्चक्राते', 'झ': 'ञ्चक्रिरे', 'थास्': 'ञ्चकृषे', 'आथाम्': 'ञ्चक्राथे', 'ध्वम्': 'ञ्चकृढ्वे', 'इट्': 'ञ्चक्रे', 'वहि': 'ञ्चकृवहे', 'महिङ्': 'ञ्चकृमहे'};
     var stems = [];
@@ -350,8 +350,9 @@ function parseStemLiwPeriph(forms) {
     var stem;
     if (stems.length == 1) {
         stem = stems[0];
-        var reA = new RegExp(c.A+ '$');
-        stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
+        // var reA = new RegExp(c.A+ '$');
+        // stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
+        // не уверен, отбрасывать ли c.A, неясно, как присоединяется kri-tadd-suff. М.б, c.A остается
         return [{stem: stem, periph: true}];
     }
 }
@@ -426,7 +427,7 @@ function writeTinCache(endings, canonicals) {
                     check[tkey] = true;
                     // periph = (rePeriph.test(tin)) ? 1 : 0;
                     tinrow = [tip, tin, tin.length, gana, la, pada, tvar].join('-');
-                    // да и periph нужен только для преобразования stem в dhatu, чего в новом index.js нет
+                    // да и periph в TinsCache нужен только для преобразования stem в dhatu, чего в новом index.js нет
                     tinrow = [tinrow, '\n'].join('');
                     tin_logger.write(tinrow);
                     tincount +=1;
