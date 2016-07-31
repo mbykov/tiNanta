@@ -96,7 +96,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'बल्ह!') return; // ================ DHATU ====================
+        // if (dhatu != 'अंस') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -112,13 +112,6 @@ function formsRun(rows) {
     });
 
     log('N-heads', _.keys(heads).length, 'N-nests', _.keys(nests).length);
-    // जुञ्च्
-    // dhatu: जुञ्च् form: चाययिता key जुञ्च्-लुट्-प-तिप् [ 'चि-लुट्-प-तिप्', 'चि-लुट्-आ-त' ]
-    // चीव्-लुट्-प-तिप्
-    // चीब्-लुट्-प-तिप्
-    // log('HEADS', heads);
-    // log(JSON.stringify(nests));
-    // return;
 
     var dicts;
     for (var vkey in heads) {
@@ -204,7 +197,7 @@ function parseNest(nest, gana) {
         var la = lakara.la;
         for (var pada in laForms) {
             var forms = laForms[pada];
-            if (/ञ्चक/.test(forms[0])) parsePeriph(forms);
+            if (/ञ्चक/.test(forms['तिप्']) || /ञ्चक/.test(forms['त']) ) sdocs = parsePeriph(forms);
             else if (pada == 'प' && inc(conjugs, la)) sdocs = parseStrongWeak(forms);
             else {
                 stem = parseStem(forms);
@@ -330,7 +323,7 @@ function parseTvar(glpkey, json) {
 }
 
 function parsePeriph(forms) {
-    // log('=LIT Periph=', nest.length);
+    // log('=LIT Periph=', forms);
     var periph_tin = {'तिप्': 'ञ्चकार', 'तस्': 'ञ्चक्रतुः', 'झि': 'ञ्चक्रुः', 'सिप्': 'ञ्चकर्थ', 'थस्': 'ञ्चक्रथुः', 'थ': 'ञ्चक्र', 'मिप्': 'ञ्चकर-ञ्चकार', 'वस्': 'ञ्चकृव', 'मस्': 'ञ्चकृम', 'त': 'ञ्चक्रे', 'आताम्': 'ञ्चक्राते', 'झ': 'ञ्चक्रिरे', 'थास्': 'ञ्चकृषे', 'आथाम्': 'ञ्चक्राथे', 'ध्वम्': 'ञ्चकृढ्वे', 'इट्': 'ञ्चक्रे', 'वहि': 'ञ्चकृवहे', 'महिङ्': 'ञ्चकृमहे'};
     var stems = [];
     for (var tip in forms) {
@@ -346,7 +339,7 @@ function parsePeriph(forms) {
         });
     }
     stems = _.uniq(stems);
-    // log('LIT periph stems', stems.length);
+    // log('LIT periph stems', stems.length, stems);
     var stem;
     if (stems.length == 1) {
         stem = stems[0];
@@ -354,6 +347,8 @@ function parsePeriph(forms) {
         // stem = stem.replace(reA, ''); // FIXME: но что, если сам stem заканчивается на A? тогда он не перифрастик?
         // не уверен, отбрасывать ли c.A, неясно, как присоединяется kri-tadd-suff. М.б, c.A остается
         return [{stem: stem, periph: true}];
+    } else {
+        return [{stem: ''}];
     }
 }
 
