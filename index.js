@@ -59,21 +59,20 @@ stemmer.prototype.query = function(query, ctins, das) {
           идея такая: здесь исследовать stem, если есть признак сложной формы, создать клон tin и критерий отбора корня
          */
 
-        var dhatu;
-        log('PASS', JSON.stringify(tin));
-        if (tin.pada == 'आ' && tin.stem.slice(-1) == 'य') {
-            log('PASS', tin.stem);
-            dhatu = tin.stem.slice(0, -1);
-        }
+        // var dhatu;
+        // log('PASS', JSON.stringify(tin));
+        // if (tin.pada == 'आ' && tin.stem.slice(-1) == 'य') {
+        //     log('PASS', tin.stem);
+        //     tin.dhatu = tin.stem.slice(0, -1);
+        //     log('PASS', tin.stem, tin.dhatu);
+        //     tin.pass = true;
+        // }
 
 
         das.forEach(function(da) {
-            // if (tin.pada == 'आ' && tin.stem.slice(-1) == 'य') {
-            //     dhatu = tin.stem.slice(0, -1);
-            //     if (da.dhatu == dhatu && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
-            //         var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: da.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu, pass: true};
-            //         results.push(res);
-            //     }
+            // if (da.dhatu == tin.dhatu) {
+            //     var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: da.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu, pass: true};
+            //     results.push(res);
             // }
 
             if (da.stem == tin.stem && da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {

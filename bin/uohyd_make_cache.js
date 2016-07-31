@@ -58,20 +58,10 @@ var endings = {};
 var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
 
-var gana_to_test; // = '04';
+var gana_to_test = '07';
 // ошибки - लृट्
 var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
-// उज्झिता,उज्झ!,लुट्,तिप्,06.0024
-// उज्झिता,उज्झ!,लुट्,तिप्,06.0024
-
-/*
-  и, наконец.
-  кроме dp и dhatu_anga
- */
-
-// p(canonicals['01'][la_to_test]);
-// return;
 
 function formsRun(rows) {
     var listForms = fs.readFileSync(dataPath).toString().split('\n');
@@ -96,7 +86,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        if (dhatu != 'अंस') return; // ================ DHATU ====================
+        if (dhatu != 'भिदि!र्') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -116,7 +106,7 @@ function formsRun(rows) {
     var dicts;
     for (var vkey in heads) {
         var vhead = heads[vkey];
-        // log('V HEAD', vhead);
+        log('V HEAD', vhead);
         var vnest = nests[vkey];
         var ndhatus = vnest.map(function(n) { return n.dhatu});
         ndhatus = _.uniq(ndhatus);
@@ -125,10 +115,16 @@ function formsRun(rows) {
             log(vnest.slice(-2));
             throw new Error();
         }
+        // FIXME: это вынести в модуль, или как-то разобраться
+        if (vhead.key == 'भिदि!र्-07.0002') vhead.dhatu = 'भिद्';
         dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '') || dp.raw.replace(/्$/, '') == vhead.dhatu.replace(/!/g, '')) });
 
-        if (vhead.dhatu == 'जर्त्स!') dicts = [{dhatu: 'जर्त्स्'}];
-        // log('DICTS', dicts);
+        if (dicts.length == 0) {
+            log('DICT ERR:', vhead);
+            throw new Error();
+        }
+        // if (vhead.dhatu == 'जर्त्स!') dicts = [{dhatu: 'जर्त्स्'}];
+        log('DICTS', dicts);
         // return;
 
         // dicts.forEach(function(dict) {
@@ -138,7 +134,7 @@ function formsRun(rows) {
 
         laDocs.forEach(function(ladoc) {
             dicts.forEach(function(dict) {
-                // log('============', ladoc.la, dict.la)
+                // log('============', ladoc.la, dict.la);
                 if (ladoc.gana != dict.gana || ladoc.pada != dict.pada || vhead.num != dict.num ) return;
                 // if (ladoc.gana != dict.gana || ladoc.la != dict.la || ladoc.pada != dict.pada || vhead.num != dict.num ) return;
                 doc = {dhatu: dict.dhatu, gana: vhead.gana, num: vhead.num, las: {}};
