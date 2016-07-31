@@ -7,10 +7,12 @@
   todo в _todo.org
 
 
-* 22 июля - 01, 26 июля - 02,
-  - [ ] 100 x pana-lakara
-  - [X] gana 01: law, laN, etc
-  - [ ] 02:
+* 31 июля
+  - все gana-pada ok
+  - могу-ли я быстро добавить обработку passive, desiderative, etc ?
+  - [ ] passive
+  - [ ]
+
 
 * non-monosyllabic
 2 'utkaRW' 'उत्कण्ठ्' '10' 'प'
