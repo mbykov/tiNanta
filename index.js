@@ -16,10 +16,8 @@ var sandhi = s.sandhi;
 var inc = u.include;
 var log = u.log;
 var p = u.p;
-// var tins = require('./lib/tins/laN');
 
-/*
-*/
+var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 
 // это в run.js
 
@@ -59,15 +57,22 @@ stemmer.prototype.query = function(query, ctins, das) {
         // if (tin.tin == 'वक्तु') log('VAKTU', tin);
 
         das.forEach(function(da) {
-            // [odhatu, ostem, ogana, ola, opada, otvar, otips, osha1] = da.split('-');
-            // var shamsg = [ostem, ogana, ola, opada, otvar].join('-'); // , doc.tips
-            // var shakey = sha1(shamsg);
+            // if (tin.pada == 'प' && inc(conjugs, tin.la)) {
+            //     if (da.stem == tin.stem && da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
+            //         if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
+            //         var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu};
+            //         results.push(res);
+            //     }
+            // } else {
+            //     if (da.stem == tin.stem && da.gana == tin.gana && da.pada == tin.pada && da.tvar == tin.tvar) {
+            //         if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
+            //         var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu};
+            //         results.push(res);
+            //     }
+            // }
 
-            // if (ostem == stem && ola == la && opada == pada && otvar == tvar) { // а gana что ?
             if (da.stem == tin.stem && da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
-            // if (osha1 == shakey) { // а gana что ?
                 if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
-                // log('DA', da);
                 var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu};
                 results.push(res);
             }

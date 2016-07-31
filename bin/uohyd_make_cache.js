@@ -60,7 +60,7 @@ var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्'
 
 var gana_to_test; // = '04';
 // ошибки - लृट्
-var la_to_test = 'आशीर्लिङ्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; --> लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var la_to_test = 'लिट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 // उज्झिता,उज्झ!,लुट्,तिप्,06.0024
 // उज्झिता,उज्झ!,लुट्,तिप्,06.0024
@@ -210,15 +210,15 @@ function parseNest(nest, gana) {
                 stem = parseStem(forms);
                 // if (!stem) continue;
 
-                if (la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
-                else if (la == 'लृट्') stem = stem.replace('ष्य', '').replace('स्य', '');
-                else if (la == 'आशीर्लिङ्') {
-                    if (pada == 'प') {
-                        // stem = u.replaceEnd(stem, 'या', '');
-                    } else {
-                        // stem = u.replaceEnd(stem, 'सी', '');
-                    }
-                }
+                // if (la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
+                // else if (la == 'लृट्') stem = stem.replace('ष्य', '').replace('स्य', '');
+                // else if (la == 'आशीर्लिङ्') {
+                //     if (pada == 'प') {
+                //         // stem = u.replaceEnd(stem, 'या', '');
+                //     } else {
+                //         // stem = u.replaceEnd(stem, 'सी', '');
+                //     }
+                // }
                 sdocs = [{stem: stem}];
             }
             json = parseJSON(sdocs, forms);
@@ -390,49 +390,6 @@ function parseStrongWeak(forms) {
     return docs;
 }
 
-function parseRedup(forms, pada) {
-    // log('LIT REDUP:', forms);
-    // here stem != ''; i.e. not exception
-    var strongs = [];
-    var weaks = [];
-    var strong, weak, re, rew;
-    var form2;
-    var sdoc, wdoc, zero;
-    var docs = [];
-    if (pada == 'प') {
-        var sforms = {};
-        var wforms = {};
-        for (var tip in forms) {
-            form2 = forms[tip];
-            form2.forEach(function(form) {
-                if (inc(['तिप्', 'सिप्', 'मिप्'], tip)) {
-                    if (!sforms[tip]) sforms[tip] = [];
-                    sforms[tip].push(form);
-                } else {
-                    if (!wforms[tip]) wforms[tip] = [];
-                    wforms[tip].push(form);
-                }
-            });
-        }
-        // log('S', sforms);
-        // log('W', wforms);
-        strong = parseStem(sforms);
-        weak = parseStem(wforms);
-
-        sdoc = {stem: strong, type: 'strong'};
-        wdoc = {stem: weak, type: 'weak'};
-        docs = [sdoc, wdoc];
-
-    } else {
-
-        weak = parseStem(forms);
-        wdoc = {stem: weak, atm: true};
-        docs.push(wdoc);
-    }
-    // log('redup Docs:', docs);
-    return docs;
-}
-
 formsRun();
 
 // ===================================================================
@@ -455,16 +412,7 @@ function writeTinCache(endings, canonicals) {
         [gana, la, pada] = glpkey.split('-');
         if (la_to_test && la != la_to_test) continue; // ========================== LAKARA
         var jsons = endings[glpkey].arr;
-        // log('>>>>>>>>>>>>', gana, gana == '02', canonicals[gana])
-        // var canons; // это - от заполнения таблицы canonicals
-        // if (canonicals[gana] && canonicals[gana][la]) canons = canonicals[gana][la][pada];
-        // else canons = [];
-        // log('=====', glpkey, gana, la, pada, jsons);
-        // continue;
         jsons.forEach(function(json, tvar) {
-            // var canon = false;
-            // if (inc(canons, json)) canon = true;
-            // var tins = json.split(',');
             var otins = JSON.parse(json);
             var oTin, tinData;
             var tinrow;
@@ -476,16 +424,11 @@ function writeTinCache(endings, canonicals) {
                     tkey = [tip, tin, gana, la, pada, tvar].join('-');
                     if (check[tkey]) return;
                     check[tkey] = true;
-                    // tcan = (canon) ? 1 : 0;
                     // periph = (rePeriph.test(tin)) ? 1 : 0;
-                    // ================================= ROW: =====================
                     tinrow = [tip, tin, tin.length, gana, la, pada, tvar].join('-');
-                    // tvar, tcan -  затираются если ключ совпадает. Periph - всегда уникальный
-                    // но в tins мне tvar и canon - не нужны, кажется
                     // да и periph нужен только для преобразования stem в dhatu, чего в новом index.js нет
                     tinrow = [tinrow, '\n'].join('');
                     tin_logger.write(tinrow);
-                    // tin_logger.write('\n');
                     tincount +=1;
                 });
             }
@@ -505,16 +448,16 @@ function writeDhatuAnga(docs) {
     });
     da_logger.write('dhatu, stem, gana, la, pada, tvar, tips, sha1\n');
     var check = {};
+    var key, row;
     docs.forEach(function(doc) {
         // log('DA', doc);
         // может быть, здесь сделать уникальный stem только? а остальное в строку?
-
-        // var shamsg = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
-        var key = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.num].join('-'); // , doc.tips
-        // var shakey = sha1(shamsg);
-        // var row = [doc.dhatu, shamsg, shakey].join('-');
-        var row = [doc.dhatu, doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
+        // XXX
+        key = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.num].join('-'); // , doc.tips
+        row = [doc.dhatu, doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
+        key = row;
         // log('DA ROW', row);
+
         if (!check[key]) {
             check[key] = true;
             da_logger.write(row);

@@ -53,6 +53,8 @@ ctins.forEach(function(ctin) {
     tins.push({tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar});
 });
 
+log('DAS', dhatuAngas.length, _.uniq(dhatuAngas).length);
+
 console.time("queryTime");
 
 var queries;
