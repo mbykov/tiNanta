@@ -61,19 +61,25 @@ stemmer.prototype.query = function(query, ctins, das) {
 
         // var dhatu;
         // log('PASS', JSON.stringify(tin));
-        // if (tin.pada == 'आ' && tin.stem.slice(-1) == 'य') {
-        //     log('PASS', tin.stem);
-        //     tin.dhatu = tin.stem.slice(0, -1);
-        //     log('PASS', tin.stem, tin.dhatu);
-        //     tin.pass = true;
-        // }
+        if (tin.pada == 'आ' && tin.stem.slice(-1) == 'य') {
+            // log('PASS', tin.stem);
+            tin.dhatu = tin.stem.slice(0, -1);
+            // log('PASS', tin.stem, tin.dhatu);
+            tin.pass = true;
+        }
 
-
+        // FIXME: ucheck das вынести наружу, делать один раз
+        var ucheck = {};
+        var key;
         das.forEach(function(da) {
-            // if (da.dhatu == tin.dhatu) {
-            //     var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: da.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu, pass: true};
-            //     results.push(res);
-            // }
+            if (da.dhatu == tin.dhatu) {
+                key = [tin.tip, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.tvar, tin.stem, da.dhatu].join('-');
+                if (!ucheck[key]) {
+                    var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: da.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu, pass: true};
+                    results.push(res);
+                    ucheck[key] = true;
+                }
+            }
 
             if (da.stem == tin.stem && da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
                 if (da.tips && !inc(da.tips.split(','), tin.tip)) return;

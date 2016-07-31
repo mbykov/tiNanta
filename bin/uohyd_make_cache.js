@@ -86,7 +86,7 @@ function formsRun(rows) {
         num = nums.split('.')[1];
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        if (dhatu != 'भिदि!र्') return; // ================ DHATU ====================
+        // if (dhatu != 'भिदि!र्') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -106,7 +106,7 @@ function formsRun(rows) {
     var dicts;
     for (var vkey in heads) {
         var vhead = heads[vkey];
-        log('V HEAD', vhead);
+        // log('V HEAD', vhead);
         var vnest = nests[vkey];
         var ndhatus = vnest.map(function(n) { return n.dhatu});
         ndhatus = _.uniq(ndhatus);
@@ -117,14 +117,44 @@ function formsRun(rows) {
         }
         // FIXME: это вынести в модуль, или как-то разобраться
         if (vhead.key == 'भिदि!र्-07.0002') vhead.dhatu = 'भिद्';
-        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '') || dp.raw.replace(/्$/, '') == vhead.dhatu.replace(/!/g, '')) });
+        else if (vhead.key == 'अञ्जू!-07.0316') vhead.dhatu = 'अञ्ज्';
+        else if (vhead.key == 'ञिइन्धी!-07.0011') vhead.dhatu = 'इन्ध्';
+        else if (vhead.key == 'उन्दी!-07.0020') vhead.dhatu = 'उन्द्';
+        else if (vhead.key == 'कृती!-07.0010') vhead.dhatu = 'कृत्';
+        else if (vhead.key == 'क्षुदि!र्-07.0006') vhead.dhatu = 'क्षुद्';
+        else if (vhead.key == 'छिदि!र्-07.0003') vhead.dhatu = 'छिद्';
+        else if (vhead.key == 'उ!छृदि!र्-07.0352') vhead.dhatu = 'छृद्';
+        else if (vhead.key == 'तञ्चू!-07.0022') vhead.dhatu = 'तञ्च्';
+        else if (vhead.key == 'उ!तृदि!र्-07.0009') vhead.dhatu = 'तृद्';
+        else if (vhead.key == 'पिषॢ!-07.0015') vhead.dhatu = 'पिष्';
+        else if (vhead.key == 'पृची!-07.0339') vhead.dhatu = 'पृच्';
+        else if (vhead.key == 'भञ्जो!-07.0290') vhead.dhatu = 'भञ्ज्';
+        else if (vhead.key == 'युजि!र्-07.0338') vhead.dhatu = 'युज्';
+        else if (vhead.key == 'रिचि!र्-07.0348') vhead.dhatu = 'रिच्';
+        else if (vhead.key == 'रुधि!र्-07.0001') vhead.dhatu = 'रुध्';
+        else if (vhead.key == 'विचि!र्-07.0005') vhead.dhatu = 'विच्';
+        else if (vhead.key == 'ओ!विजी!-07.0023') vhead.dhatu = 'विज्';
+        else if (vhead.key == 'वृजी!-07.0344') vhead.dhatu = 'वृज्';
+        else if (vhead.key == 'शिषॢ!-07.0349') vhead.dhatu = 'शिष्';
+        else if (vhead.key == 'हिसि!-07.0366') continue; // нет дхату ?
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
+        else if (vhead.key == '') vhead.dhatu = '्';
 
+        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '') || dp.raw.replace(/्$/, '') == vhead.dhatu.replace(/!/g, '')) });
         if (dicts.length == 0) {
             log('DICT ERR:', vhead);
             throw new Error();
         }
-        // if (vhead.dhatu == 'जर्त्स!') dicts = [{dhatu: 'जर्त्स्'}];
-        log('DICTS', dicts);
+        // log('DICTS', dicts);
         // return;
 
         // dicts.forEach(function(dict) {
