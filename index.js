@@ -68,6 +68,16 @@ stemmer.prototype.query = function(query, ctins, das) {
             tin.pass = true;
         }
 
+
+        // таблица форм - http://www.lonweb.org/links/sanskrit/lang/017.htm
+        // passive: A.; -ya
+        // causal: U.; aguna; -aya
+        // desid: redup, non-conj: -s; conj: -sa
+        // http://www.learnsanskrit.org/verbs/doubling/intensive
+        // freq: redup spec. A.; -ya
+        // freq: redup. spec. P.; -ya
+
+
         // FIXME: ucheck das вынести наружу, делать один раз
         var ucheck = {};
         var key;

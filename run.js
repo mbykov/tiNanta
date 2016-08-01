@@ -23,7 +23,7 @@ var p = u.p;
 if (!lat) return log('?');
 
 var form;
-if (/[a-zA-Z]/.test(lat[0])) {
+if (/[a-zA-Z0-1]/.test(lat[0])) {
     form = salita.slp2sa(lat);
 } else {
     form = lat;

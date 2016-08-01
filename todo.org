@@ -11,7 +11,15 @@
   - все gana-pada ok
   - могу-ли я быстро добавить обработку passive, desiderative, etc ?
   - [ ] passive
-  - [ ]
+  -
+  - поиграемся еще, passive, etc
+  - как будет вести себя нестандарный tvar?
+  -
+  - но, главное. Дело сделано, нужно составить план выпуска v.0.4, и сделать. А игры - потом, и в процессе
+  - соответствие DHATUS
+  -
+  -
+
 
 
 * non-monosyllabic
@@ -47,14 +55,8 @@
 2 'samAj' 'समाज्' '10' 'आ'
 
 
-* two tenses -present and imperfect- and the two moods - imperative and potential
+* COnjugational: two tenses -present and imperfect- and the two moods - imperative and potential
 
-* 16 июня
-  - скачиваю таблицы с uohid в цикле
-  - head - часть инфо из таблицы ссылок uohyd_dump_links.txt
-  - формы (для данной лакара) - из текущего дампа
-  -
-  -
 
 * links *** http://sanskrit.jnu.ac.in/rstudents/mphil/
  - http://sanskrit.uohyd.ac.in/Corpus/guideline.html
@@ -71,38 +73,10 @@
 
 
 
-* TODO parse form
-  - поиск подходящего окончания - tins
-  - хеш всех tins - la-pada-person-number - (पुरुष / purusha) - (वचन / vachana)
-  - получение стема - (для определенных gana-lakara - чтобы отбросить в словаре лишние)
-  - есть варианты tins, когда при синтезе с "а" из gana.1 образуется sandhi - xxx_a + i = xxx_e. Пока я записываю в tins вариант -e
-  - хотя это не истинное -e, а сандхи
-  - фильтр - получение критерия для стема
-  - как-то тут же предусмотреть выявления kridanta-taddhita суффиксов в будущем
-  - в результате - массив queries к базе
-  - а пока - фейковая база стемов для тестов
-  - run tinanta Bavati
-  -
-  - правила фильтров типа:
-  - law, 1 гана - после вычита tin - заканчивается на a, т.е. на согласную
-  - перед этой согласной - гласная в vriddhi-форме, т.е. "ay", "av", "āy" and "āv" (?) и только лишь?
-  -
 
 * laN - augment
   - не понятно, как проверять наличие A? сначала нужно вычесть все приставки
   -
-* TODO step by step
-  - [X] make test - читаю lib/Dump-uodi/ пока только BU-sattAyAm-BvAdiH-1.txt
-  - [X] или сначала преобразовать все же Dump в приличную форму?
-  - [ ] index start - пока вчерне
-  - [ ] чтобы отработать-создать две вещи:
-  - [ ] 1. полный объект флексий - /lib/tins.js ;
-  - [ ] 2. преобразователь - /bin/tins_to_cache...удобная форма
-  - [ ] 2. db стемов - dhatu-stems /lib/dhatu_stems.js
-  - [ ] фильтры. Каждому gana-la-pada-numper д.соотв фильтр, не пропускающий лишние <<== я тут - это процесс
-  - [ ] убедиться, что каждая форма в тестах дает один вариант query на одну gana - ну, стандартный набор вариантов
-  - [ ] index.js - вывожу queries
-  - [ ]
 
 
 * stems & terminations
@@ -129,24 +103,3 @@ In the following chapters we will study the following verb forms or धातु
     क्तिन् प्रत्यय (ktin pratyaya)
     घञ्ज् प्रत्यय (ghJNj pratyaya)
     खल् प्रत्यय (khal pratyaya)
-
-
-        णभ!-04.0155
-        णश!-04.0091
-        णह!-04.0062
-        षिवु!-04.0002
-        विस!-04.0123
-        ष्णसु!-04.0006
-        बिस!-04.0124
-        षह!-04.0341
-        षिधु!-04.0089
-        षुह!-04.0024
-        षो-04.0042
-        ष्टिम!-04.0019
-        ष्टीम!-04.0020
-        ष्टुप!-04.0190
-        ष्टूप!-04.0191
-        ष्णिह!-04.0055
-        ष्णुसु!-04.0005
-        ष्णुह!-04.0096
-        ष्विदा!-04.0085
