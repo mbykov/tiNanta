@@ -43,7 +43,7 @@ var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 
 var wos = [];
 var wcheck = {};
 listForms.forEach(function(row, idz) {
-    // if (idz < 200000) return;
+    if (idz < 1000) return;
     // if (idz > 200000) return;
     var form, wosvara, la, tip, nums, wovowel;
     if (row == '') return;
@@ -69,7 +69,7 @@ listForms.forEach(function(row, idz) {
         }
         var gana = nums.split('.')[0];
         var num = nums.split('.')[1];
-        var owo = {wo: wosvara, gana: gana, pada: pada, num: num, dl: 0};
+        var owo = {wo: wosvara, gana: gana, pada: pada, num: num};
         if (wovowel) owo.wovowel = wovowel;
         wos.push(owo);
     }
@@ -105,11 +105,11 @@ wos.forEach(function(owo, idy) {
     });
 
     if (rows.length == 0) selects.push(owo);
-    if (owo.wo == 'जिवि') cleans.push(owo); // selects:
 
     // owo
     var cleans = [];
     var dirties = [];
+    if (owo.wo == 'जिवि') cleans.push(owo); // selects:
 
     rows.forEach(function(row) {
         var wsvara, artha, dhatus, gana, num, sanum, pada, set;
@@ -176,19 +176,34 @@ wos.forEach(function(owo, idy) {
         }
 
         if (owo.wo == wosvara || owo.wo == wowovir || owo.wo == wsvara || owo.wo == dhatu || owo.wo == dhatuvir || owo.wovowel == wosvara || owo.wovowel == dhatuvir) {
-            cleans.push(row);
+            var rowobj = {ws: wsvara, wo: wosvara, dhatu: dhatu, gana: gana, padas: padas, set: set, num: num};
+            cleans.push(rowobj);
         } else {
             dirties.push(row);
         }
         if (excep) cleans.push(owo);
 
         // ================ записать файл cleans =====================================
-        // padas.forEach(function(p) {
-        //     var line = [wsvara, wosvara, dhatu, gana, p, set, gnum[gana], num].join('-');
-        //     line = [line, '\n'].join('');
-        //     list_logger.write(line);
-        //     size += 1;
-        // });
+        // owo : { wo: 'हह', gana: '03', pada: 'प', num: '0008'}
+        cleans.forEach(function(clean) {
+            var line;
+            var lines = [];
+            if (clean.dhatu) {
+                clean.padas.forEach(function(pada) {
+                    line = [clean.wsvara, clean.wosvara, clean.dhatu, clean.gana, pada, clean.set, clean.num].join('-');
+                    lines.push(line);
+                });
+            } else {
+                line = ['wo', clean.wosvara, clean.wosvara, clean.gana, '*', clean.num].join('-');
+                lines = [line];
+            }
+
+            lines.forEach(function(line) {
+                line = [line, '\n'].join('');
+                list_logger.write(line);
+                size += 1;
+            });
+        });
     });
 
     // selects:
@@ -207,3 +222,11 @@ log('SELs:', selects);
 
 list_logger.end();
 log('ok', size);
+
+// SELs: [ { wo: 'जिवि',
+//           gana: '01',
+//           pada: 'प',
+//           num: '0678',
+//           dl: 0,
+//           wovowel: 'जिव' } ]
+// ok 0
