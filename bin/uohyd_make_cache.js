@@ -83,23 +83,10 @@ function formsRun(rows) {
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
         dhatu = dhatu.trim();
-        dhatu = dhatu.replace(/!$/, '');
-        dhatu = dhatu.replace(/!र्$/, '!');
-        dhatu = dhatu.replace(/!ष्$/, '!');
-        dhatu = dhatu.replace(/!ङ्$/, '!');
-        dhatu = dhatu.replace(/^ओ!/, '');
-        dhatu = dhatu.replace(/^उ!/, '');
-        dhatu = dhatu.replace(/^ई!/, '');
-        dhatu = dhatu.replace(/^टुओ!/, '');
-        var fin = dhatu.slice(-1);
-        if (fin == '!') {
-            dhatu = dhatu.slice(0,-1);
-            fin = dhatu.slice(-1);
-            if (u.isVowel(fin)) dhatu = dhatu.slice(0, -1);
-        }
+        dhatu = dhatu.replace(/!/g, '');
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'हिवि!') return; // ================ DHATU ====================
+        // if (dhatu != 'हिवि') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';

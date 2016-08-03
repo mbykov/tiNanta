@@ -49,31 +49,19 @@ var wcheck = {};
 listForms.forEach(function(row, idz) {
     // if (idz < 1000) return;
     // if (idz > 200000) return;
-    var form, wosvara, la, tip, nums, wovowel;
+    var form, wsvara, la, tip, nums, wovowel;
     if (row == '') return;
-    [form, wosvara, la, tip, nums] = row.split(',');
+    [form, wsvara, la, tip, nums] = row.split(',');
     var pada;
     if (inc(pars), tip) pada = 'प';
     else if (inc(atms), tip) pada = 'आ';
-    var key = [wosvara, pada, nums].join('-');
+    var key = [wsvara, pada, nums].join('-');
     if (!wcheck[key]) {
         wcheck[key] = true;
-        wosvara = wosvara.replace(/!र्$/, '!');
-        wosvara = wosvara.replace(/!ष्$/, '!');
-        wosvara = wosvara.replace(/!ङ्$/, '!');
-        wosvara = wosvara.replace(/^ओ!/, '');
-        wosvara = wosvara.replace(/^उ!/, '');
-        wosvara = wosvara.replace(/^ई!/, '');
-        wosvara = wosvara.replace(/^टुओ!/, '');
-        var fin = wosvara.slice(-1);
-        if (fin == '!') {
-            wosvara = wosvara.slice(0,-1);
-            fin = wosvara.slice(-1);
-            if (u.isVowel(fin)) wovowel = wosvara.slice(0, -1);
-        }
+        wsvara = wsvara.replace(/!/g, '');
         var gana = nums.split('.')[0];
         var num = nums.split('.')[1];
-        var owo = {wo: wosvara, gana: gana, pada: pada, num: num};
+        var owo = {wo: wsvara, gana: gana, pada: pada, num: num};
         if (wovowel) owo.wovowel = wovowel;
         wos.push(owo);
     }
@@ -166,9 +154,9 @@ wos.forEach(function(owo, idy) {
         else if (owo.wo == 'लडि') {
             wosvara = owo.wo;
             dhatu = 'लण्';
-        } else if (owo.wo == '') {
+        } else if (owo.wo == 'राधो') {
             wosvara = owo.wo;
-            dhatu = '';
+            dhatu = 'राध्';
         } else if (owo.wo == '') {
             wosvara = owo.wo;
             dhatu = '';
@@ -199,6 +187,9 @@ wos.forEach(function(owo, idy) {
                     lines.push(line);
                 });
             } else { // OWO
+                // но wo же не всегда dhatu ?
+                // { wo: 'राधो', gana: '04', pada: 'प', num: '0077' }
+                // DR: [ 'रा॒धः *अकर्मकाद्वृद्धावेव *राध्* दि॰*००७७ * प॰ * अनिट्' ]
                 line = ['wsvara', clean.wo, clean.wo, clean.gana, clean.pada, 'set', clean.num].join('-');
                 lines = [line];
             }
