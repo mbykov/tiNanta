@@ -102,7 +102,11 @@ wos.forEach(function(owo, idy) {
     // owo
     var cleans = [];
     var dirties = [];
-    if (owo.wo == 'जिवि') cleans.push(owo); // selects:
+
+    if (rows.length == 0) {
+        rows = ['a*a*a*a*a*a*a*a']; // owo - { wo: 'राधो', gana: '04', pada: 'प', num: '0077' }
+        cleans.push(owo);
+    }
 
     rows.forEach(function(row) {
         var wsvara, artha, dhatus, gana, num, sanum, pada, set;
@@ -157,9 +161,9 @@ wos.forEach(function(owo, idy) {
         } else if (owo.wo == 'राधो') {
             wosvara = owo.wo;
             dhatu = 'राध्';
-        } else if (owo.wo == '') {
-            wosvara = owo.wo;
-            dhatu = '';
+        // } else if (owo.wo == 'जिवि') {
+            // wosvara = owo.wo;
+            // dhatu = 'जिव्';
         } else if (owo.wo == '') {
             wosvara = owo.wo;
             dhatu = '';
@@ -186,6 +190,9 @@ wos.forEach(function(owo, idy) {
                     line = [clean.ws, clean.wo, clean.dhatu, clean.gana, pada, clean.set, clean.num].join('-');
                     lines.push(line);
                 });
+            } else if (clean.wo == 'जिवि') { // selects = // { wo: 'जिवि', gana: '01', pada: 'प', num: '0678' }
+                line = ['wsvara', clean.wo, 'जिव्', clean.gana, clean.pada, 'set', clean.num].join('-');
+                lines = [line];
             } else { // OWO
                 // но wo же не всегда dhatu ?
                 // { wo: 'राधो', gana: '04', pada: 'प', num: '0077' }
