@@ -19,11 +19,11 @@ var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva200
 
 var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatupatha_cache.txt');
 var dhpths = fs.readFileSync(dhatuPathaCachePath).toString().split('\n');
-// अं॑सँ॑-अंस-अंस्-चु-प-सेट्-10-0460
+// dp: wsvara-wosvara-dhatu-gana-pada-set-num-
 var dps = dhpths.map(function(row) {
-    if (!row || row == '') return;
-    var adp = row.split('-');
-    var dp = {raw: adp[1], dhatu: adp[2], pada: adp[4], gana: adp[6], num: adp[7]};
+    if (row == '') return;
+    var arr = row.split('-');
+    var dp = {ws: arr[0], wo: arr[1], dhatu: arr[2], gana: arr[3], pada: arr[4] , num: arr[6]};
     return dp;
 });
 dps = _.compact(dps);
@@ -58,9 +58,9 @@ var endings = {};
 var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
 
-var gana_to_test = '10';
+var gana_to_test = '01';
 // ошибки - लृट्
-var la_to_test; // = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 
 function formsRun(rows) {
@@ -80,18 +80,33 @@ function formsRun(rows) {
         // if (idz > 10) return;
         if (row == '') return;
         [form, dhatu, la, tip, nums] = row.split(',');
-        key = [dhatu, nums].join('-');
-        if (inc(['जिवि!-01.0678', 'अहि!-10.0328'], key)) return; // NO KNOWN DHATU
         gana = nums.split('.')[0];
         num = nums.split('.')[1];
         dhatu = dhatu.trim();
+        dhatu = dhatu.replace(/!$/, '');
+        dhatu = dhatu.replace(/!र्$/, '!');
+        dhatu = dhatu.replace(/!ष्$/, '!');
+        dhatu = dhatu.replace(/!ङ्$/, '!');
+        dhatu = dhatu.replace(/^ओ!/, '');
+        dhatu = dhatu.replace(/^उ!/, '');
+        dhatu = dhatu.replace(/^ई!/, '');
+        dhatu = dhatu.replace(/^टुओ!/, '');
+        var fin = dhatu.slice(-1);
+        if (fin == '!') {
+            dhatu = dhatu.slice(0,-1);
+            fin = dhatu.slice(-1);
+            if (u.isVowel(fin)) dhatu = dhatu.slice(0, -1);
+        }
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'भिदि!र्') return; // ================ DHATU ====================
+        // if (dhatu != 'हिवि!') return; // ================ DHATU ====================
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
+
+        key = [dhatu, nums].join('-');
         var line = {form: form, la: la, tip: tip, dhatu: dhatu, gana: gana, pada: pada}; // , num: num, key: key
+
 
         if (!check[key]) {
             check[key] = true;
@@ -116,99 +131,10 @@ function formsRun(rows) {
             log(vnest.slice(-2));
             throw new Error();
         }
-        var fin, re;
-        if (vhead.key == 'ईङ्-04.0038') vhead.dhatu = 'ई';
-        else if (vhead.key == 'ञिक्ष्विदा!-04.0159') vhead.dhatu = 'क्ष्विद्';
-        else if (vhead.key == 'षूङ्-04.0027') vhead.dhatu = 'सू';
-        else if (vhead.key == 'झॄष्-04.0026') vhead.dhatu = 'झॄ';
-        // else if (vhead.key == 'डीङ्-04.0030') vhead.dhatu = 'डी';
-        else if (vhead.key == 'ञितृष!-04.0141') vhead.dhatu = 'तृष्';
-        else if (vhead.key == 'णभ!-04.0155') continue;
-        else if (vhead.key == 'णश!-04.0091') continue;
-        else if (vhead.key == 'णह!-04.0062') continue;
-        else if (vhead.key == 'षिवु!-04.0002') continue;
-        else if (vhead.key == 'विस!-04.0123') continue;
-        else if (vhead.key == 'ष्णसु!-04.0006') continue;
-        else if (vhead.key == 'बिस!-04.0124') continue;
-        else if (vhead.key == 'षह!-04.0341') continue;
-        else if (vhead.key == 'षिधु!-04.0089') continue;
-        else if (vhead.key == 'षुह!-04.0024') continue;
-        else if (vhead.key == 'षो-04.0042') continue;
-        else if (vhead.key == 'ष्टिम!-04.0019') continue;
-        else if (vhead.key == 'ष्टीम!-04.0020') continue;
-        else if (vhead.key == 'ष्टुप!-04.0190') continue;
-        else if (vhead.key == 'ष्टूप!-04.0191') continue;
-        else if (vhead.key == 'ष्णिह!-04.0055') continue;
-        else if (vhead.key == 'ष्णुसु!-04.0005') continue;
-        else if (vhead.key == 'ष्णुह!-04.0096') continue;
-        else if (vhead.key == 'ष्विदा!-04.0085') continue;
-        else if (vhead.key == '') continue;
-        else if (vhead.key == '') continue;
-        else if (vhead.key == '') continue;
-        else if (vhead.key == '') continue;
-        else if (vhead.key == '') continue;
-        else if (vhead.key == 'ई!शुचि!र्-04.0061') vhead.dhatu = 'शुच्';
-        else if (vhead.key == '') vhead.dhatu = '';
-        else if (vhead.key == '') vhead.dhatu = '';
-
-
-        else if (vhead.dhatu.slice(-2) == 'ङ्') vhead.dhatu = vhead.dhatu.slice(0,-2);
-
-        // else if (vhead.key == 'ई!शुचि!र्-04.0061') vhead.dhatu = 'शुच्';
-        else if (vhead.dhatu.split('!').length > 2) {
-            // log('V HEAD __', vhead, vhead.dhatu.split('!'));
-            vhead.dhatu = vhead.dhatu.split('!')[1];
-            if (u.isVowel(fin)) {
-                re = new RegExp(fin + '$');
-                vhead.dhatu = vhead.dhatu.replace(re, c.virama);
-            }
-        }
-        else if (/!/.test(vhead.dhatu)) {
-            // log('===========', vhead);
-            fin = vhead.dhatu.slice(-1);
-            if (fin == '!') vhead.dhatu = vhead.dhatu.slice(0,-1);
-            fin = vhead.dhatu.slice(-1);
-            if (u.isVowel(fin)) {
-                re = new RegExp(fin + '$');
-                vhead.dhatu = vhead.dhatu.replace(re, c.virama);
-            }
-        }
-
-
-        // FIXME: это вынести в модуль, или как-то разобраться
-        if (vhead.key == 'भिदि!र्-07.0002') vhead.dhatu = 'भिद्';
-        else if (vhead.key == 'अञ्जू!-07.0316') vhead.dhatu = 'अञ्ज्';
-        else if (vhead.key == 'ञिइन्धी!-07.0011') vhead.dhatu = 'इन्ध्';
-        else if (vhead.key == 'उन्दी!-07.0020') vhead.dhatu = 'उन्द्';
-        else if (vhead.key == 'कृती!-07.0010') vhead.dhatu = 'कृत्';
-        else if (vhead.key == 'क्षुदि!र्-07.0006') vhead.dhatu = 'क्षुद्';
-        else if (vhead.key == 'छिदि!र्-07.0003') vhead.dhatu = 'छिद्';
-        else if (vhead.key == 'उ!छृदि!र्-07.0352') vhead.dhatu = 'छृद्';
-        else if (vhead.key == 'तञ्चू!-07.0022') vhead.dhatu = 'तञ्च्';
-        else if (vhead.key == 'उ!तृदि!र्-07.0009') vhead.dhatu = 'तृद्';
-        else if (vhead.key == 'पिषॢ!-07.0015') vhead.dhatu = 'पिष्';
-        else if (vhead.key == 'पृची!-07.0339') vhead.dhatu = 'पृच्';
-        else if (vhead.key == 'भञ्जो!-07.0290') vhead.dhatu = 'भञ्ज्';
-        else if (vhead.key == 'युजि!र्-07.0338') vhead.dhatu = 'युज्';
-        else if (vhead.key == 'रिचि!र्-07.0348') vhead.dhatu = 'रिच्';
-        else if (vhead.key == 'रुधि!र्-07.0001') vhead.dhatu = 'रुध्';
-        else if (vhead.key == 'विचि!र्-07.0005') vhead.dhatu = 'विच्';
-        else if (vhead.key == 'ओ!विजी!-07.0023') vhead.dhatu = 'विज्';
-        else if (vhead.key == 'वृजी!-07.0344') vhead.dhatu = 'वृज्';
-        else if (vhead.key == 'शिषॢ!-07.0349') vhead.dhatu = 'शिष्';
-        else if (vhead.key == 'हिसि!-07.0366') continue; // нет дхату ?
-        else if (vhead.key == '') vhead.dhatu = '्';
-        else if (vhead.key == '') vhead.dhatu = '्';
-        else if (vhead.key == '') vhead.dhatu = '्';
-        else if (vhead.key == '') vhead.dhatu = '्';
-        else if (vhead.key == '') vhead.dhatu = '्';
-        else if (vhead.key == '') vhead.dhatu = '्';
-        else if (vhead.key == '') vhead.dhatu = '्';
-        else if (vhead.key == '') vhead.dhatu = '्';
-        else if (vhead.key == '') vhead.dhatu = '्';
-
-
-        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.raw == vhead.dhatu || dp.raw.replace(/!/g, '') == vhead.dhatu.replace(/!/g, '') || dp.raw.replace(/्$/, '') == vhead.dhatu.replace(/!/g, '')) });
+        // var fin, re;
+        // ws-wo-dhatu-gana-pada-set-num
+        // { dhatu: 'हिवि!', gana: '01', num: '0675', key: 'हिवि!-01.0675' }
+        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.ws == vhead.dhatu || dp.wo == vhead.dhatu || dp.dhatu == vhead.dhatu) });
         if (dicts.length == 0) {
             log('DICT ERR:', vhead);
             // throw new Error();
@@ -603,3 +529,93 @@ function vowCount(str) {
     });
     return vows;
 }
+
+        // if (vhead.key == 'ईङ्-04.0038') vhead.dhatu = 'ई';
+        // else if (vhead.key == 'ञिक्ष्विदा!-04.0159') vhead.dhatu = 'क्ष्विद्';
+        // else if (vhead.key == 'षूङ्-04.0027') vhead.dhatu = 'सू';
+        // else if (vhead.key == 'झॄष्-04.0026') vhead.dhatu = 'झॄ';
+        // // else if (vhead.key == 'डीङ्-04.0030') vhead.dhatu = 'डी';
+        // else if (vhead.key == 'ञितृष!-04.0141') vhead.dhatu = 'तृष्';
+        // else if (vhead.key == 'णभ!-04.0155') continue;
+        // else if (vhead.key == 'णश!-04.0091') continue;
+        // else if (vhead.key == 'णह!-04.0062') continue;
+        // else if (vhead.key == 'षिवु!-04.0002') continue;
+        // else if (vhead.key == 'विस!-04.0123') continue;
+        // else if (vhead.key == 'ष्णसु!-04.0006') continue;
+        // else if (vhead.key == 'बिस!-04.0124') continue;
+        // else if (vhead.key == 'षह!-04.0341') continue;
+        // else if (vhead.key == 'षिधु!-04.0089') continue;
+        // else if (vhead.key == 'षुह!-04.0024') continue;
+        // else if (vhead.key == 'षो-04.0042') continue;
+        // else if (vhead.key == 'ष्टिम!-04.0019') continue;
+        // else if (vhead.key == 'ष्टीम!-04.0020') continue;
+        // else if (vhead.key == 'ष्टुप!-04.0190') continue;
+        // else if (vhead.key == 'ष्टूप!-04.0191') continue;
+        // else if (vhead.key == 'ष्णिह!-04.0055') continue;
+        // else if (vhead.key == 'ष्णुसु!-04.0005') continue;
+        // else if (vhead.key == 'ष्णुह!-04.0096') continue;
+        // else if (vhead.key == 'ष्विदा!-04.0085') continue;
+        // else if (vhead.key == '') continue;
+        // else if (vhead.key == '') continue;
+        // else if (vhead.key == '') continue;
+        // else if (vhead.key == '') continue;
+        // else if (vhead.key == '') continue;
+        // else if (vhead.key == 'ई!शुचि!र्-04.0061') vhead.dhatu = 'शुच्';
+        // else if (vhead.key == '') vhead.dhatu = '';
+        // else if (vhead.key == '') vhead.dhatu = '';
+
+
+        // else if (vhead.dhatu.slice(-2) == 'ङ्') vhead.dhatu = vhead.dhatu.slice(0,-2);
+
+        // // else if (vhead.key == 'ई!शुचि!र्-04.0061') vhead.dhatu = 'शुच्';
+        // else if (vhead.dhatu.split('!').length > 2) {
+        //     // log('V HEAD __', vhead, vhead.dhatu.split('!'));
+        //     vhead.dhatu = vhead.dhatu.split('!')[1];
+        //     if (u.isVowel(fin)) {
+        //         re = new RegExp(fin + '$');
+        //         vhead.dhatu = vhead.dhatu.replace(re, c.virama);
+        //     }
+        // }
+        // else if (/!/.test(vhead.dhatu)) {
+        //     // log('===========', vhead);
+        //     fin = vhead.dhatu.slice(-1);
+        //     if (fin == '!') vhead.dhatu = vhead.dhatu.slice(0,-1);
+        //     fin = vhead.dhatu.slice(-1);
+        //     if (u.isVowel(fin)) {
+        //         re = new RegExp(fin + '$');
+        //         vhead.dhatu = vhead.dhatu.replace(re, c.virama);
+        //     }
+        // }
+
+
+        // // FIXME: это вынести в модуль, или как-то разобраться
+        // if (vhead.key == 'भिदि!र्-07.0002') vhead.dhatu = 'भिद्';
+        // else if (vhead.key == 'अञ्जू!-07.0316') vhead.dhatu = 'अञ्ज्';
+        // else if (vhead.key == 'ञिइन्धी!-07.0011') vhead.dhatu = 'इन्ध्';
+        // else if (vhead.key == 'उन्दी!-07.0020') vhead.dhatu = 'उन्द्';
+        // else if (vhead.key == 'कृती!-07.0010') vhead.dhatu = 'कृत्';
+        // else if (vhead.key == 'क्षुदि!र्-07.0006') vhead.dhatu = 'क्षुद्';
+        // else if (vhead.key == 'छिदि!र्-07.0003') vhead.dhatu = 'छिद्';
+        // else if (vhead.key == 'उ!छृदि!र्-07.0352') vhead.dhatu = 'छृद्';
+        // else if (vhead.key == 'तञ्चू!-07.0022') vhead.dhatu = 'तञ्च्';
+        // else if (vhead.key == 'उ!तृदि!र्-07.0009') vhead.dhatu = 'तृद्';
+        // else if (vhead.key == 'पिषॢ!-07.0015') vhead.dhatu = 'पिष्';
+        // else if (vhead.key == 'पृची!-07.0339') vhead.dhatu = 'पृच्';
+        // else if (vhead.key == 'भञ्जो!-07.0290') vhead.dhatu = 'भञ्ज्';
+        // else if (vhead.key == 'युजि!र्-07.0338') vhead.dhatu = 'युज्';
+        // else if (vhead.key == 'रिचि!र्-07.0348') vhead.dhatu = 'रिच्';
+        // else if (vhead.key == 'रुधि!र्-07.0001') vhead.dhatu = 'रुध्';
+        // else if (vhead.key == 'विचि!र्-07.0005') vhead.dhatu = 'विच्';
+        // else if (vhead.key == 'ओ!विजी!-07.0023') vhead.dhatu = 'विज्';
+        // else if (vhead.key == 'वृजी!-07.0344') vhead.dhatu = 'वृज्';
+        // else if (vhead.key == 'शिषॢ!-07.0349') vhead.dhatu = 'शिष्';
+        // else if (vhead.key == 'हिसि!-07.0366') continue; // нет дхату ?
+        // else if (vhead.key == '') vhead.dhatu = '्';
+        // else if (vhead.key == '') vhead.dhatu = '्';
+        // else if (vhead.key == '') vhead.dhatu = '्';
+        // else if (vhead.key == '') vhead.dhatu = '्';
+        // else if (vhead.key == '') vhead.dhatu = '्';
+        // else if (vhead.key == '') vhead.dhatu = '्';
+        // else if (vhead.key == '') vhead.dhatu = '्';
+        // else if (vhead.key == '') vhead.dhatu = '्';
+        // else if (vhead.key == '') vhead.dhatu = '्';

@@ -27,6 +27,10 @@ var list_logger = fs.createWriteStream(dhatuPathaCachePath, {
     defaultEncoding: 'utf8'
 });
 
+var  head = ['wsvara', 'wosvara', 'dhatu', 'gana', 'pada', 'set', 'num', '\n'].join('-');
+list_logger.write(head);
+
+
 var dhatuList = fs.readFileSync(rawPath).toString().split('\n');
 
 var padas = [];
@@ -43,7 +47,7 @@ var atms = ['त', 'आताम्', 'झ', 'थास्', 'आथाम्', 
 var wos = [];
 var wcheck = {};
 listForms.forEach(function(row, idz) {
-    if (idz < 1000) return;
+    // if (idz < 1000) return;
     // if (idz > 200000) return;
     var form, wosvara, la, tip, nums, wovowel;
     if (row == '') return;
@@ -83,6 +87,7 @@ var size = 0;
 var selects = [];
 
 wos.forEach(function(owo, idy) {
+    // if (idy > 10) return;
     var rows = [];
     dhatuList.forEach(function(row, idx) {
         row = row.trim();
@@ -190,11 +195,11 @@ wos.forEach(function(owo, idy) {
             var lines = [];
             if (clean.dhatu) {
                 clean.padas.forEach(function(pada) {
-                    line = [clean.wsvara, clean.wosvara, clean.dhatu, clean.gana, pada, clean.set, clean.num].join('-');
+                    line = [clean.ws, clean.wo, clean.dhatu, clean.gana, pada, clean.set, clean.num].join('-');
                     lines.push(line);
                 });
-            } else {
-                line = ['wo', clean.wosvara, clean.wosvara, clean.gana, '*', clean.num].join('-');
+            } else { // OWO
+                line = ['wsvara', clean.wo, clean.wo, clean.gana, clean.pada, 'set', clean.num].join('-');
                 lines = [line];
             }
 
