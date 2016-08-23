@@ -55,6 +55,8 @@ ctins.forEach(function(ctin) {
 
 log('DAS', dhatuAngas.length, _.uniq(dhatuAngas).length);
 
+// log('TINS', stemmer.tins.length);
+
 console.time("queryTime");
 
 var queries;

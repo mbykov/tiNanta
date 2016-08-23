@@ -7,7 +7,7 @@ var debug = (process.env.debug == 'true') ? true : false;
 var _ = require('underscore');
 var fs = require('fs');
 var path = require('path');
-var sha1 = require('sha1');
+// var sha1 = require('sha1');
 
 var s = require('sandhi');
 var c = s.const;
@@ -19,13 +19,13 @@ var p = u.p;
 
 var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 
-// это в run.js
+var t = require('./lib/get_caches');
 
-// var lakaras = ['law', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
-// var ctinsPath = path.join(__dirname, './lib/canonical_tins_cache.js');
 
-// var tinsPath = path.join(__dirname, './lib/tins_cache.js');
-// var ctins = fs.readFileSync(tinsPath).toString().split('\n');
+// exports = module.exports = {
+//     stemmer: stemmer,
+//     tins: stemmer.tins
+// }
 
 exports = module.exports = stemmer();
 
@@ -47,7 +47,7 @@ stemmer.prototype.query = function(query, ctins, das) {
     // var stem, tip, tin, size, gana, la, pada, tvar; // , tvar, canon, periph ;
     // त-ते-2-01-लट्-आ-0-1
     var results = [];
-    // var odhatu, ostem, ogana, ola, opada, otvar, otips, osha1;
+    // var odhatu, ostem, ogana, ola, opada, otvar, otips;
 
     ctins.forEach(function(tin) {
         fit = (tin.size == 0) ? '' : query.slice(-tin.size);
@@ -68,17 +68,8 @@ stemmer.prototype.query = function(query, ctins, das) {
             tin.pass = true;
         }
 
-
-        // таблица форм - http://www.lonweb.org/links/sanskrit/lang/017.htm
-        // passive: A.; -ya
-        // causal: U.; aguna; -aya
-        // desid: redup, non-conj: -s; conj: -sa
-        // http://www.learnsanskrit.org/verbs/doubling/intensive
-        // freq: redup spec. A.; -ya
-        // freq: redup. spec. P.; -ya
-
-
         // FIXME: ucheck das вынести наружу, делать один раз
+
         var ucheck = {};
         var key;
         das.forEach(function(da) {

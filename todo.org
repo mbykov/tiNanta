@@ -5,14 +5,26 @@
   определяет queries для samasa по окончанию
   начало 9 июня 2016, окончить к концу сентября
 
-  - 16 августа
+* workflow  - 16 августа
   - uohyd_make_dhatupatha.js => создает DP
   - uohyd_make_cache.js => создает tins, dhatu-anga, tests
   - queries содержат dhatu, которое обязано быть в DB
   -
+  - [ ] убрать все лишнее
   - [ ] не доделаны приставки
-  - [ ] нужно прогнать все тесты и
+  - [ ] нужно прогнать все тесты
   - [ ] создать полный cache <<=========== !!!!!!!!!
+
+
+
+*  таблица форм - http://www.lonweb.org/links/sanskrit/lang/017.htm
+   // passive: A.; -ya
+   // causal: U.; aguna; -aya
+   // desid: redup, non-conj: -s; conj: -sa
+   // http://www.learnsanskrit.org/verbs/doubling/intensive
+   // freq: redup spec. A.; -ya
+   // freq: redup. spec. P.; -ya
+
 
 
 
