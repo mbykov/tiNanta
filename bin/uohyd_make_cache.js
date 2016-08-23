@@ -12,7 +12,7 @@ var inc = u.include;
 var log = u.log;
 var p = u.p;
 var salita = require('salita-component');
-var sha1 = require('sha1');
+// var sha1 = require('sha1');
 var stemmer = require('../index');
 
 var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva20062016.csv');
@@ -58,9 +58,10 @@ var endings = {};
 var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्': {}, 'लुट्': {}, 'लृट्': {}, 'लोट्': {}, 'विधिलिङ्': {}, 'आशीर्लिङ्': {}, 'लृङ्': {}}; // लृट् -> ऌट् ;  लृङ् -> ॡङ्
 
-var gana_to_test = '01';
-// ошибки - लृट्
-var la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+var gana_to_test;
+var la_to_test;
+// gana_to_test = '01';
+// la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 
 function formsRun(rows) {

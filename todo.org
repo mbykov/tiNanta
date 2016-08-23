@@ -4,21 +4,27 @@
 * descr ============== stemmer для v.0.4 ===============
   определяет queries для samasa по окончанию
   начало 9 июня 2016, окончить к концу сентября
-  todo в _todo.org
+
+  - 16 августа
+  - uohyd_make_dhatupatha.js => создает DP
+  - uohyd_make_cache.js => создает tins, dhatu-anga, tests
+  - queries содержат dhatu, которое обязано быть в DB
+  -
+  - [ ] не доделаны приставки
+  - [ ] нужно прогнать все тесты и
+  - [ ] создать полный cache <<=========== !!!!!!!!!
+
 
 
 * 3 авг - tiNanta.js - तिङन्त
-  - [ ] новый PD
-  - [ ] passive
-
-* subanta.js
-  - [ ] start
-  - [ ] причастия start
-
+  - [X] новый PD
+  - [ ] passive - нужны тесты
+  - [ ]
 
 * diglossa.js
-  - убрать всплывающее окно
+  - убрать всплывающее окно везде
   -
+
 
 * v.0.4
   - v.0.4
@@ -29,6 +35,11 @@
   - новые глаголы прикрутить
   -
 
+* appcel - start - p8 - либо Win
+
+
+* p8
+  топоров - святость
 
 
 * 31 июля
@@ -36,11 +47,6 @@
   - как будет вести себя нестандарный tvar?
   -
   - но, главное. Дело сделано, нужно составить план выпуска v.0.4, и сделать. А игры - потом, и в процессе
-  - [ ] соответствие DHATUS <<====
-  - и план чтения О Душе
-  - и план app-diglossa
-  - и хорошо бы план разработки всего глагола
-  -
   - ===================
 
 
@@ -96,32 +102,8 @@
 
 
 
-* laN - augment
-  - не понятно, как проверять наличие A? сначала нужно вычесть все приставки
-  -
-
 
 * stems & terminations
   - https://www.quora.com/How-are-the-verbs-in-Sanskrit-classified-As-well-what-are-the-most-common-tenses-and-how-are-verbs-usually-conjugated-in-those-tenses
   - http://learning-sanskrit.blogspot.ru/2012_05_01_archive.html?view=classic
   - http://www.sanskrit-sanscrito.com.ar/en/appendixes-verbs-appen-verbs-1-english-0/728
-
-* pratyaya
-  - http://sanatan-rigveda.blogspot.ru/p/verb-forms-krridantapada-in-chapter-3.html
-
-In the following chapters we will study the following verb forms or धातुरुप (dhaaturupa).
-
-    तुमुन् प्रत्यय (tumun pratyaya)
-    क्त्वाच् प्रत्यय (ktvaach pratyaya)
-    ल्यप् प्रत्यय (lyap pratyaya)
-    ल्युट् प्रत्यय (lyuT pratyaya)
-    क्तवतु प्रत्यय (ktavatu pratyaya)
-    क्त प्रत्यय (kta pratyaya)
-    अनीयर् प्रत्यय (aniiyar pratyaya)
-    तव्यत् प्रत्यय (tavyat pratyaya)
-    यत् प्रत्यय (yat pratyaya)
-    शतृ प्रत्यय (shatRRi pratyaya)
-    शानच् प्रत्यय (shaanach pratyaya)
-    क्तिन् प्रत्यय (ktin pratyaya)
-    घञ्ज् प्रत्यय (ghJNj pratyaya)
-    खल् प्रत्यय (khal pratyaya)

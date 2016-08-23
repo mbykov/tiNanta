@@ -4,16 +4,6 @@ REPORTER = dot
 g = _
 g = ''
 
-test:
-	@NODE_ENV=test ./node_modules/.bin/mocha \
-		--require should \
-		--reporter $(REPORTER) \
-		--slow 500 \
-		--grep $(g) \
-		--timeout 3000 \
-		test/test.js \
-#		2> /dev/null
-
 find:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--require should \
@@ -24,7 +14,7 @@ find:
 		test/jnu_find.js \
 #		2> /dev/null
 
-parse:
+test:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--require should \
 		--reporter $(REPORTER) \

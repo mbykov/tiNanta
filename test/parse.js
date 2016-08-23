@@ -66,7 +66,7 @@ tests.forEach(function(row, idx) {
     if (row == '') return;
     var form, dhatu, gana, la, pada, tip, excep;
     [form, dhatu, gana, la, pada, tip, excep] = row.split('-');
-    // if (excep == 1) return;
+    if (gana != '01') return;
     test = {form: form, dhatu, dhatu, gana: gana, la: la, pada: pada, tip: tip};
     // log('T', test);
     _Fn(test);
