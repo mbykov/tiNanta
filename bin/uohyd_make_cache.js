@@ -172,8 +172,8 @@ function formsRun(rows) {
     // writeTinCache(endings);
     // writeTestsCache(docs);
 
-    // pushTinCache(endings);
-    pushDhatuAnga(docs);
+    pushTinCache(endings);
+    // pushDhatuAnga(docs);
 }
 
 function parseNest(nest, gana) {
@@ -421,12 +421,12 @@ function pushTinCache(endings) {
             for (var tip in otins) {
                 var tins = otins[tip];
                 tins.forEach(function(tin, idz) {
-                    tkey = [tip, tin, gana, la, pada].join('-'); // , tvar - не нужен, потому что не буду восстанавливать все формы пока
+                    tkey = [tip, tin, gana, la, pada, tvar].join('-');
                     if (check[tkey]) return;
                     check[tkey] = true;
                     // periph = (rePeriph.test(tin)) ? 1 : 0;
                     // tinrow = [tip, tin, tin.length, gana, la, pada, tvar].join('-');
-                    doc = {tip: tip, tin: tin, size: tin.length, gana: gana, la: la, pada: pada}; // , tvar: tvar
+                    doc = {tip: tip, tin: tin, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar}; //
                     docs.push(doc);
                 });
             }

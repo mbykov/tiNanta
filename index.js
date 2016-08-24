@@ -44,16 +44,53 @@ stemmer.prototype.query = function(query, cb) {
         // log('INSIDE TINS', err, res);
         if (err) cb(err, null);
         if (tins) log('TINS:', tins.length);
-        parseQueries(query, tins, function(err, qs) {
-            log('LAST QS - DAS');
-            cb(null, 'KUKU DAS');
+        parseQueries(query, tins, function(err, das) {
+            // log('LAST QS - TINS', tins);
+            // log('LAST QS - DAS', das);
+            let queries = mapDas2Tins(das, tins);
+            // log('LAST QS - QS', queries);
+
+            cb(null, queries);
         });
     });
 
 }
 
+function mapDas2Tins(das, tins) {
+    let queries = [];
+    tins.forEach(function(tin) {
+        var ucheck = {};
+        var key;
+        das.forEach(function(da) {
+            // почему здесь неуникальность?
+            // if (da.dhatu == tin.dhatu) {
+            //     key = [tin.tip, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.tvar, tin.stem, da.dhatu].join('-');
+            //     if (!ucheck[key]) {
+            //         let res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: da.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu, pass: true};
+            //         queries.push(res);
+            //         ucheck[key] = true;
+            //     }
+            // }
+
+            key = [tin.tip, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.stem, da.dhatu].join('-');
+            if (da.stem == tin.stem && da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
+                // log(1, tin)
+                if (ucheck[key]) return;
+                if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
+                let res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu};
+                queries.push(res);
+                ucheck[key] = true;
+            }
+        });
+
+    });
+    return queries;
+}
+
+
+
 function parseQueries(query, tins, cb) {
-    log('Q', query);
+    // log('Q', query);
     // log('Q', tins);
     let stems = [];
     tins.forEach(function(tin) {
@@ -62,7 +99,7 @@ function parseQueries(query, tins, cb) {
         tin.stem = stem;
     });
     getDas(stems, function(err, das) {
-        cb(null, 'DAS');
+        cb(null, das);
     });
 }
 
@@ -77,11 +114,11 @@ function getTins(query, cb) {
         term = query.slice(-num);
         qs.push(term);
     }
-    log('QS', qs);
+    // log('QS', qs);
     // var keys = ['keys=', [JSON.stringify(qs)]].join('');
     let keys = {keys: qs};
     // var keys = ['keys=', JSON.stringify(['इहैव'])].join('');
-    log('get Tins =====>> keys:', keys);
+    // log('get Tins =====>> keys:', keys);
     relax
         .postView(view)
         .send(keys)
@@ -102,11 +139,10 @@ function getTins(query, cb) {
 
 function getDas(stems, cb) {
     relax.dbname('sa-das');
-    log('GET DAS', stems); // आप्नोति-आप्-05-लट्-प-तिप्-0
-
+    // log('GET DAS', stems);
     var view = 'sa-das/byStem';
     let keys = {keys: stems};
-    log('get Tins =====>> keys:', keys);
+    // log('get Das =====>> keys:', keys);
     relax
         .postView(view)
         .send(keys)
@@ -120,11 +156,15 @@ function getDas(stems, cb) {
             if (!rows) cb(err, null);
             // log('./morph get Dicts: rows', rows);
             var docs = rows.map(function(row) { return row.doc; });
-            log('SIZE DAS:', docs);
+            // log('SIZE DAS:', docs.length);
             cb(err, docs);
         });
 }
 
+
+
+// здесь взять только обработку pass
+// то есть выбор по dhatu
 
 function parseQueries_(query, tins) {
     log('Q', query);
@@ -175,4 +215,5 @@ function parseQueries_(query, tins) {
             }
         });
     });
+
 }

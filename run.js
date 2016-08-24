@@ -69,8 +69,7 @@ console.time("queryTime");
 stemmer.query(form, function(err, queries) {
     p(queries);
     log('qs size:', queries.length);
+    console.timeEnd("queryTime");
 });
 
 // ==============
-
-console.timeEnd("queryTime");
