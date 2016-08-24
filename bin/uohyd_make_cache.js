@@ -15,6 +15,14 @@ var salita = require('salita-component');
 // var sha1 = require('sha1');
 var stemmer = require('../index');
 
+var push = process.argv.slice(2)[0];
+
+// var dbpath = 'http://admin:kjre4317@localhost:5984';
+var dbpath = 'http://localhost:5984';
+var Relax = require('relax-component');
+var relax = new Relax(dbpath);
+relax.dbname('sa-tin');
+
 var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva20062016.csv');
 
 var dhatuPathaCachePath = path.join(__dirname, '../lib/dhatupatha_cache.txt');
@@ -41,8 +49,8 @@ var tinsCachePath = path.join(__dirname, '../lib/tins_cache.js');
 var dhatuAngaCachePath = path.join(__dirname, '../lib/dhatu_anga_cache.txt');
 var testsCachePath = path.join(__dirname, '../test/tests_cache.txt');
 
-var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
-var canonicals = require(canonicalTinsPath);
+// var canonicalTinsPath = path.join(__dirname, '../lib/canonical_tins.js');
+// var canonicals = require(canonicalTinsPath);
 
 // var tips = ['तिप्', 'तस्', 'झि', 'सिप्', 'थस्', 'थ', 'मिप्', 'वस्', 'मस्', 'त', 'आताम्', 'झ', 'थास्', 'आथाम्', 'ध्वम्', 'इट्', 'वहि', 'महिङ्'];
 // var tips = {
@@ -60,8 +68,8 @@ var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्'
 
 var gana_to_test;
 var la_to_test;
-// gana_to_test = '01';
-// la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+gana_to_test = '05';
+la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 
 function formsRun(rows) {
@@ -160,9 +168,12 @@ function formsRun(rows) {
     // log(docs);
     // log('nest:', nests['अहि!-01.0722'][0]);
 
-    writeDhatuAnga(docs);
-    writeTinCache(endings, canonicals);
-    writeTestsCache(docs);
+    // writeDhatuAnga(docs);
+    // writeTinCache(endings);
+    // writeTestsCache(docs);
+
+    // pushTinCache(endings);
+    pushDhatuAnga(docs);
 }
 
 function parseNest(nest, gana) {
@@ -387,17 +398,101 @@ function parseStrongWeak(forms) {
 
 formsRun();
 
-// ===================================================================
-p(endings);
+// ENDINGS ==========================
+// p(endings);
 
 
-function writeTinCache(endings, canonicals) {
+function pushTinCache(endings) {
+    var docs = [];
+    var doc;
+    var check = {};
+    var tkey;
+    for (var glpkey in endings) {
+        var gana, la, pada;
+        [gana, la, pada] = glpkey.split('-');
+        // if (la_to_test && la != la_to_test) continue; // ========================== LAKARA
+        var jsons = endings[glpkey].arr;
+        jsons.forEach(function(json, tvar) {
+            var otins = JSON.parse(json);
+            var oTin, tinData;
+            // var tinrow;
+            // var tcan, periph;
+            // var rePeriph = new RegExp('ाञ्चक');
+            for (var tip in otins) {
+                var tins = otins[tip];
+                tins.forEach(function(tin, idz) {
+                    tkey = [tip, tin, gana, la, pada].join('-'); // , tvar - не нужен, потому что не буду восстанавливать все формы пока
+                    if (check[tkey]) return;
+                    check[tkey] = true;
+                    // periph = (rePeriph.test(tin)) ? 1 : 0;
+                    // tinrow = [tip, tin, tin.length, gana, la, pada, tvar].join('-');
+                    doc = {tip: tip, tin: tin, size: tin.length, gana: gana, la: la, pada: pada}; // , tvar: tvar
+                    docs.push(doc);
+                });
+            }
+        });
+    }
+    // log('DOCS', docs);
+    log('DOCS', docs.length);
+    if (push) {
+        relax.dbname('sa-tin');
+        pushDocs(docs);
+        log('tins pushed', docs.length);
+    } else {
+        p('tins may be pushed. . .', docs.length, 'tins to sa-tin');
+        p('first two:', docs.slice(0, 2));
+        log('=== to push add true ===');
+    }
+}
+
+function pushDhatuAnga(docs) {
+    var check = {};
+    var key, da;
+    var das = [];
+    docs.forEach(function(doc) {
+        key = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.num].join('-'); // , doc.tips
+        // row = [doc.dhatu, doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
+        // key = row;
+        // log('DA ROW', row);
+        da = {dhatu: doc.dhatu, stem: doc.stem, gana: doc.gana, la: doc.la, pada: doc.pada, tvar: doc.tvar};
+        if (doc.tips) da.tips = doc.tips;
+
+        if (!check[key]) {
+            das.push(da);
+            check[key] = true;
+        }
+    });
+    // log('DOCS', docs);
+    log('DOCS', das.length);
+    if (push) {
+        relax.dbname('sa-das');
+        pushDocs(das);
+        log('tins pushed', das.length);
+    } else {
+        p('das may be pushed. . .', docs.length, 'das to sa-das');
+        p('sample:', das.slice(0, 1));
+        log('=== to push to sa-das add true ===');
+    }
+}
+
+function pushDocs(docs) {
+    relax
+        .bulk(docs)
+        .end(function(err, res) {
+            log(res.text);
+        });
+}
+
+// ============ OLD but tests =========
+
+
+function writeTinCache(endings) {
     fs.unlinkSync(tinsCachePath);
     var tin_logger = fs.createWriteStream(tinsCachePath, {
         flags: 'a', // 'a' means appending (old data will be preserved)
         defaultEncoding: 'utf8'
     });
-    tin_logger.write('tip, tin, size, gana, la, pada \n');
+    tin_logger.write('tip, tin, size, gana, la, pada, tvar \n');
 
     var check = {};
     var tkey;
@@ -517,93 +612,3 @@ function vowCount(str) {
     });
     return vows;
 }
-
-        // if (vhead.key == 'ईङ्-04.0038') vhead.dhatu = 'ई';
-        // else if (vhead.key == 'ञिक्ष्विदा!-04.0159') vhead.dhatu = 'क्ष्विद्';
-        // else if (vhead.key == 'षूङ्-04.0027') vhead.dhatu = 'सू';
-        // else if (vhead.key == 'झॄष्-04.0026') vhead.dhatu = 'झॄ';
-        // // else if (vhead.key == 'डीङ्-04.0030') vhead.dhatu = 'डी';
-        // else if (vhead.key == 'ञितृष!-04.0141') vhead.dhatu = 'तृष्';
-        // else if (vhead.key == 'णभ!-04.0155') continue;
-        // else if (vhead.key == 'णश!-04.0091') continue;
-        // else if (vhead.key == 'णह!-04.0062') continue;
-        // else if (vhead.key == 'षिवु!-04.0002') continue;
-        // else if (vhead.key == 'विस!-04.0123') continue;
-        // else if (vhead.key == 'ष्णसु!-04.0006') continue;
-        // else if (vhead.key == 'बिस!-04.0124') continue;
-        // else if (vhead.key == 'षह!-04.0341') continue;
-        // else if (vhead.key == 'षिधु!-04.0089') continue;
-        // else if (vhead.key == 'षुह!-04.0024') continue;
-        // else if (vhead.key == 'षो-04.0042') continue;
-        // else if (vhead.key == 'ष्टिम!-04.0019') continue;
-        // else if (vhead.key == 'ष्टीम!-04.0020') continue;
-        // else if (vhead.key == 'ष्टुप!-04.0190') continue;
-        // else if (vhead.key == 'ष्टूप!-04.0191') continue;
-        // else if (vhead.key == 'ष्णिह!-04.0055') continue;
-        // else if (vhead.key == 'ष्णुसु!-04.0005') continue;
-        // else if (vhead.key == 'ष्णुह!-04.0096') continue;
-        // else if (vhead.key == 'ष्विदा!-04.0085') continue;
-        // else if (vhead.key == '') continue;
-        // else if (vhead.key == '') continue;
-        // else if (vhead.key == '') continue;
-        // else if (vhead.key == '') continue;
-        // else if (vhead.key == '') continue;
-        // else if (vhead.key == 'ई!शुचि!र्-04.0061') vhead.dhatu = 'शुच्';
-        // else if (vhead.key == '') vhead.dhatu = '';
-        // else if (vhead.key == '') vhead.dhatu = '';
-
-
-        // else if (vhead.dhatu.slice(-2) == 'ङ्') vhead.dhatu = vhead.dhatu.slice(0,-2);
-
-        // // else if (vhead.key == 'ई!शुचि!र्-04.0061') vhead.dhatu = 'शुच्';
-        // else if (vhead.dhatu.split('!').length > 2) {
-        //     // log('V HEAD __', vhead, vhead.dhatu.split('!'));
-        //     vhead.dhatu = vhead.dhatu.split('!')[1];
-        //     if (u.isVowel(fin)) {
-        //         re = new RegExp(fin + '$');
-        //         vhead.dhatu = vhead.dhatu.replace(re, c.virama);
-        //     }
-        // }
-        // else if (/!/.test(vhead.dhatu)) {
-        //     // log('===========', vhead);
-        //     fin = vhead.dhatu.slice(-1);
-        //     if (fin == '!') vhead.dhatu = vhead.dhatu.slice(0,-1);
-        //     fin = vhead.dhatu.slice(-1);
-        //     if (u.isVowel(fin)) {
-        //         re = new RegExp(fin + '$');
-        //         vhead.dhatu = vhead.dhatu.replace(re, c.virama);
-        //     }
-        // }
-
-
-        // // FIXME: это вынести в модуль, или как-то разобраться
-        // if (vhead.key == 'भिदि!र्-07.0002') vhead.dhatu = 'भिद्';
-        // else if (vhead.key == 'अञ्जू!-07.0316') vhead.dhatu = 'अञ्ज्';
-        // else if (vhead.key == 'ञिइन्धी!-07.0011') vhead.dhatu = 'इन्ध्';
-        // else if (vhead.key == 'उन्दी!-07.0020') vhead.dhatu = 'उन्द्';
-        // else if (vhead.key == 'कृती!-07.0010') vhead.dhatu = 'कृत्';
-        // else if (vhead.key == 'क्षुदि!र्-07.0006') vhead.dhatu = 'क्षुद्';
-        // else if (vhead.key == 'छिदि!र्-07.0003') vhead.dhatu = 'छिद्';
-        // else if (vhead.key == 'उ!छृदि!र्-07.0352') vhead.dhatu = 'छृद्';
-        // else if (vhead.key == 'तञ्चू!-07.0022') vhead.dhatu = 'तञ्च्';
-        // else if (vhead.key == 'उ!तृदि!र्-07.0009') vhead.dhatu = 'तृद्';
-        // else if (vhead.key == 'पिषॢ!-07.0015') vhead.dhatu = 'पिष्';
-        // else if (vhead.key == 'पृची!-07.0339') vhead.dhatu = 'पृच्';
-        // else if (vhead.key == 'भञ्जो!-07.0290') vhead.dhatu = 'भञ्ज्';
-        // else if (vhead.key == 'युजि!र्-07.0338') vhead.dhatu = 'युज्';
-        // else if (vhead.key == 'रिचि!र्-07.0348') vhead.dhatu = 'रिच्';
-        // else if (vhead.key == 'रुधि!र्-07.0001') vhead.dhatu = 'रुध्';
-        // else if (vhead.key == 'विचि!र्-07.0005') vhead.dhatu = 'विच्';
-        // else if (vhead.key == 'ओ!विजी!-07.0023') vhead.dhatu = 'विज्';
-        // else if (vhead.key == 'वृजी!-07.0344') vhead.dhatu = 'वृज्';
-        // else if (vhead.key == 'शिषॢ!-07.0349') vhead.dhatu = 'शिष्';
-        // else if (vhead.key == 'हिसि!-07.0366') continue; // нет дхату ?
-        // else if (vhead.key == '') vhead.dhatu = '्';
-        // else if (vhead.key == '') vhead.dhatu = '्';
-        // else if (vhead.key == '') vhead.dhatu = '्';
-        // else if (vhead.key == '') vhead.dhatu = '्';
-        // else if (vhead.key == '') vhead.dhatu = '्';
-        // else if (vhead.key == '') vhead.dhatu = '्';
-        // else if (vhead.key == '') vhead.dhatu = '्';
-        // else if (vhead.key == '') vhead.dhatu = '्';
-        // else if (vhead.key == '') vhead.dhatu = '्';

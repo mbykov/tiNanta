@@ -17,6 +17,12 @@ var inc = u.include;
 var log = u.log;
 var p = u.p;
 
+// var dbpath = 'http://admin:kjre4317@localhost:5984';
+var dbpath = 'http://localhost:5984';
+var Relax = require('relax-component');
+var relax = new Relax(dbpath);
+relax.dbname('sa-tin');
+
 var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 
 var t = require('./lib/get_caches');
@@ -33,25 +39,101 @@ function stemmer() {
     if (!(this instanceof stemmer)) return new stemmer();
 }
 
+stemmer.prototype.query = function(query, cb) {
+    getTins(query, function(err, tins) {
+        // log('INSIDE TINS', err, res);
+        if (err) cb(err, null);
+        if (tins) log('TINS:', tins.length);
+        parseQueries(query, tins, function(err, qs) {
+            log('LAST QS - DAS');
+            cb(null, 'KUKU DAS');
+        });
+    });
+
+}
+
+function parseQueries(query, tins, cb) {
+    log('Q', query);
+    // log('Q', tins);
+    let stems = [];
+    tins.forEach(function(tin) {
+        let stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
+        stems.push(stem);
+        tin.stem = stem;
+    });
+    getDas(stems, function(err, das) {
+        cb(null, 'DAS');
+    });
+}
+
+function getTins(query, cb) {
+    relax.dbname('sa-tin');
+    var view = 'sa-tin/byTin';
+    // let revers = query.split('').reverse();
+    let num, term;
+    let qs = [];
+    let stop = (query.length < 7) ? query.length : 7;
+    for (num = 0; num < stop; num++) {
+        term = query.slice(-num);
+        qs.push(term);
+    }
+    log('QS', qs);
+    // var keys = ['keys=', [JSON.stringify(qs)]].join('');
+    let keys = {keys: qs};
+    // var keys = ['keys=', JSON.stringify(['इहैव'])].join('');
+    log('get Tins =====>> keys:', keys);
+    relax
+        .postView(view)
+        .send(keys)
+        // .view(view)
+        // .query(keys)
+        .query({include_docs: true})
+        .end(function(err, res) {
+            // log('ERR morph getDicts', err, res.text);
+            if (err) return cb(err, null);
+            var rows = JSON.parse(res.text.trim()).rows;
+            if (!rows) cb(err, null);
+            // log('./morph get Dicts: rows', rows);
+            var docs = rows.map(function(row) { return row.doc; });
+            // log('SIZE:', docs);
+            cb(err, docs);
+        });
+}
+
+function getDas(stems, cb) {
+    relax.dbname('sa-das');
+    log('GET DAS', stems); // आप्नोति-आप्-05-लट्-प-तिप्-0
+
+    var view = 'sa-das/byStem';
+    let keys = {keys: stems};
+    log('get Tins =====>> keys:', keys);
+    relax
+        .postView(view)
+        .send(keys)
+        // .view(view)
+        // .query(keys)
+        .query({include_docs: true})
+        .end(function(err, res) {
+            // log('ERR morph getDicts', err, res.text);
+            if (err) return cb(err, null);
+            var rows = JSON.parse(res.text.trim()).rows;
+            if (!rows) cb(err, null);
+            // log('./morph get Dicts: rows', rows);
+            var docs = rows.map(function(row) { return row.doc; });
+            log('SIZE DAS:', docs);
+            cb(err, docs);
+        });
+}
 
 
-// =========================================== QUERY
-
-// переименовать в find, и в run.js тоже
-stemmer.prototype.query = function(query, ctins, das) {
-    // log('tiNanta', query);
-    // 1. выбираю подходящие tins:
-    var fits = [];
-    var fit, oFit;
-    var obj = {};
-    // var stem, tip, tin, size, gana, la, pada, tvar; // , tvar, canon, periph ;
-    // त-ते-2-01-लट्-आ-0-1
-    var results = [];
-    // var odhatu, ostem, ogana, ola, opada, otvar, otips;
-
-    ctins.forEach(function(tin) {
-        fit = (tin.size == 0) ? '' : query.slice(-tin.size);
-        if (fit != tin.tin) return;
+function parseQueries_(query, tins) {
+    log('Q', query);
+    // log('Q', tins);
+    // var results = [];
+    // let fit;
+    tins.forEach(function(tin) {
+        // fit = (tin.size == 0) ? '' : query.slice(-tin.size);
+        // if (fit != tin.tin) return;
         tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
 
         /*
@@ -67,8 +149,12 @@ stemmer.prototype.query = function(query, ctins, das) {
             // log('PASS', tin.stem, tin.dhatu);
             tin.pass = true;
         }
-
+        log('TIN', tin);
         // FIXME: ucheck das вынести наружу, делать один раз
+        // здесь нужно найти dhatu по das - по стему
+        // черт побери. Сколько же будет обращений к базе?
+
+        return;
 
         var ucheck = {};
         var key;
@@ -89,95 +175,4 @@ stemmer.prototype.query = function(query, ctins, das) {
             }
         });
     });
-
-    return results;
 }
-
-// ====================================
-
-// stemmer.prototype.query_ = function(query, ctins, das) {
-//     // log('tiNanta', query);
-//     // 1. выбираю подходящие tins:
-//     var fits = [];
-//     var fit, oFit;
-//     var obj = {};
-//     var stem, tip, tin, size, gana, la, pada, tvar; // , tvar, canon, periph ;
-//     // त-ते-2-01-लट्-आ-0-1
-//     var results = [];
-//     var odhatu, ostem, ogana, ola, opada, otvar, otips, osha1;
-
-//     ctins.forEach(function(ctin, idx) {
-//         [tip, tin, size, gana, la, pada, tvar] = ctin.split('-');
-//         fit = (size == 0) ? '' : query.slice(-size);
-//         if (fit != tin) return;
-
-//         stem = (size == 0) ? query : query.slice(0, -size);
-//         log('FIT, stem:', stem, JSON.stringify(tin));
-
-//         das.forEach(function(da) {
-//             if (da == '') return;
-//             [odhatu, ostem, ogana, ola, opada, otvar, otips, osha1] = da.split('-');
-//             // var shamsg = [ostem, ogana, ola, opada, otvar].join('-'); // , doc.tips
-//             // var shakey = sha1(shamsg);
-
-//             // if (ostem == stem && ola == la && opada == pada && otvar == tvar) { // а gana что ?
-//             if (ostem == stem && opada == pada && otvar == tvar) { // а gana что ?
-//             // if (osha1 == shakey) { // а gana что ?
-//                 if (otips && !inc(otips.split(','), tip)) return;
-//                 // log('DA', da);
-//                 var res = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar, stem: ostem, dhatu: odhatu};
-//                 results.push(res);
-//             }
-//         });
-//     });
-
-//     return results;
-// }
-
-
-// function noDaErr(stem, tins) {
-//     log('ERR', stem);
-//     log('ERR', tins);
-// }
-
-// stemmer.prototype.query_ = function(query, ctins, das) {
-//     // log('tiNanta', query);
-//     // 1. выбираю подходящие tins:
-//     var fits = [];
-//     var fit, oFit;
-//     var obj = {};
-//     var tip, tin, size, gana, la, pada, tvar; // , tvar, canon, periph ;
-//     // त-ते-2-01-लट्-आ-0-1
-//     ctins.forEach(function(ctin) {
-//         [tip, tin, size, gana, la, pada, tvar] = ctin.split('-');
-//         fit = (size == 0) ? '' : query.slice(-size);
-//         if (fit == tin) {
-//             oFit = {tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar}; // , tvar: tvar, canon: canon, periph: periph
-//             fits.push(oFit);
-//         }
-//     });
-
-//     // все в один цикл:
-//     var results = [];
-//     var dhatu, stem, gana, la, pada, tvar, tips, sha1;
-//     fits.forEach(function(tin) {
-//         tin.stem = (tin.size == 0) ? query : query.slice(0, -tin.size);
-//         // log('FIT, stem:', tin.stem, JSON.stringify(tin));
-
-//         das.forEach(function(da) {
-//             if (da == '') return;
-//             [dhatu, stem, gana, la, pada, tvar, tips, sha1] = da.split('-');
-//             if (stem == tin.stem && la == tin.la && pada == tin.pada && tvar == tin.tvar) { //  && tvar == tin.tvar
-//                 if (tips && !inc(tips.split(','), tin.tip)) return;
-//                 // tin.dhatu = dhatu;
-//                 // log('DA', da);
-//                 var res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tvar, stem: tin.stem, dhatu: dhatu};
-//                 results.push(res);
-//             }
-//         });
-//     });
-//     // if (results.length == 0) noDaErr(query, fits);
-//     // log('DAS', results);
-
-//     return results;
-// }

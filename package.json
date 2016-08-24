@@ -23,6 +23,7 @@
         "url": "https://github.com/mbykov/stemmer.git/issues"
     },
     "dependencies": {
+        "relax-component": "*",
         "underscore": "*",
         "async": "*",
         "shiva-sutras": "*",

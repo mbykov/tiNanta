@@ -33,38 +33,44 @@ if (/[a-zA-Z0-1]/.test(lat[0])) {
 if (find) log('stemmer find:', lat, form); // लोकृ्-लोक् // लोचृ्-लोच्// प्-पा
 else log('stemmer parse:', lat, form);
 
-var dhatuAngaPath = path.join(__dirname, './lib/dhatu_anga_cache.txt');
-var dhatuAngas = fs.readFileSync(dhatuAngaPath).toString().split('\n');
+// var dhatuAngaPath = path.join(__dirname, './lib/dhatu_anga_cache.txt');
+// var dhatuAngas = fs.readFileSync(dhatuAngaPath).toString().split('\n');
+// var das = [];
+// var odhatu, ostem, ogana, ola, opada, otvar, otips;
+// dhatuAngas.forEach(function(da) {
+//     if (da == '') return;
+//     [odhatu, ostem, ogana, ola, opada, otvar, otips] = da.split('-');
+//     das.push({dhatu: odhatu, stem: ostem, gana: ogana, la: ola, pada: opada, tvar: otvar, tips:otips});
+// });
+
+// var tinsPath = path.join(__dirname, './lib/tins_cache.js');
+// var ctins = fs.readFileSync(tinsPath).toString().split('\n');
+// var tins = [];
+// var tip, tin, size, gana, la, pada, tvar;
+// ctins.forEach(function(ctin) {
+//     if (ctin == '') return;
+//     [tip, tin, size, gana, la, pada, tvar] = ctin.split('-');
+//     tins.push({tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar});
+// });
+
 var das = [];
-var odhatu, ostem, ogana, ola, opada, otvar, otips;
-dhatuAngas.forEach(function(da) {
-    if (da == '') return;
-    [odhatu, ostem, ogana, ola, opada, otvar, otips] = da.split('-');
-    das.push({dhatu: odhatu, stem: ostem, gana: ogana, la: ola, pada: opada, tvar: otvar, tips:otips});
-});
-
-var tinsPath = path.join(__dirname, './lib/tins_cache.js');
-var ctins = fs.readFileSync(tinsPath).toString().split('\n');
 var tins = [];
-var tip, tin, size, gana, la, pada, tvar;
-ctins.forEach(function(ctin) {
-    if (ctin == '') return;
-    [tip, tin, size, gana, la, pada, tvar] = ctin.split('-');
-    tins.push({tip: tip, tin: tin, size: size, gana: gana, la: la, pada: pada, tvar: tvar});
-});
 
-log('DAS', dhatuAngas.length, _.uniq(dhatuAngas).length);
+log('DAS', das.length, _.uniq(das).length);
 
 // log('TINS', stemmer.tins.length);
 
 console.time("queryTime");
 
-var queries;
-if (!find) queries = stemmer.query(form, tins, das);
-else queries = stemmer.parse(form);
+// var queries;
+// if (!find) queries = stemmer.query(form, tins, das);
+// else queries = stemmer.parse(form);
+
+stemmer.query(form, function(err, queries) {
+    p(queries);
+    log('qs size:', queries.length);
+});
 
 // ==============
-p(queries);
-log('qs size:', queries.length);
 
 console.timeEnd("queryTime");
