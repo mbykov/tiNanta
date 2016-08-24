@@ -77,7 +77,7 @@ function mapDas2Tins(das, tins) {
                 // log(1, tin)
                 if (ucheck[key]) return;
                 if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
-                let res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu};
+                let res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, stem: tin.stem, dhatu: da.dhatu};
                 queries.push(res);
                 ucheck[key] = true;
             }
