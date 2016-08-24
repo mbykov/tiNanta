@@ -55,6 +55,7 @@ stemmer.prototype.query = function(query, cb) {
 
 function mapDas2Tins(das, tins) {
     let queries = [];
+    log('DAS', das.length);
     tins.forEach(function(tin) {
         var ucheck = {};
         var key;
@@ -69,9 +70,9 @@ function mapDas2Tins(das, tins) {
             //     }
             // }
 
-            key = [tin.tip, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.stem, da.dhatu].join('-');
+            key = [tin.tip, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.stem, da.dhatu, da.tvar].join('-');
             if (da.stem == tin.stem && da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
-                // log(1, tin)
+                // log('TIN', tin);
                 if (ucheck[key]) return;
                 if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
                 let res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, stem: tin.stem, dhatu: da.dhatu};
@@ -85,7 +86,6 @@ function mapDas2Tins(das, tins) {
 }
 
 
-
 function parseQueries(query, tins, cb) {
     // log('Q', query);
     // log('Q', tins);
@@ -95,6 +95,8 @@ function parseQueries(query, tins, cb) {
         stems.push(stem);
         tin.stem = stem;
     });
+    stems = _.uniq(stems);
+    // log('stems:', stems);
     getDas(stems, function(err, das) {
         cb(null, das);
     });
@@ -105,7 +107,7 @@ function getTins(query, cb) {
     var view = 'sa-tin/byTin';
     // let revers = query.split('').reverse();
     let num, term;
-    let qs = [];
+    let qs = [''];
     let stop = (query.length < 7) ? query.length : 7;
     for (num = 0; num < stop; num++) {
         term = query.slice(-num);
@@ -186,7 +188,7 @@ function parseQueries_(query, tins) {
             // log('PASS', tin.stem, tin.dhatu);
             tin.pass = true;
         }
-        log('TIN', tin);
+        // log('TIN', tin);
         // FIXME: ucheck das вынести наружу, делать один раз
         // здесь нужно найти dhatu по das - по стему
         // черт побери. Сколько же будет обращений к базе?

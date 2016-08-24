@@ -170,10 +170,10 @@ function formsRun(rows) {
 
     // writeDhatuAnga(docs);
     // writeTinCache(endings);
-    writeTestsCache(docs);
 
+    // writeTestsCache(docs);
     pushTinCache(endings);
-    pushDhatuAnga(docs);
+    // pushDhatuAnga(docs);
 }
 
 function parseNest(nest, gana) {
@@ -450,7 +450,7 @@ function pushDhatuAnga(docs) {
     var key, da;
     var das = [];
     docs.forEach(function(doc) {
-        key = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.num].join('-'); // , doc.tips
+        key = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.num, doc.tips].join('-'); // , doc.tips
         // row = [doc.dhatu, doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
         // key = row;
         // log('DA ROW', row);
@@ -479,9 +479,11 @@ function pushDocs(docs) {
     relax
         .bulk(docs)
         .end(function(err, res) {
-            log(res.text);
+            // log(res.text);
+            log('ok');
         });
 }
+
 
 // ============ OLD but tests =========
 
