@@ -78,17 +78,21 @@ function _Fn(test) {
     describe(descr, function(){
         var form = test.form;
         var fslp = salita.sa2slp(form);
-        var results, result;
+        var result;
         // var title = [fslp, test.lslp, test.pslp, form, test.la, 'tip', test.tip].join('_');
         var title = [test.form, test.gana, test.la, test.pada, 'tip', test.tip].join('_');
         it(title, function() {
-            results = stemmer.query(form, tins, das);
-            // results.length.should.equal(1);
-            // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
-            var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-')});
-            var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
-            if (!inc(rkeys, key)) log('err-test dhatu:', test.dhatu, 'form:', test.form, 'key', key, rkeys);
-            inc(rkeys, key).should.equal(true);
+            // log('T', test);
+            stemmer.query(form, function(err, results) {
+                // results.length.should.equal(1);
+                // например, cukzuBe चुक्षुभे, совпадают формы, alokata अलोकत - двойной рез. одной формы из-за artha в DP
+                var rkeys = results.map(function(r) {return [r.dhatu, r.la, r.pada, r.tip].join('-');});
+                var key = [test.dhatu, test.la, test.pada, test.tip].join('-');
+                // log('K', key, rkeys);
+                if (!inc(rkeys, key)) log('err-test dhatu:', test.dhatu, 'form:', test.form, 'key', key, rkeys);
+                true.should.equal(true);
+                inc(rkeys, key).should.equal(true);
+            });
         });
     });
 }

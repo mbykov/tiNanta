@@ -68,8 +68,8 @@ var laks = {'लट्': {}, 'लङ्': {}, 'लिट्': {}, 'लुङ्'
 
 var gana_to_test;
 var la_to_test;
-gana_to_test = '05';
-la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
+// gana_to_test = '05';
+// la_to_test = 'लट्'; // लट् ; लङ् ; लोट् ; विधिलिङ् ; लिट् ; लुट् ; लृट् ; आशीर्लिङ् ; लृङ्
 
 
 function formsRun(rows) {
@@ -170,10 +170,10 @@ function formsRun(rows) {
 
     // writeDhatuAnga(docs);
     // writeTinCache(endings);
-    // writeTestsCache(docs);
+    writeTestsCache(docs);
 
     pushTinCache(endings);
-    // pushDhatuAnga(docs);
+    pushDhatuAnga(docs);
 }
 
 function parseNest(nest, gana) {

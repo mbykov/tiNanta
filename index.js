@@ -23,10 +23,7 @@ var Relax = require('relax-component');
 var relax = new Relax(dbpath);
 relax.dbname('sa-tin');
 
-var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
-
-var t = require('./lib/get_caches');
-
+// var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 
 // exports = module.exports = {
 //     stemmer: stemmer,
@@ -43,7 +40,7 @@ stemmer.prototype.query = function(query, cb) {
     getTins(query, function(err, tins) {
         // log('INSIDE TINS', err, res);
         if (err) cb(err, null);
-        if (tins) log('TINS:', tins.length);
+        // if (tins) log('TINS:', tins.length);
         parseQueries(query, tins, function(err, das) {
             // log('LAST QS - TINS', tins);
             // log('LAST QS - DAS', das);
