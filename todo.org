@@ -5,15 +5,20 @@
   определяет queries для samasa по окончанию
   начало 9 июня 2016, окончить к концу сентября
 
-* BUG - tiN - пустое окончание. Нужно как-то добавить к результатам Кауча
+* 24 августа
+  - BUG - out of memory - test by async, не иначе
+  - собрать подобные tins, как в sups
+  - нельзя ли их сгруппировать заранее в make_cache ?
+  -
 
 
 * workflow  - 16 августа
   - uohyd_make_dhatupatha.js => создает DP
   - uohyd_make_cache.js => создает tins, dhatu-anga, tests
   - queries содержат dhatu, которое обязано быть в DB
+  - сначала создать пустые sa-tin, sa-das
+  - в конце grunt --gruntfile grunt-sa-tin.js ; -sa-das.js
   -
-  - [ ] убрать все лишнее
   - [ ] не доделаны приставки
   - [ ] нужно прогнать все тесты
   - [ ] создать полный cache <<=========== !!!!!!!!!

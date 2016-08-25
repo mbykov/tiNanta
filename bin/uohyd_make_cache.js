@@ -404,31 +404,47 @@ formsRun();
 
 function pushTinCache(endings) {
     var docs = [];
-    var doc;
+    // var doc;
     var check = {};
     var tkey;
     for (var glpkey in endings) {
+        // if (glpkey != '03-लिट्-आ') continue;
         var gana, la, pada;
         [gana, la, pada] = glpkey.split('-');
         // if (la_to_test && la != la_to_test) continue; // ========================== LAKARA
         var jsons = endings[glpkey].arr;
         jsons.forEach(function(json, tvar) {
-            var otins = JSON.parse(json);
-            var oTin, tinData;
+            let otips = JSON.parse(json);
+            // var oTin, tinData;
             // var tinrow;
             // var tcan, periph;
             // var rePeriph = new RegExp('ाञ्चक');
-            for (var tip in otins) {
-                var tins = otins[tip];
+
+            // log(otips);
+            let odocs = {};
+            for (var tip in otips) { // 'आताम्': [ 'ाते' ]; tip: [tins]
+                var tins = otips[tip];
                 tins.forEach(function(tin, idz) {
-                    tkey = [tip, tin, gana, la, pada, tvar].join('-');
-                    if (check[tkey]) return;
-                    check[tkey] = true;
+                    if (!odocs[tin]) odocs[tin] = {gana: gana, la: la, pada: pada, tvar: tvar, tips: []};
+                    odocs[tin].tips.push(tip);
+
+                    // tkey = [tip, tin, gana, la, pada, tvar].join('-');
+                    // if (check[tkey]) return;
+                    // check[tkey] = true;
+
                     // periph = (rePeriph.test(tin)) ? 1 : 0;
                     // tinrow = [tip, tin, tin.length, gana, la, pada, tvar].join('-');
-                    doc = {tip: tip, tin: tin, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar}; //
-                    docs.push(doc);
+                    // let doc = {tip: tip, tin: tin, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
+                    // docs.push(doc);
                 });
+            }
+            // log(odocs);
+            let tin;
+            for (tin in odocs) {
+                let odoc = odocs[tin];
+                let doc = {tin: tin, size: tin.length, gana: odoc.gana, la: odoc.la, pada: odoc.pada, tvar: odoc.tvar, tips: odoc.tips};
+                // log(doc);
+                docs.push(doc);
             }
         });
     }
@@ -439,7 +455,7 @@ function pushTinCache(endings) {
         pushDocs(docs);
         log('tins pushed', docs.length);
     } else {
-        p('tins may be pushed. . .', docs.length, 'tins to sa-tin');
+        p('tins to be pushed:', docs.length, 'to couch/sa-tin');
         p('first two:', docs.slice(0, 2));
         log('=== to push add true ===');
     }

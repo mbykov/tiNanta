@@ -62,20 +62,20 @@ function mapDas2Tins(das, tins) {
         das.forEach(function(da) {
             // почему здесь неуникальность?
             // if (da.dhatu == tin.dhatu) {
-            //     key = [tin.tip, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.tvar, tin.stem, da.dhatu].join('-');
+            //     key = [tin.tips, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.tvar, tin.stem, da.dhatu].join('-');
             //     if (!ucheck[key]) {
-            //         let res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: da.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu, pass: true};
+            //         let res = {tips: tin.tips, tin: tin.tin, size: tin.size, gana: da.gana, la: tin.la, pada: tin.pada, tvar: tin.tvar, stem: tin.stem, dhatu: da.dhatu, pass: true};
             //         queries.push(res);
             //         ucheck[key] = true;
             //     }
             // }
 
-            key = [tin.tip, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.stem, da.dhatu, da.tvar].join('-');
+            key = [tin.tips, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.stem, da.dhatu, da.tvar].join('-');
             if (da.stem == tin.stem && da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
                 // log('TIN', tin);
                 if (ucheck[key]) return;
                 if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
-                let res = {tip: tin.tip, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, stem: tin.stem, dhatu: da.dhatu};
+                let res = {tips: tin.tips, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, stem: tin.stem, dhatu: da.dhatu};
                 queries.push(res);
                 ucheck[key] = true;
             }
