@@ -55,7 +55,7 @@ stemmer.prototype.query = function(query, cb) {
 
 function mapDas2Tins(das, tins) {
     let queries = [];
-    log('DAS', das.length);
+    // log('DAS', das.length);
     tins.forEach(function(tin) {
         var ucheck = {};
         var key;

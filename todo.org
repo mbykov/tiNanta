@@ -5,10 +5,20 @@
   определяет queries для samasa по окончанию
   начало 9 июня 2016, окончить к концу сентября
 
+* TODO осталось 25 августа
+  - [ ] не сделаны приставки
+  - [ ] восстановить passive
+  - [ ] написать tests - async
+  - [ ] прогнать все тесты
+  - [X] создать полный cache
+  - [ ] все чистить
+  - [ ] readme, package, version
+
+
 * 24 августа
   - BUG - out of memory - test by async, не иначе
-  - собрать подобные tins, как в sups
-  - нельзя ли их сгруппировать заранее в make_cache ?
+  - [X] собрать подобные tins, как в sups
+  - [X] нельзя ли их сгруппировать заранее в make_cache ?
   -
 
 
@@ -18,11 +28,6 @@
   - queries содержат dhatu, которое обязано быть в DB
   - сначала создать пустые sa-tin, sa-das
   - в конце grunt --gruntfile grunt-sa-tin.js ; -sa-das.js
-  -
-  - [ ] не доделаны приставки
-  - [ ] нужно прогнать все тесты
-  - [ ] создать полный cache <<=========== !!!!!!!!!
-
 
 
 *  таблица форм - http://www.lonweb.org/links/sanskrit/lang/017.htm
@@ -52,11 +57,10 @@
   - MW чисто
   - Apte
   - строка - next и sandhi
-  - новые глаголы прикрутить
-  -
+  - [X] новые глаголы прикрутить
+  - [ ]
 
 * appcel - start - p8 - либо Win
-
 
 * p8
   топоров - святость
@@ -106,7 +110,7 @@
 * COnjugational: two tenses -present and imperfect- and the two moods - imperative and potential
 
 
-* links *** http://sanskrit.jnu.ac.in/rstudents/mphil/
+* links http://sanskrit.jnu.ac.in/rstudents/mphil/
  - http://sanskrit.uohyd.ac.in/Corpus/guideline.html
  - http://sanskrit.uohyd.ac.in/Corpus/
  - http://sanskritlibrary.org/Sanskrit/pub/

@@ -56,7 +56,7 @@ else log('stemmer parse:', lat, form);
 var das = [];
 var tins = [];
 
-log('DAS', das.length, _.uniq(das).length);
+// log('DAS', das.length, _.uniq(das).length);
 
 // log('TINS', stemmer.tins.length);
 
