@@ -62,8 +62,6 @@
 
 * appcel - start - p8 - либо Win
 
-* p8
-  топоров - святость
 
 
 * 31 июля
@@ -107,7 +105,7 @@
 2 'samAj' 'समाज्' '10' 'आ'
 
 
-* COnjugational: two tenses -present and imperfect- and the two moods - imperative and potential
+* Conjugational: two tenses -present and imperfect- and the two moods - imperative and potential
 
 
 * links http://sanskrit.jnu.ac.in/rstudents/mphil/

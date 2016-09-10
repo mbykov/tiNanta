@@ -36,7 +36,86 @@ function stemmer() {
     if (!(this instanceof stemmer)) return new stemmer();
 }
 
-stemmer.prototype.query = function(query, cb) {
+// массив:
+// 1. получаю все возможные tins
+// 2. образую stems
+// 3. запрос к das
+
+stemmer.prototype.query = function(flakes, cb) {
+    getTins(flakes, function(err, tins) {
+        log('INSIDE TINS', err, tins.length);
+        if (err) cb(err, null);
+        let stems = [];
+        let flake, stem;
+        for (flake of flakes) {
+            tins.forEach(function(tin) {
+                stem = (tin.size == 0) ? flake : flake.slice(0, -tin.size);
+                stems.push(stem);
+                tin.stem = stem;
+            });
+        }
+        stems = _.uniq(stems);
+        log('stems:', stems.length);
+        getDas(stems, function(err, das) {
+            // cb(null, das);
+            let queries = mapDas2Tins(das, tins);
+            // log('LAST QS - QS', queries);
+            cb(err, queries);
+        });
+    });
+}
+
+function stem2dhatu(stems, tins, cb) {
+    log('stems:', stems);
+    // cb(null, []);
+    // return;
+    getDas(stems, function(err, das) {
+        cb(null, das);
+    });
+}
+
+
+function getTins(stems, cb) {
+    relax.dbname('sa-tin');
+    var view = 'sa-tin/byTin';
+    let stem, num, term;
+    let qs = [''];
+    for (stem of stems) {
+        let stop = (stem.length < 7) ? stem.length : 7;
+        for (num = 0; num < stop; num++) {
+            term = stem.slice(-num);
+            qs.push(term);
+        }
+    }
+    qs = _.uniq(qs);
+    // log('QS', qs);
+    // cb(null, []);
+    // return;
+    // var keys = ['keys=', [JSON.stringify(qs)]].join('');
+    let keys = {keys: qs};
+    // var keys = ['keys=', JSON.stringify(['इहैव'])].join('');
+    log('get Tins =====>> keys:', keys);
+    relax
+        .postView(view)
+        .send(keys)
+        // .view(view)
+        // .query(keys)
+        .query({include_docs: true})
+        .end(function(err, res) {
+            // log('ERR morph getDicts', err, res.text);
+            if (err) return cb(err, null);
+            var rows = JSON.parse(res.text.trim()).rows;
+            if (!rows) cb(err, null);
+            // log('./morph get Dicts: rows', rows);
+            var docs = rows.map(function(row) { return row.doc; });
+            // log('SIZE:', docs);
+            cb(err, docs);
+        });
+}
+
+
+
+stemmer.prototype.query_ = function(query, cb) {
     getTins(query, function(err, tins) {
         // log('INSIDE TINS', err, res);
         if (err) cb(err, null);
@@ -102,7 +181,7 @@ function parseQueries(query, tins, cb) {
     });
 }
 
-function getTins(query, cb) {
+function getTins_(query, cb) {
     relax.dbname('sa-tin');
     var view = 'sa-tin/byTin';
     // let revers = query.split('').reverse();
