@@ -34,11 +34,11 @@ var tests = fs.readFileSync(testPath).toString().split('\n');
 log('TS', tests.length);
 // p(tests.slice(0,2));
 
-tests = tests.slice(0, 5);
+tests = tests.slice(0, 500);
 
 var test;
 var ts = [];
-var fs = [];
+var forms = [];
 tests.forEach(function(row, idx) {
     // if (idx > 9) return; // FIXME: ========================================
     if (row == '') return;
@@ -47,33 +47,37 @@ tests.forEach(function(row, idx) {
     // if (gana != '01') return;
     test = {form: form, dhatu, dhatu, gana: gana, la: la, pada: pada, tip: tip};
     ts.push(test);
-    fs.push([form]);
+    forms.push([form]);
     // log('T', test);
     // _Fn(test);
 });
 
 log('TS', ts.length);
 
-async.map(fs, stemmer.query, function(err, results){
+async.map(forms, stemmer.query, function(err, results){
     // if any of the saves produced an error, err would equal that error
-    p('R', err, results.length);
+    // p('R', err, results.length);
     results.forEach(function(rs, idx) {
         let test = ts[idx];
         var descr = [test.dhatu, test.form].join('_');
-        log('D', descr);
-        log('RS', idx, rs);
+        // log('D', descr);
+        // log('RS', idx, rs);
         // log('T', test);
-        return;
+        // return;
         var rkeys = rs.map(function(r) {return [r.dhatu, r.la, r.pada].join('-');});
         var key = [test.dhatu, test.la, test.pada].join('-');
-        log('K', key, rkeys);
+        // log('K', key, rkeys);
         let rk = inc(rkeys, key);
-        if (!inc(rkeys, key)) log('err-test dhatu:', test.dhatu, 'form:', test.form, 'key', key, rkeys);
-        let rt = 1;
+        if (!rk) {
+            log('idx', idx);
+            log('err-test:', test.dhatu, 'form:', test.form, 'key', key, 'keys', rkeys);
+            // if (!rk) throw new Error();
+        }
+        process.stdout.write('.');
         // true.should.equal(true);
         // inc(rkeys, key).should.equal(true);
-        log('true', rk) ;
     });
+    log('.');
 });
 
 function fn(file, cb) {

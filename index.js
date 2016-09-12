@@ -45,7 +45,6 @@ function stemmer() {
 stemmer.prototype.query = function(flakes, cb) {
     // flakes = [ 'करो',  'करोति', 'करोती',  'करोत्येव'];
     // flakes = [ 'करोति'];
-    log('FS', flakes);
     getTins(flakes, function(err, tins) {
         if (err) cb(err, null);
         let stems = [];
