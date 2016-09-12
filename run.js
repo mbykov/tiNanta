@@ -33,18 +33,8 @@ if (/[a-zA-Z0-1]/.test(lat[0])) {
 if (find) log('stemmer find:', lat, form); // लोकृ्-लोक् // लोचृ्-लोच्// प्-पा
 else log('stemmer parse:', lat, form);
 
-// var das = [];
-// var tins = [];
-
-// log('DAS', das.length, _.uniq(das).length);
-
-// log('TINS', stemmer.tins.length);
-
 console.time("queryTime");
 
-// var queries;
-// if (!find) queries = stemmer.query(form, tins, das);
-// else queries = stemmer.parse(form);
 
 let forms = [form];
 stemmer.query(forms, function(err, queries) {

@@ -4,7 +4,7 @@ REPORTER = dot
 g = _
 g = ''
 
-test:
+parse:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--require should \
 		--reporter $(REPORTER) \
@@ -15,6 +15,8 @@ test:
 		test/parse.js \
 #		2> /dev/null
 
+test:
+	@node test/parse.js
 
 
 clean:
