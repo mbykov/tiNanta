@@ -56,7 +56,11 @@ stemmer.prototype.query = function(flakes, cb) {
             });
         }
         stems = _.uniq(stems);
+        // stems = ['आकिष्टाम्'];
+        // stems = ['आक'];
+        log('ST', stems);
         getDas(stems, function(err, das) {
+            log('DAS', err, das);
             let queries = mapDas2Tins(das, tins, flakes);
             cb(err, queries);
         });
@@ -65,11 +69,14 @@ stemmer.prototype.query = function(flakes, cb) {
 
 function mapDas2Tins(das, tins, flakes) {
     let queries = [];
+    let luns = _.select(tins, function(t) { return t.la == 'लुङ्'; });
+    log('LUNS', luns);
     tins.forEach(function(tin) {
         var ucheck = {};
         var key;
         das.forEach(function(da) {
-            key = [tin.tips, tin.tin, tin.size, da.gana, tin.la, tin.pada, tin.stem, da.dhatu, da.tvar].join('-');
+            key = [tin.tips, tin.tin, tin.size, da.gana, tin.la, tin.pada, da.dhatu, da.tvar].join('-');
+            // log('----------------T--------------------', key);
             if (da.gana == tin.gana && da.la == tin.la && da.pada == tin.pada && da.tvar == tin.tvar) {
                 if (ucheck[key]) return;
                 if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
@@ -110,13 +117,14 @@ function getTins(stems, cb) {
     let stem, num, term;
     let qs = [''];
     for (stem of stems) {
-        let stop = (stem.length < 7) ? stem.length : 7;
+        let stop = (stem.length < 10) ? stem.length : 10;
         for (num = 0; num < stop; num++) {
             term = stem.slice(-num);
             qs.push(term);
         }
     }
     qs = _.uniq(qs);
+    log('TERMS', qs);
     let keys = {keys: qs};
     relax
         .postView(view)

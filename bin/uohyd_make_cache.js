@@ -17,8 +17,8 @@ var stemmer = require('../index');
 
 var push = process.argv.slice(2)[0];
 
-// var dbpath = 'http://admin:kjre4317@localhost:5984';
-var dbpath = 'http://localhost:5984';
+var dbpath = 'http://admin:kjre4317@localhost:5984';
+// var dbpath = 'http://localhost:5984';
 var Relax = require('relax-component');
 var relax = new Relax(dbpath);
 relax.dbname('sa-tin');
@@ -95,7 +95,10 @@ function formsRun(rows) {
         dhatu = dhatu.replace(/!/g, '');
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        // if (dhatu != 'हिवि') return; // ================ DHATU ====================
+        if (dhatu != 'अक') return; // ================ DHATU ====================
+        // if (form != 'आकिष्टाम्') return;
+        // UUU आकिष्टाम्,अक!,लुङ्,तस्,01.0901
+
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -118,10 +121,12 @@ function formsRun(rows) {
     var dicts;
     for (var vkey in heads) {
         var vhead = heads[vkey];
-        // log('V HEAD', vhead);
         var vnest = nests[vkey];
-        var ndhatus = vnest.map(function(n) { return n.dhatu});
+        var ndhatus = vnest.map(function(n) { return n.dhatu; });
         ndhatus = _.uniq(ndhatus);
+
+        // if (vhead.key == 'अक-01.0901') log('V HEAD', vhead, vnest);
+
         if (ndhatus.length > 1) {
             log(vhead, ndhatus, nest.length);
             log(vnest.slice(-2));
@@ -130,22 +135,28 @@ function formsRun(rows) {
         // var fin, re;
         // ws-wo-dhatu-gana-pada-set-num
         // { dhatu: 'हिवि!', gana: '01', num: '0675', key: 'हिवि!-01.0675' }
-        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.ws == vhead.dhatu || dp.wo == vhead.dhatu || dp.dhatu == vhead.dhatu) });
+        dicts = _.select(dps, function(dp) { return dp.gana == vhead.gana && dp.num == vhead.num && (dp.ws == vhead.dhatu || dp.wo == vhead.dhatu || dp.dhatu == vhead.dhatu); });
         if (dicts.length == 0) {
             log('DICT ERR:', vhead);
             // throw new Error();
         }
         // log('DICTS', dicts);
         // return;
+        let my = _.select(vnest, function(n) { return n.form == 'आकिष्टाम्'});
+        if (my.length > 0) log('MY:', my);
+        // if (vnest.form == 'आकिष्टाम्') log('HERE IT IS', vnest);
 
         // dicts.forEach(function(dict) {
         laDocs = parseNest(vnest, vhead.gana);
-        // log('laDocs', laDocs);
+
+        let my2 = _.select(laDocs, function(d) { return d.stem == 'आकिष्टाम्'; });
+        if (my2.length > 0) p('MY laDocs 2', laDocs);
+        // p('laDocs', laDocs);
         // return;
 
         laDocs.forEach(function(ladoc) {
             dicts.forEach(function(dict) {
-                // log('============', ladoc.la, dict.la);
+                // log('============', ladoc.la, vhead.num, dict.num);
                 if (ladoc.gana != dict.gana || ladoc.pada != dict.pada || vhead.num != dict.num ) return;
                 // if (ladoc.gana != dict.gana || ladoc.la != dict.la || ladoc.pada != dict.pada || vhead.num != dict.num ) return;
                 doc = {dhatu: dict.dhatu, gana: vhead.gana, num: vhead.num, las: {}};
@@ -157,7 +168,7 @@ function formsRun(rows) {
                 doc.las[ladoc.la] = ladoc.nest;
                 if (ladoc.periph) doc.periph = true;
                 if (ladoc.tips) doc.tips = ladoc.tips; // strong, weak tips
-                // p('NEST Doc', doc);
+                // if (doc.stem == 'आकिष्टाम्') p('NEST Doc', doc);
                 docs.push(doc);
                 });
         });
@@ -171,67 +182,75 @@ function formsRun(rows) {
     // writeDhatuAnga(docs);
     // writeTinCache(endings);
 
+    log('_______pushing tins, das, tests... _______');
     // writeTestsCache(docs);
     pushTinCache(endings);
-    // pushDhatuAnga(docs);
+    pushDhatuAnga(docs);
 }
 
 function parseNest(nest, gana) {
     // log('D', JSON.stringify(nest));
     // var check = {};
-    var lakaras = [];
-    var la;
-    var lanest;
-    var laForms;
-    var re;
+    let lakaras = [];
+    let la;
+    let lanest;
+    let laForms;
+    let re;
     _.keys(laks).forEach(function(la) {
         if (la_to_test && la != la_to_test) return; // ================= LA TO TEST ============ <<<
-        // log('LA', la);
-        lanest = _.select(nest, function(line) { return line.la == la});
+        lanest = _.select(nest, function(line) { return line.la == la; });
+        // if (la == 'लुङ्' && lanest[0].form == 'आकिष्टाम्') log('LANEST', lanest);
         lakaras.push({la: la, nest: lanest});
     });
 
     // если conj, то P - parseStrongWeak ?
     // если нет, то всегда parseStem
     // [{la, pada, conj, nest}, ...]
-    // а здесь цикл - если conj, то parseSW, нет - parseStem XXX
+    // а здесь цикл - если conj, то parseSW, нет - parseStem
     //
     var docs = [];
-    var doc, stem, sdocs, json;
+    // var doc, sdocs, json;
     lakaras.forEach(function(lakara) {
         if (la_to_test && lakara.la != la_to_test) return; // ================= LA TO TEST ============ <<<
-        // log('FF==================', lakara.la); // lakara.nest
+        // log('FF==================', lakara.la, lakara.nest); // lakara.nest
+
+        let myLA = _.select(lakara.nest, function(d) { return d.form == 'आकिष्टाम्'; });
+        if (myLA.length > 0) p('MY myLA', myLA);
+
         laForms = parseLakara(lakara.nest);
-        // log('F', laForms); // lakara.nest
-        // XXX
+        // log('laF', lakara.la, laForms); // lakara.nest
+        // { 'प': { 'तस्': [ 'आकिष्टाम्' ] } }
+        // if (lakara.la == 'लुङ्' && laForms['प']['तस्'] == 'आकिष्टाम्') log('HERE');
+        //
+        let myLAFORMS = _.select(lakara.nest, function(d) { return d.form == 'आकिष्टाम्'; });
+        if (myLAFORMS.length > 0) p('myLAFORMS', myLAFORMS);
+
         var la = lakara.la;
         for (var pada in laForms) {
-            var forms = laForms[pada];
+            let forms = laForms[pada];
+            let sdocs;
             if (/ञ्चक/.test(forms['तिप्']) || /ञ्चक/.test(forms['त']) ) sdocs = parsePeriph(forms);
             else if (pada == 'प' && inc(conjugs, la)) sdocs = parseStrongWeak(forms);
             else {
-                stem = parseStem(forms);
+                // log('ELSE FORMS', lakara.la, pada, forms, gana);
+                // ELSE FORMS लुङ् प { 'तस्': [ 'आकिष्टाम्' ] }
+                if (gana == '01', lakara.la == 'लुङ्', pada == 'प', forms['तस्'] == 'आकिष्टाम्') log('====================== BEFORE STEM', forms);
+                let stem = parseStem(forms);
                 // if (!stem) continue;
+                if (gana == '01', lakara.la == 'लुङ्', pada == 'प', forms['तस्'] == 'आकिष्टाम्') log('====================== BEFORE STEM =>', stem);
 
-                // if (la == 'लुट्') stem = u.replaceEnd(stem, 'ता', '');
-                // else if (la == 'लृट्') stem = stem.replace('ष्य', '').replace('स्य', '');
-                // else if (la == 'आशीर्लिङ्') {
-                //     if (pada == 'प') {
-                //         // stem = u.replaceEnd(stem, 'या', '');
-                //     } else {
-                //         // stem = u.replaceEnd(stem, 'सी', '');
-                //     }
-                // }
+                if (stem == 'आकिष्टाम्') log('STEM==========>', stem);
                 sdocs = [{stem: stem}];
             }
-            json = parseJSON(sdocs, forms);
+            let json = parseJSON(sdocs, forms);
             sdocs.forEach(function(sdoc) {
-                doc = {stem: sdoc.stem, gana: gana, la: la, pada: pada, nest: forms};
+                let doc = {stem: sdoc.stem, gana: gana, la: la, pada: pada, nest: forms};
                 // if (json == '{"तिप्":[""],"तस्":[""],"झि":[""],"सिप्":[""],"थस्":[""],"थ":[""],"मिप्":[""],"वस्":[""],"मस्":[""]}' ) log('ERR', doc);
                 var glpkey = [gana, lakara.la, pada].join('-');
                 doc.tvar = parseTvar(glpkey, json);
                 if (sdoc.tips) doc.tips = sdoc.tips;
                 // if (la == 'लोट्') log('parse la DOC:', doc);
+                if (doc.stem == 'आकिष्टाम्') p('=====>> NEST Doc', doc);
                 docs.push(doc);
             });
         }
@@ -244,9 +263,11 @@ function parseNest(nest, gana) {
 
 function parseLakara(nest) {
     // log('la nest size:', nest.length);
-    var forms = {};
+    let forms = {};
     // var docs = [];
     nest.forEach(function(line) {
+        if (line.form == 'आकिष्टाम्') log('LINE', line);
+        if (line.form == 'आकिष्टाम्') log('INPAR', inc(pars, line.tip));
         if (inc(pars, line.tip)) {
             if (!forms['प']) forms['प'] = {};
             if (!forms['प'][line.tip]) forms['प'][line.tip] = [];
@@ -256,7 +277,12 @@ function parseLakara(nest) {
             if (!forms['आ'][line.tip]) forms['आ'][line.tip] = [];
             forms['आ'][line.tip].push(line.form);
         }
+        if (line.form == 'आकिष्टाम्') log('=FORMS=', forms);
+        if (line.form == 'आकिष्टाम्') log('=FORMS PA=', forms['प']);
+        if (line.form == 'आकिष्टाम्') log('=FORMS PA TAS=', forms['प']['तस्']);
     });
+    // log('FORMS', forms);
+    // FORMS { 'प': { 'तस्': [ 'आकिष्टाम्' ] } }
     return forms;
 }
 
@@ -405,7 +431,7 @@ formsRun();
 function pushTinCache(endings) {
     var docs = [];
     // var doc;
-    var check = {};
+    // var check = {};
     var tkey;
     for (var glpkey in endings) {
         // if (glpkey != '03-लिट्-आ') continue;
@@ -419,15 +445,21 @@ function pushTinCache(endings) {
             // var tinrow;
             // var tcan, periph;
             // var rePeriph = new RegExp('ाञ्चक');
+            // XXX
 
             // log(otips);
+            let idy = 0;
             let odocs = {};
             for (var tip in otips) { // 'आताम्': [ 'ाते' ]; tip: [tins]
                 var tins = otips[tip];
                 tins.forEach(function(tin, idz) {
-                    if (!odocs[tin]) odocs[tin] = {gana: gana, la: la, pada: pada, tvar: tvar, tips: []};
-                    odocs[tin].tips.push(tip);
+                    let tinkey = [idy, tip, tin, idz, tvar, gana, la, pada].join('-');
+                    if (!odocs[tinkey]) odocs[tinkey] = {tin: tin, gana: gana, la: la, pada: pada, tvar: tvar, tips: [], key: tinkey};
+                    odocs[tinkey].tips.push(tip);
 
+                    if (tin == '' && gana == '01' && la == 'लुङ्' && pada == 'प' && tvar == 0 && tip == 'तस्') {
+                        log('HERE WE ARE');
+                    }
                     // tkey = [tip, tin, gana, la, pada, tvar].join('-');
                     // if (check[tkey]) return;
                     // check[tkey] = true;
@@ -437,12 +469,13 @@ function pushTinCache(endings) {
                     // let doc = {tip: tip, tin: tin, size: tin.length, gana: gana, la: la, pada: pada, tvar: tvar};
                     // docs.push(doc);
                 });
+                idy += 1;
             }
-            // log(odocs);
-            let tin;
-            for (tin in odocs) {
-                let odoc = odocs[tin];
-                let doc = {tin: tin, size: tin.length, gana: odoc.gana, la: odoc.la, pada: odoc.pada, tvar: odoc.tvar, tips: odoc.tips};
+            // log('====>', odocs);
+            let tinkey;
+            for (tinkey in odocs) {
+                let odoc = odocs[tinkey];
+                let doc = {tin: odoc.tin, size: odoc.tin.length, gana: odoc.gana, la: odoc.la, pada: odoc.pada, tvar: odoc.tvar, tips: odoc.tips};
                 // log(doc);
                 docs.push(doc);
             }
@@ -560,7 +593,7 @@ function writeDhatuAnga(docs) {
     docs.forEach(function(doc) {
         // log('DA', doc);
         // может быть, здесь сделать уникальный stem только? а остальное в строку?
-        // XXX
+        //
         key = [doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.num].join('-'); // , doc.tips
         row = [doc.dhatu, doc.stem, doc.gana, doc.la, doc.pada, doc.tvar, doc.tips].join('-');
         key = row;
