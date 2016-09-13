@@ -95,7 +95,7 @@ function formsRun(rows) {
         dhatu = dhatu.replace(/!/g, '');
 
         if (gana_to_test && gana_to_test != gana) return; // ============================ GANA ==============
-        if (dhatu != 'अक') return; // ================ DHATU ====================
+        // if (dhatu != 'अक') return; // ================ DHATU ====================
         // if (form != 'आकिष्टाम्') return;
         // UUU आकिष्टाम्,अक!,लुङ्,तस्,01.0901
 
@@ -142,15 +142,15 @@ function formsRun(rows) {
         }
         // log('DICTS', dicts);
         // return;
-        let my = _.select(vnest, function(n) { return n.form == 'आकिष्टाम्'});
-        if (my.length > 0) log('MY:', my);
+        // let my = _.select(vnest, function(n) { return n.form == 'आकिष्टाम्'});
+        // if (my.length > 0) log('MY:', my);
         // if (vnest.form == 'आकिष्टाम्') log('HERE IT IS', vnest);
 
         // dicts.forEach(function(dict) {
         laDocs = parseNest(vnest, vhead.gana);
 
-        let my2 = _.select(laDocs, function(d) { return d.stem == 'आकिष्टाम्'; });
-        if (my2.length > 0) p('MY laDocs 2', laDocs);
+        // let my2 = _.select(laDocs, function(d) { return d.stem == 'आकिष्टाम्'; });
+        // if (my2.length > 0) p('MY laDocs 2', laDocs);
         // p('laDocs', laDocs);
         // return;
 
@@ -183,7 +183,7 @@ function formsRun(rows) {
     // writeTinCache(endings);
 
     log('_______pushing tins, das, tests... _______');
-    // writeTestsCache(docs);
+    writeTestsCache(docs);
     pushTinCache(endings);
     pushDhatuAnga(docs);
 }
@@ -214,16 +214,16 @@ function parseNest(nest, gana) {
         if (la_to_test && lakara.la != la_to_test) return; // ================= LA TO TEST ============ <<<
         // log('FF==================', lakara.la, lakara.nest); // lakara.nest
 
-        let myLA = _.select(lakara.nest, function(d) { return d.form == 'आकिष्टाम्'; });
-        if (myLA.length > 0) p('MY myLA', myLA);
+        // let myLA = _.select(lakara.nest, function(d) { return d.form == 'आकिष्टाम्'; });
+        // if (myLA.length > 0) p('MY myLA', myLA);
 
         laForms = parseLakara(lakara.nest);
         // log('laF', lakara.la, laForms); // lakara.nest
         // { 'प': { 'तस्': [ 'आकिष्टाम्' ] } }
         // if (lakara.la == 'लुङ्' && laForms['प']['तस्'] == 'आकिष्टाम्') log('HERE');
         //
-        let myLAFORMS = _.select(lakara.nest, function(d) { return d.form == 'आकिष्टाम्'; });
-        if (myLAFORMS.length > 0) p('myLAFORMS', myLAFORMS);
+        // let myLAFORMS = _.select(lakara.nest, function(d) { return d.form == 'आकिष्टाम्'; });
+        // if (myLAFORMS.length > 0) p('myLAFORMS', myLAFORMS);
 
         var la = lakara.la;
         for (var pada in laForms) {
@@ -234,12 +234,12 @@ function parseNest(nest, gana) {
             else {
                 // log('ELSE FORMS', lakara.la, pada, forms, gana);
                 // ELSE FORMS लुङ् प { 'तस्': [ 'आकिष्टाम्' ] }
-                if (gana == '01', lakara.la == 'लुङ्', pada == 'प', forms['तस्'] == 'आकिष्टाम्') log('====================== BEFORE STEM', forms);
+                // if (gana == '01', lakara.la == 'लुङ्', pada == 'प', forms['तस्'] == 'आकिष्टाम्') log('====================== BEFORE STEM', forms);
                 let stem = parseStem(forms);
                 // if (!stem) continue;
-                if (gana == '01', lakara.la == 'लुङ्', pada == 'प', forms['तस्'] == 'आकिष्टाम्') log('====================== BEFORE STEM =>', stem);
+                // if (gana == '01', lakara.la == 'लुङ्', pada == 'प', forms['तस्'] == 'आकिष्टाम्') log('====================== BEFORE STEM =>', stem);
 
-                if (stem == 'आकिष्टाम्') log('STEM==========>', stem);
+                // if (stem == 'आकिष्टाम्') log('STEM==========>', stem);
                 sdocs = [{stem: stem}];
             }
             let json = parseJSON(sdocs, forms);
@@ -266,8 +266,8 @@ function parseLakara(nest) {
     let forms = {};
     // var docs = [];
     nest.forEach(function(line) {
-        if (line.form == 'आकिष्टाम्') log('LINE', line);
-        if (line.form == 'आकिष्टाम्') log('INPAR', inc(pars, line.tip));
+        // if (line.form == 'आकिष्टाम्') log('LINE', line);
+        // if (line.form == 'आकिष्टाम्') log('INPAR', inc(pars, line.tip));
         if (inc(pars, line.tip)) {
             if (!forms['प']) forms['प'] = {};
             if (!forms['प'][line.tip]) forms['प'][line.tip] = [];
@@ -277,9 +277,9 @@ function parseLakara(nest) {
             if (!forms['आ'][line.tip]) forms['आ'][line.tip] = [];
             forms['आ'][line.tip].push(line.form);
         }
-        if (line.form == 'आकिष्टाम्') log('=FORMS=', forms);
-        if (line.form == 'आकिष्टाम्') log('=FORMS PA=', forms['प']);
-        if (line.form == 'आकिष्टाम्') log('=FORMS PA TAS=', forms['प']['तस्']);
+        // if (line.form == 'आकिष्टाम्') log('=FORMS=', forms);
+        // if (line.form == 'आकिष्टाम्') log('=FORMS PA=', forms['प']);
+        // if (line.form == 'आकिष्टाम्') log('=FORMS PA TAS=', forms['प']['तस्']);
     });
     // log('FORMS', forms);
     // FORMS { 'प': { 'तस्': [ 'आकिष्टाम्' ] } }
@@ -457,9 +457,10 @@ function pushTinCache(endings) {
                     if (!odocs[tinkey]) odocs[tinkey] = {tin: tin, gana: gana, la: la, pada: pada, tvar: tvar, tips: [], key: tinkey};
                     odocs[tinkey].tips.push(tip);
 
-                    if (tin == '' && gana == '01' && la == 'लुङ्' && pada == 'प' && tvar == 0 && tip == 'तस्') {
-                        log('HERE WE ARE');
-                    }
+                    // if (tin == '' && gana == '01' && la == 'लुङ्' && pada == 'प' && tvar == 0 && tip == 'तस्') {
+                    //     log('HERE WE ARE');
+                    // }
+
                     // tkey = [tip, tin, gana, la, pada, tvar].join('-');
                     // if (check[tkey]) return;
                     // check[tkey] = true;
@@ -488,7 +489,7 @@ function pushTinCache(endings) {
         pushDocs(docs);
         log('tins pushed', docs.length);
     } else {
-        p('tins to be pushed:', docs.length, 'to couch/sa-tin');
+        p('tins to be pushed:', docs.length);
         p('first two:', docs.slice(0, 2));
         log('=== to push add true ===');
     }
@@ -512,13 +513,13 @@ function pushDhatuAnga(docs) {
         }
     });
     // log('DOCS', docs);
-    log('DOCS', das.length);
+    // log('DAS', das.length);
     if (push) {
         relax.dbname('sa-das');
         pushDocs(das);
-        log('tins pushed', das.length);
+        log('das pushed', das.length);
     } else {
-        p('das may be pushed. . .', docs.length, 'das to sa-das');
+        p('das to be pushed. . .', docs.length);
         p('sample:', das.slice(0, 1));
         log('=== to push to sa-das add true ===');
     }
@@ -529,7 +530,7 @@ function pushDocs(docs) {
         .bulk(docs)
         .end(function(err, res) {
             // log(res.text);
-            log('ok');
+            log('ok', docs.length);
         });
 }
 

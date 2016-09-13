@@ -58,9 +58,9 @@ stemmer.prototype.query = function(flakes, cb) {
         stems = _.uniq(stems);
         // stems = ['आकिष्टाम्'];
         // stems = ['आक'];
-        log('ST', stems);
+        // log('ST', stems);
         getDas(stems, function(err, das) {
-            log('DAS', err, das);
+            // log('DAS', err, das);
             let queries = mapDas2Tins(das, tins, flakes);
             cb(err, queries);
         });
@@ -69,8 +69,8 @@ stemmer.prototype.query = function(flakes, cb) {
 
 function mapDas2Tins(das, tins, flakes) {
     let queries = [];
-    let luns = _.select(tins, function(t) { return t.la == 'लुङ्'; });
-    log('LUNS', luns);
+    // let luns = _.select(tins, function(t) { return t.la == 'लुङ्'; });
+    // log('LUNS', luns);
     tins.forEach(function(tin) {
         var ucheck = {};
         var key;
@@ -124,7 +124,7 @@ function getTins(stems, cb) {
         }
     }
     qs = _.uniq(qs);
-    log('TERMS', qs);
+    // log('TERMS', qs);
     let keys = {keys: qs};
     relax
         .postView(view)
