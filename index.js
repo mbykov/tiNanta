@@ -22,7 +22,7 @@ var p = u.p;
 var dbpath = 'http://localhost:5984';
 var Relax = require('relax-component');
 var relax = new Relax(dbpath);
-relax.dbname('sa-tin');
+relax.dbname('sa-tins');
 
 // var conjugs = ['लट्', 'लङ्', 'लोट्', 'विधिलिङ्'];
 
@@ -69,8 +69,9 @@ stemmer.prototype.query = function(flakes, cb) {
 
 function mapDas2Tins(das, tins, flakes) {
     let queries = [];
-    // let luns = _.select(tins, function(t) { return t.la == 'लुङ्'; });
+    // let luns = _.select(tins, function(t) { return t.la == 'लुट्' && t.pada == 'प'; });
     // log('LUNS', luns);
+    // log('FLAKES', flakes);
     tins.forEach(function(tin) {
         var ucheck = {};
         var key;
@@ -82,6 +83,8 @@ function mapDas2Tins(das, tins, flakes) {
                 if (da.tips && !inc(da.tips.split(','), tin.tip)) return;
                 let flake = [da.stem, tin.tin].join('');
                 if (!inc(flakes, flake)) return;
+                // log('----------------T--------------------', tin);
+                // log('----------------D--------------------', da);
                 let res = {verb: true, tips: tin.tips, tin: tin.tin, size: tin.size, gana: tin.gana, la: tin.la, pada: tin.pada, stem: da.stem, dhatu: da.dhatu};
                 res.flake = flake;
                 queries.push(res);
@@ -94,8 +97,8 @@ function mapDas2Tins(das, tins, flakes) {
 }
 
 function getDas(stems, cb) {
-    relax.dbname('sa-das');
-    var view = 'sa-das/byStem';
+    // relax.dbname('sa-das');
+    var view = 'sa-tins/byAnga';
     let keys = {keys: stems};
     relax
         .postView(view)
@@ -106,14 +109,16 @@ function getDas(stems, cb) {
             var rows = JSON.parse(res.text.trim()).rows;
             if (!rows) cb(err, null);
             var docs = rows.map(function(row) { return row.doc; });
+            // log('D', docs);
             cb(err, docs);
         });
 }
 
+// err-test: अंस् form: अंसयिता key अंस्-लुट्-प
 
 function getTins(stems, cb) {
-    relax.dbname('sa-tin');
-    var view = 'sa-tin/byTin';
+    // relax.dbname('sa-tin');
+    var view = 'sa-tins/byTin';
     let stem, num, term;
     let qs = [''];
     for (stem of stems) {
@@ -135,9 +140,11 @@ function getTins(stems, cb) {
             var rows = JSON.parse(res.text.trim()).rows;
             if (!rows) cb(err, null);
             var docs = rows.map(function(row) { return row.doc; });
+            // log('T',docs);
             cb(err, docs);
         });
 }
+
 
 
 

@@ -21,7 +21,7 @@ var dbpath = 'http://admin:kjre4317@localhost:5984';
 // var dbpath = 'http://localhost:5984';
 var Relax = require('relax-component');
 var relax = new Relax(dbpath);
-relax.dbname('sa-tin');
+relax.dbname('sa-tins');
 
 var dataPath = path.join(__dirname, '../uohyd/drpatel/generatedverbforms_deva20062016.csv');
 
@@ -98,7 +98,6 @@ function formsRun(rows) {
         // if (dhatu != 'अक') return; // ================ DHATU ====================
         // if (form != 'आकिष्टाम्') return;
         // UUU आकिष्टाम्,अक!,लुङ्,तस्,01.0901
-
 
         if (inc(pars, tip)) pada = 'प';
         if (inc(atms, tip)) pada = 'आ';
@@ -485,7 +484,7 @@ function pushTinCache(endings) {
     // log('DOCS', docs);
     log('DOCS', docs.length);
     if (push) {
-        relax.dbname('sa-tin');
+        // relax.dbname('sa-tin');
         pushDocs(docs);
         log('tins pushed', docs.length);
     } else {
@@ -515,7 +514,7 @@ function pushDhatuAnga(docs) {
     // log('DOCS', docs);
     // log('DAS', das.length);
     if (push) {
-        relax.dbname('sa-das');
+        // relax.dbname('sa-das');
         pushDocs(das);
         log('das pushed', das.length);
     } else {

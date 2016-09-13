@@ -2,11 +2,11 @@
 
 tiNanta analyser gets array of wordforms (flakes) and return array of queries for (in my case) CouchDB.
 
-tiNanta analyser is based on results of a remarkable program developed by Dr. Dhaval Patel & Dr. Sivakumari Katuri, and it solves the inverse problem - for the final wordform it restores its dhatu.
+tiNanta analyser is based on results of a remarkable program 'SanskritVerb' developed by Dr. Dhaval Patel & Dr. Sivakumari Katuri. But tiNanta.js solves the inverse problem - it restores a dhatu for any final wordform.
 
 look: http://sanskritworld.in/sanskrittool/SanskritVerb/tiGanta.html
 
-tiNanta analyser beforehand creates the  databases 'sa-tin' for endings of any wordform and the database 'sa-das' for all angas for any dhatu, and then works with this two dbs.
+tiNanta analyser beforehand creates the  database 'sa-tins' for all endings of any wordform and for all angas for any dhatu, and then works with this db.
 
 
 ````bash
@@ -34,8 +34,7 @@ With node.js:
 ````javascript
 $ npm install tiNanta
 ````
-
-also you should clone two DBs: sa-tin ans sa-das
+also you should clone CouchDB named sa-tins:
 
 http://diglossa.org:5984/_utils/index.html
 

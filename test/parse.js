@@ -34,7 +34,8 @@ var tests = fs.readFileSync(testPath).toString().split('\n');
 log('TS', tests.length);
 // p(tests.slice(0,2));
 
-tests = tests.slice(10000, 20000);
+tests = tests.slice(0, 200);
+// tests = tests.slice(10000, 20000);
 
 var test;
 var ts = [];
