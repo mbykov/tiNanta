@@ -1,7 +1,7 @@
 {
-    "name": "sa-stemmer",
-    "version": "0.3.0",
-    "description": "laghu stemmer - forms queries for Morpheus v.0.3.0",
+    "name": "tiNanta",
+    "version": "0.4.0",
+    "description": "sanskrit tiNanta analyser - forms queries for Morpheus v.0.4.0",
     "main": "stemmer.js",
     "directories": {
         "test": "test"
@@ -11,18 +11,23 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/mbykov/stemmer.js.git"
+        "url": "https://github.com/mbykov/tiNanta.git"
     },
     "keywords": [
-        "sanskrit"
+        "node.js",
+        "sanskrit",
+        "verb",
+        "morphology"
     ],
     "author": "Michael Bykov <mbykov@gmail.com>",
-    "license": "MIT",
+    "license": "GNU GPL",
     "bugs": {
-        "url": "https://github.com/mbykov/stemmer.git/issues"
+        "url": "https://github.com/mbykov/tiNanta.git/issues"
     },
     "dependencies": {
+        "relax-component": "*",
         "underscore": "*",
+        "async": "*",
         "shiva-sutras": "*",
         "sandhi": "*"
     },

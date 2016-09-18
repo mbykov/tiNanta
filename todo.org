@@ -1,23 +1,131 @@
 #+STARTUP: overview
 #+STARTUP: hidestars
 
-
-* descr ============== stemmer ===============
+* descr ============== stemmer для v.0.4 ===============
   определяет queries для samasa по окончанию
+  начало 9 июня 2016, окончить к концу сентября
 
-* TODO 9 апреля
-  - rAmeRa - ena меняется на eRa только после r, r - Ame- ena, r присутствует. След, нужна проверка в формах на -eRa, есть ли r, J.G. p.51
-  - полная сутра проверки: sarveSvara-ha-ya-va-kavarga-pavarga
+* TODO осталось 25 августа
+  - [ ] не сделаны приставки
+  - [ ] восстановить passive
+  - [ ] написать tests - async
+  - [ ] прогнать все тесты
+  - [X] создать полный cache
+  - [ ] все чистить
+  - [ ] readme, package, version
+
+
+* 24 августа
+  - BUG - out of memory - test by async, не иначе
+  - [X] собрать подобные tins, как в sups
+  - [X] нельзя ли их сгруппировать заранее в make_cache ?
   -
 
-* TODO что осталось
-  - заменить всю работу с Const на sandhi.const
-  - окончание stem на звонкую. Нужно добавить глухую, очевидно. Где?
-  -
 
-* Readme, github, npm
-  - [ ]  github
-  - [ ] важно: описание и readme - от Морфея, а здесь у меня только создание queries
-  - [ ] тесты бы нужно переписать полностью, но это долго
-  - [ ] или как-то убрать их
+* workflow  - 16 августа
+  - uohyd_make_dhatupatha.js => создает DP
+  - uohyd_make_cache.js => создает tins, dhatu-anga, tests
+  - queries содержат dhatu, которое обязано быть в DB
+  - сначала создать пустые sa-tin, sa-das
+  - в конце grunt --gruntfile grunt-sa-tin.js ; -sa-das.js
+
+
+*  таблица форм - http://www.lonweb.org/links/sanskrit/lang/017.htm
+   // passive: A.; -ya
+   // causal: U.; aguna; -aya
+   // desid: redup, non-conj: -s; conj: -sa
+   // http://www.learnsanskrit.org/verbs/doubling/intensive
+   // freq: redup spec. A.; -ya
+   // freq: redup. spec. P.; -ya
+
+
+
+
+* 3 авг - tiNanta.js - तिङन्त
+  - [X] новый PD
+  - [ ] passive - нужны тесты
   - [ ]
+
+* diglossa.js
+  - убрать всплывающее окно везде
+  -
+
+
+* v.0.4
+  - v.0.4
+  - css
+  - MW чисто
+  - Apte
+  - строка - next и sandhi
+  - [X] новые глаголы прикрутить
+  - [ ]
+
+* appcel - start - p8 - либо Win
+
+
+
+* 31 июля
+  - поиграемся еще, passive, etc
+  - как будет вести себя нестандарный tvar?
+  -
+  - но, главное. Дело сделано, нужно составить план выпуска v.0.4, и сделать. А игры - потом, и в процессе
+  - ===================
+
+
+* non-monosyllabic
+2 'utkaRW' 'उत्कण्ठ्' '10' 'प'
+2 'utkaRW' 'उत्कण्ठ्' '10' 'आ'
+2 'uDras' 'उध्रस्' '10' 'प'
+2 'uDras' 'उध्रस्' '10' 'आ'
+2 'UrRu' 'ऊर्णु' '02' 'प'
+2 'UrRu' 'ऊर्णु' '02' 'आ'
+2 'olaRq' 'ओलण्ड्' '10' 'प'
+2 'olaRq' 'ओलण्ड्' '10' 'आ'
+2 'kumAr' 'कुमार्' '10' 'प'
+2 'kumAr' 'कुमार्' '10' 'आ'
+2 'gavez' 'गवेष्' '10' 'प'
+2 'gavez' 'गवेष्' '10' 'आ'
+2 'gepa' 'गेप' '01' 'आ'
+2 'cakAs' 'चकास्' '02' 'प'
+2 'ciri' 'चिरि' '05' 'प'
+2 'jAgf' 'जागृ' '02' 'प'
+2 'jiri' 'जिरि' '05' 'प'
+3 'daridrA' 'दरिद्रा' '02' 'प'
+2 'dIDI' 'दीधी' '02' 'आ'
+2 'nivAs' 'निवास्' '10' 'प'
+2 'nivAs' 'निवास्' '10' 'आ'
+2 'palyUl' 'पल्यूल्' '10' 'प'
+2 'palyUl' 'पल्यूल्' '10' 'आ'
+2 'vAvft' 'वावृत्' '04' 'आ'
+2 'vevI' 'वेवी' '02' 'आ'
+2 'saNket' 'सङ्केत्' '10' 'प'
+2 'saNket' 'सङ्केत्' '10' 'आ'
+2 'saNgrAm' 'सङ्ग्राम्' '10' 'आ'
+2 'samAj' 'समाज्' '10' 'प'
+2 'samAj' 'समाज्' '10' 'आ'
+
+
+* Conjugational: two tenses -present and imperfect- and the two moods - imperative and potential
+
+
+* links http://sanskrit.jnu.ac.in/rstudents/mphil/
+ - http://sanskrit.uohyd.ac.in/Corpus/guideline.html
+ - http://sanskrit.uohyd.ac.in/Corpus/
+ - http://sanskritlibrary.org/Sanskrit/pub/
+ - http://www.sanskritworld.in/sanskrittool/SanskritVerb/tiGanta.html
+ - https://github.com/drdhaval2785/sanskritverb
+ - http://sanskrit.jnu.ac.in/tinanta/data-resources/
+ - http://www.sanskritlibrary.org/Sanskrit/Vyakarana/Dhatupatha/mdhvindx/disp/mdhv_index.html#begin_char_12
+ - http://sanskritdocuments.org/doc_giitaa/bgwords.html?lang=sa
+ - file:///home/michael/web/morpheus/DOCS/TMP/dhaatupaatha/gaNa.html <=============
+ - http://sanskrit.jnu.ac.in/rstudents/mphil/
+ - http://www.thesanskritlanguage.com/lesson-25.html
+
+
+
+
+
+* stems & terminations
+  - https://www.quora.com/How-are-the-verbs-in-Sanskrit-classified-As-well-what-are-the-most-common-tenses-and-how-are-verbs-usually-conjugated-in-those-tenses
+  - http://learning-sanskrit.blogspot.ru/2012_05_01_archive.html?view=classic
+  - http://www.sanskrit-sanscrito.com.ar/en/appendixes-verbs-appen-verbs-1-english-0/728
