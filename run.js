@@ -31,7 +31,7 @@ if (/[a-zA-Z0-1]/.test(lat[0])) {
 }
 
 if (find) log('stemmer find:', lat, form); // लोकृ्-लोक् // लोचृ्-लोच्// प्-पा
-else log('stemmer parse:', lat, form);
+else log('parsing:', lat, form);
 
 console.time("queryTime");
 

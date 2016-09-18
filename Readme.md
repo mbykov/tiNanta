@@ -1,17 +1,17 @@
-# node.js sanskrit tiNanta analyser
+# node.js Sanskrit tiNanta analyser
 
-tiNanta analyser gets array of wordforms (flakes) and return array of queries for (in my case) CouchDB.
+tiNanta analyser gets array of wordforms and return array of queries for (in my case) CouchDB.
 
 tiNanta analyser is based on results of a remarkable program 'SanskritVerb' developed by Dr. Dhaval Patel & Dr. Sivakumari Katuri. But tiNanta.js solves the inverse problem - it restores a dhatu for any final wordform.
 
 look: http://sanskritworld.in/sanskrittool/SanskritVerb/tiGanta.html
 
-tiNanta analyser beforehand creates the  database 'sa-tins' for all endings of any wordform and for all angas for any dhatu, and then works with this db.
+tiNanta analyser creates beforehand the  database 'sa-tins' for all endings of any wordform and for all angas for any dhatu, and then works with this db.
 
 
 ````bash
 $ node run.js आकिष्टाम्                                                           (git)-[devel]
-stemmer parse: AkizwAm आकिष्टाम्
+parsing: AkizwAm आकिष्टाम्
 [ { verb: true,
     tips: [ 'तस्' ],
     tin: 'िष्टाम्',
@@ -23,7 +23,7 @@ stemmer parse: AkizwAm आकिष्टाम्
     dhatu: 'अक्',
     flake: 'आकिष्टाम्' } ]
 qs size: 1
-queryTime: 103.593ms
+queryTime: 57.654ms
 ````
 
 
